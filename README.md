@@ -5,6 +5,29 @@ Junta tus saldos, gastos e inversiones, se los pasa a Claude para que los analic
 - **IOL:** en vivo por la API oficial (te pide usuario y clave en la terminal).
 - **Galicia y Mercado Pago:** desde los **resúmenes PDF** que descargás vos.
 
+## App de escritorio (recomendado)
+
+Configurás todo una vez y después es un clic: **Actualizar todo** importa los resúmenes nuevos de tu carpeta de Descargas, consulta IOL, hace el análisis con Claude, genera el dashboard y lo publica al celular.
+
+```bash
+pip install -r requirements-escritorio.txt
+```
+```bash
+python app.py
+```
+```bash
+./escritorio/acceso_directo.sh
+```
+El último comando agrega "Mi cartera" al menú de aplicaciones (Linux).
+
+- Ventana propia: no abre puertos ni levanta servidores.
+- Tokens y contraseña del celular se guardan en el **llavero del sistema** (GNOME Keyring / KWallet, Credential Manager en Windows, Keychain en macOS), nunca en archivos del proyecto.
+- La clave de IOL se pide en cada actualización y no se guarda.
+- El dashboard se abre en una ventana aislada, sin acceso a la configuración ni a los secretos.
+- En Linux necesitás un llavero activo (gnome-keyring o kwallet). Si usás la variante GTK de pywebview en lugar de Qt: `sudo pacman -S python-gobject webkit2gtk-4.1` y creá el venv con `--system-site-packages`.
+
+La terminal (`python main.py`) sigue funcionando y usa la misma configuración y los mismos secretos guardados.
+
 ## Seguridad
 - **No se guardan credenciales.** La clave de IOL se pide sin mostrarse y se descarta después del login.
 - Los PDF y el dashboard quedan solo en tu computadora (`reportes/` y `salida/` están en `.gitignore`).
@@ -96,7 +119,12 @@ En el repo del código → Settings → Secrets and variables → Actions, creá
 ## Estructura
 | Archivo | Qué hace |
 |---|---|
-| `main.py` | Orquesta todo |
+| `app.py`, `escritorio/` | App de escritorio (pywebview) |
+| `main.py` | Uso desde la terminal |
+| `pipeline.py` | El proceso completo, compartido por la app y la terminal |
+| `configuracion.py` | config.toml + llavero del sistema |
+| `importar.py` | Importa resúmenes nuevos desde Descargas |
+| `historial.py` | Totales de cada corrida para la evolución del patrimonio |
 | `conectores/iol.py` | API oficial de IOL |
 | `conectores/pdf/galicia_caja.py` | Resumen de caja de ahorro (ARS y USD) |
 | `conectores/pdf/galicia_fci.py` | Posición de fondos FIMA / comitente |

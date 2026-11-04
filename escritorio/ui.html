@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi cartera</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f4f3f0; --surface: #fcfcfb; --surface-2: #f0efec; --border: #e2e1dc;
+  --text: #0b0b0b; --text-2: #52514e; --text-3: #7a7974;
+  --accent: #2a78d6; --good: #0ca30c; --good-text: #006300; --warning: #fab219; --critical: #d03b3b; --neg-text: #b42828;
+  --console: #161615; --console-text: #e6e5e0;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --border: #2f2f2c;
+    --text: #f0efec; --text-2: #c3c2b7; --text-3: #918f86;
+    --accent: #3987e5; --good-text: #4cc94c; --neg-text: #f07a7a; --console: #0c0c0b;
+  }
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; color: inherit; }
+.app { display: grid; grid-template-columns: 220px 1fr; height: 100vh; }
+
+/* Barra lateral */
+aside { background: var(--surface); border-right: 1px solid var(--border); padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; }
+.marca { display: flex; align-items: center; gap: 10px; padding: 0 10px 18px; font-weight: 700; font-size: 16px; }
+.marca .logo { width: 30px; height: 30px; border-radius: 9px; background: var(--accent); display: grid; place-items: center; }
+.marca .logo svg { width: 18px; height: 18px; }
+aside button.nav { display: flex; align-items: center; gap: 10px; border: 0; background: none; padding: 9px 10px; border-radius: 10px; cursor: pointer; color: var(--text-2); font-weight: 550; text-align: left; }
+aside button.nav svg { width: 18px; height: 18px; flex: none; }
+aside button.nav:hover { background: var(--surface-2); }
+aside button.nav[aria-current="true"] { background: var(--text); color: var(--surface); }
+aside .pie { margin-top: auto; font-size: 11px; color: var(--text-3); padding: 0 10px; }
+
+main { overflow: auto; padding: 28px 32px; }
+.pagina[hidden] { display: none; }
+h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+.sub { color: var(--text-2); margin: 0 0 22px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+.card h2 { font-size: 12px; font-weight: 650; margin: 0 0 14px; color: var(--text-2); text-transform: uppercase; letter-spacing: .05em; }
+.fila2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 1050px) { .fila2 { grid-template-columns: 1fr; } }
+
+/* Botones */
+.btn { border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: 8px 14px; cursor: pointer; font-weight: 550; }
+.btn:hover { background: var(--surface-2); }
+.btn.primario { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primario:hover { filter: brightness(1.08); }
+.btn.grande { padding: 14px 22px; font-size: 16px; border-radius: 12px; display: inline-flex; align-items: center; gap: 10px; }
+.btn.peligro { color: var(--neg-text); }
+.btn:disabled { opacity: .55; cursor: default; }
+.acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* Inicio */
+.hero { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.opciones { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 14px; color: var(--text-2); }
+.opciones label { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; }
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.kpi .l { font-size: 12px; color: var(--text-2); }
+.kpi .v { font-size: 22px; font-weight: 680; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.kpi .n { font-size: 12px; color: var(--text-3); }
+.fuentes { display: flex; flex-direction: column; gap: 8px; }
+.fuente { display: flex; align-items: center; gap: 10px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+
+/* Consola */
+.consola { background: var(--console); color: var(--console-text); border-radius: 12px; padding: 14px; font: 12.5px/1.55 ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace;
+  height: 300px; overflow: auto; white-space: pre-wrap; word-break: break-word; }
+.consola .ok { color: #7bd88f; } .consola .err { color: #ff8a80; } .consola .tit { color: #8ab4f8; font-weight: 600; }
+.estado-run { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
+.spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: gira .8s linear infinite; }
+@keyframes gira { to { transform: rotate(360deg); } }
+
+/* Formularios */
+.campo { display: grid; grid-template-columns: 220px 1fr; gap: 6px 16px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--surface-2); }
+.campo:last-child { border-bottom: 0; }
+.campo > label { font-weight: 550; }
+.campo .ayuda { grid-column: 2; font-size: 12px; color: var(--text-3); }
+.campo input[type=text], .campo input[type=password], .campo input[type=number], .campo select {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 9px; background: var(--bg); }
+.con-boton { display: flex; gap: 8px; }
+.con-boton input { flex: 1; }
+.interruptor { position: relative; width: 40px; height: 22px; flex: none; }
+.interruptor input { opacity: 0; width: 0; height: 0; }
+.interruptor span { position: absolute; inset: 0; background: var(--border); border-radius: 999px; cursor: pointer; transition: .15s; }
+.interruptor span::after { content: ""; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .15s; }
+.interruptor input:checked + span { background: var(--accent); }
+.interruptor input:checked + span::after { transform: translateX(18px); }
+.secreto { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.badge { font-size: 12px; padding: 3px 9px; border-radius: 999px; background: var(--surface-2); color: var(--text-2); }
+.badge.ok { color: var(--good-text); }
+.aviso { border-left: 4px solid var(--warning); background: var(--surface); border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; color: var(--text-2); border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.msg { font-size: 13px; margin-top: 8px; }
+.msg.ok { color: var(--good-text); } .msg.err { color: var(--neg-text); }
+.guardar-barra { position: sticky; bottom: -28px; background: linear-gradient(transparent, var(--bg) 30%); padding: 18px 0 4px; display: flex; gap: 10px; align-items: center; }
+
+/* Historial */
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-3); padding: 6px 8px; border-bottom: 1px solid var(--border); }
+td { padding: 9px 8px; border-bottom: 1px solid var(--surface-2); font-variant-numeric: tabular-nums; }
+.num { text-align: right; }
+
+
+/* Modal */
+.fondo-modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: grid; place-items: center; z-index: 20; }
+.fondo-modal[hidden] { display: none; }
+.modal { background: var(--surface); border-radius: 16px; padding: 22px; width: min(420px, 92vw); box-shadow: 0 20px 50px rgba(0,0,0,.3); }
+.modal h3 { margin: 0 0 6px; font-size: 17px; }
+.modal p { margin: 0 0 14px; color: var(--text-2); font-size: 13px; }
+.modal input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); margin-bottom: 10px; }
+.modal .acciones { justify-content: flex-end; margin-top: 6px; }
+.empty { color: var(--text-3); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="marca"><div class="logo"><svg viewBox="0 0 24 24" fill="#fff"><rect x="4" y="13" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="11" rx="1"/><rect x="16" y="5" width="4" height="15" rx="1"/></svg></div>Mi cartera</div>
+    <button class="nav" data-pag="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Inicio</button>
+    <button class="nav" data-pag="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Dashboard</button>
+    <button class="nav" data-pag="config"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Configuración</button>
+    <button class="nav" data-pag="historial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Historial</button>
+    <div class="pie" id="version"></div>
+  </aside>
+
+  <main>
+    <!-- ============ INICIO ============ -->
+    <section class="pagina" id="pag-inicio">
+      <h1>Inicio</h1>
+      <p class="sub">Un clic para traer todo, analizarlo y mandarlo al celular.</p>
+      <div id="aviso-llavero"></div>
+
+      <div class="card">
+        <div class="hero">
+          <div>
+            <button class="btn primario grande" id="btn-actualizar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+              Actualizar todo</button>
+            <div class="opciones">
+              <label><input type="checkbox" id="op-iol"> Consultar IOL</label>
+              <label><input type="checkbox" id="op-analisis"> Análisis de Claude</label>
+              <label><input type="checkbox" id="op-celular"> Publicar al celular</label>
+            </div>
+          </div>
+          <div class="estado-run" id="estado-run"></div>
+        </div>
+      </div>
+
+      <div class="fila2">
+        <div class="card"><h2>Última actualización</h2><div id="ultima"></div></div>
+        <div class="card"><h2>Fuentes</h2><div id="fuentes" class="fuentes"></div></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <h2 style="margin:0">Consola</h2>
+          <div class="acciones"><button class="btn" id="btn-ver-dash">Abrir dashboard</button><button class="btn" data-carpeta="salida">Abrir carpeta de salida</button></div>
+        </div>
+        <div class="consola" id="consola"><span class="tit">Listo.</span> Tocá "Actualizar todo" para empezar.
+</div>
+      </div>
+    </section>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="pagina" id="pag-dashboard" hidden>
+      <h1>Dashboard</h1>
+      <p class="sub">Se abre en una ventana aparte, aislada de la configuración y los secretos.</p>
+      <div class="card" id="dash-card"></div>
+    </section>
+
+    <!-- ============ CONFIGURACIÓN ============ -->
+    <section class="pagina" id="pag-config" hidden>
+      <h1>Configuración</h1>
+      <p class="sub">Se guarda en este equipo. Los tokens y contraseñas van al llavero del sistema, nunca a un archivo.</p>
+
+      <div class="card"><h2>Fuentes de datos</h2>
+        <div class="campo"><label>Carpeta de resúmenes</label>
+          <div class="con-boton"><input type="text" data-cfg="fuentes.reportes"><button class="btn" data-elegir="fuentes.reportes">Elegir…</button></div>
+          <div class="ayuda">Donde quedan guardados los PDF de Galicia y Mercado Pago.</div></div>
+        <div class="campo"><label>Importar desde Descargas</label>
+          <label class="interruptor"><input type="checkbox" data-cfg="fuentes.importar_descargas"><span></span></label>
+          <div class="ayuda">Al actualizar, copia los resúmenes nuevos que encuentre en esta carpeta.</div></div>
+        <div class="campo"><label>Carpeta de Descargas</label>
+          <div class="con-boton"><input type="text" data-cfg="fuentes.descargas"><button class="btn" data-elegir="fuentes.descargas">Elegir…</button></div></div>
+        <div class="campo"><label>Consultar IOL por defecto</label>
+          <label class="interruptor"><input type="checkbox" data-cfg="fuentes.iol"><span></span></label>
+          <div class="ayuda">Usuario y clave se piden en cada actualización y no se guardan.</div></div>
+      </div>
+
+      <div class="card"><h2>Análisis de Claude</h2>
+        <div class="campo"><label>Activado por defecto</label>
+          <label class="interruptor"><input type="checkbox" data-cfg="analisis.activado"><span></span></label></div>
+        <div class="campo"><label>Modelo</label>
+          <select data-cfg="analisis.modelo"><option value="">Predeterminado de Claude Code</option><option value="opus">Opus</option><option value="sonnet">Sonnet</option><option value="haiku">Haiku (más rápido)</option></select></div>
+      </div>
+
+      <div class="card"><h2>Celular</h2>
+        <div class="campo"><label>Destino</label>
+          <select data-cfg="publicar.destino"><option value="ninguno">No publicar</option><option value="github">GitHub (repo privado)</option><option value="drive">Google Drive</option></select></div>
+        <div id="cfg-github">
+          <div class="campo"><label>Repositorio</label><input type="text" data-cfg="publicar.github.repo" placeholder="usuario/repo-de-datos">
+            <div class="ayuda">Repo privado solo para el archivo cifrado.</div></div>
+          <div class="campo"><label>Ruta y rama</label>
+            <div class="con-boton"><input type="text" data-cfg="publicar.github.ruta"><input type="text" data-cfg="publicar.github.rama" style="max-width:140px"></div></div>
+          <div class="campo"><label>Token de GitHub</label><div class="secreto" data-secreto="github_token"></div>
+            <div class="ayuda">Fine-grained, solo ese repo, permiso Contents: Read and write.</div></div>
+          <div class="campo"><label></label><div><button class="btn" id="btn-probar">Probar conexión</button><div class="msg" id="msg-probar"></div></div></div>
+        </div>
+        <div id="cfg-drive">
+          <div class="campo"><label>Credenciales OAuth</label>
+            <div class="con-boton"><input type="text" data-cfg="publicar.drive.client_secret"><button class="btn" id="btn-elegir-secret">Elegir…</button></div>
+            <div class="ayuda">JSON de "App de escritorio" de Google Cloud. Se pide permiso en el navegador en cada publicación.</div></div>
+        </div>
+        <div class="campo"><label>Contraseña de cifrado</label><div class="secreto" data-secreto="celular_password"></div>
+          <div class="ayuda">La misma que usás para desbloquear la app del celular. Mínimo 12 caracteres.</div></div>
+      </div>
+
+      <div class="card"><h2>Referencias (si no hay internet)</h2>
+        <div class="campo"><label>TNA plazo fijo (%)</label><input type="number" step="0.1" min="0" data-cfg="referencias.tna_plazo_fijo" data-pct>
+          <div class="ayuda">Se usa solo si no se puede consultar la tasa en línea. 0 = no usar.</div></div>
+        <div class="campo"><label>Inflación mensual (%)</label><input type="number" step="0.1" min="0" data-cfg="referencias.inflacion_mensual" data-pct></div>
+      </div>
+
+      <div class="guardar-barra"><button class="btn primario" id="btn-guardar">Guardar configuración</button><span class="msg" id="msg-guardar"></span></div>
+    </section>
+
+    <!-- ============ HISTORIAL ============ -->
+    <section class="pagina" id="pag-historial" hidden>
+      <h1>Historial</h1>
+      <p class="sub">Las últimas actualizaciones. Solo se guardan totales, nunca movimientos.</p>
+      <div class="card"><table><thead><tr><th>Fecha</th><th class="num">Patrimonio</th><th class="num">En USD</th><th>Fuentes</th><th>Errores</th></tr></thead><tbody id="tabla-hist"></tbody></table></div>
+    </section>
+  </main>
+</div>
+
+<!-- Modal: IOL -->
+<div class="fondo-modal" id="modal-iol" hidden>
+  <form class="modal" id="form-iol" autocomplete="off">
+    <h3>Ingresar a IOL</h3>
+    <p>Se usa solo para esta actualización y no se guarda.</p>
+    <input type="text" id="iol-usuario" placeholder="Usuario" autocomplete="off" required>
+    <input type="password" id="iol-clave" placeholder="Clave" autocomplete="off" required>
+    <div class="acciones"><button type="button" class="btn" id="iol-omitir">Seguir sin IOL</button><button type="button" class="btn" id="iol-cancelar">Cancelar</button><button type="submit" class="btn primario">Actualizar</button></div>
+  </form>
+</div>
+
+<!-- Modal: secreto -->
+<div class="fondo-modal" id="modal-secreto" hidden>
+  <form class="modal" id="form-secreto" autocomplete="off">
+    <h3 id="sec-titulo"></h3>
+    <p>Se guarda en el llavero del sistema, cifrado con tu sesión.</p>
+    <input type="password" id="sec-valor" autocomplete="off" required>
+    <input type="password" id="sec-repetir" placeholder="Repetila" autocomplete="off">
+    <div class="msg err" id="sec-error"></div>
+    <div class="acciones"><button type="button" class="btn" id="sec-cancelar">Cancelar</button><button type="submit" class="btn primario">Guardar</button></div>
+  </form>
+</div>
+
+<script>
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const nf0 = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 });
+const compact = n => n == null ? '—' : Math.abs(n) >= 1e6 ? '$ ' + (n / 1e6).toFixed(2).replace('.', ',').replace(/,00$/, '') + ' M' : '$ ' + nf0.format(n);
+const fecha = iso => iso ? new Date(iso).toLocaleString('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+let API = null, EST = null, corriendo = false;
+
+// ---------- navegación ----------
+function ir(pag) {
+  $$('aside .nav').forEach(b => b.setAttribute('aria-current', b.dataset.pag === pag));
+  $$('.pagina').forEach(p => p.hidden = p.id !== 'pag-' + pag);
+  if (pag === 'dashboard') cargarDashboard();
+}
+$$('aside .nav').forEach(b => b.onclick = () => ir(b.dataset.pag));
+
+// ---------- consola (la llama Python) ----------
+const ui = {
+  log(t) {
+    const c = $('#consola'), linea = document.createElement('div');
+    linea.textContent = t;
+    if (/^\s*✓|^\s*\+/.test(t)) linea.className = 'ok';
+    else if (/✗|Error|error/.test(t)) linea.className = 'err';
+    else if (/^\s*=== |^\n?=== /.test(t)) linea.className = 'tit';
+    c.appendChild(linea); c.scrollTop = c.scrollHeight;
+  },
+  async fin(r) {
+    corriendo = false;
+    $('#btn-actualizar').disabled = false;
+    $('#estado-run').innerHTML = r.ok ? `✓ Terminado${r.celular ? (r.publicado ? ' · publicado al celular' : ' · <span style="color:var(--neg-text)">no se pudo publicar</span>') : ''}` : '<span style="color:var(--neg-text)">✗ Falló</span>';
+    ui.log(r.ok ? '\n✓ Listo.' : '\n✗ La actualización falló: ' + (r.error || ''));
+    await refrescar();
+  },
+};
+window.ui = ui;
+
+// ---------- estado ----------
+async function refrescar() {
+  EST = await API.estado();
+  $('#version').textContent = 'v' + EST.version;
+  const c = EST.config;
+  $('#op-iol').checked = c.fuentes.iol;
+  $('#op-analisis').checked = c.analisis.activado;
+  $('#op-celular').checked = c.publicar.destino !== 'ninguno';
+  $('#op-celular').disabled = c.publicar.destino === 'ninguno';
+  $('#op-celular').parentElement.title = c.publicar.destino === 'ninguno' ? 'Configurá un destino en Configuración → Celular' : '';
+
+  $('#aviso-llavero').innerHTML = EST.llavero.ok ? '' :
+    `<div class="aviso"><b>No hay llavero disponible:</b> ${esc(EST.llavero.detalle)}. Los secretos no se pueden guardar y la publicación al celular no va a funcionar desde la app.</div>`;
+
+  const u = EST.historial[0];
+  $('#ultima').innerHTML = u ? `<div class="kpis">
+      <div class="kpi"><div class="l">Patrimonio</div><div class="v">${compact(u.patrimonio_ars)}</div><div class="n">${u.patrimonio_usd ? 'US$ ' + nf0.format(u.patrimonio_usd) : ''}</div></div>
+      <div class="kpi"><div class="l">En cuentas</div><div class="v">${compact(u.liquidez_ars)}</div></div>
+      <div class="kpi"><div class="l">Invertido</div><div class="v">${compact(u.inversiones_ars)}</div></div></div>
+      <p class="empty" style="margin:12px 0 0">${esc(fecha(u.fecha))}</p>` : '<div class="empty">Todavía no actualizaste.</div>';
+
+  const fuentes = ['IOL', 'Galicia', 'Mercado Pago'];
+  $('#fuentes').innerHTML = fuentes.map(f => {
+    const ok = u && u.fuentes_ok.includes(f), err = u && u.fuentes_error[f];
+    const color = ok ? 'var(--good)' : err ? 'var(--critical)' : 'var(--border)';
+    const txt = ok ? 'OK en la última actualización' : err ? esc(err) : (f === 'IOL' && !c.fuentes.iol ? 'Desactivado' : 'Sin datos');
+    return `<div class="fuente"><span class="dot" style="background:${color}"></span><b>${f}</b><span class="empty">${txt}</span></div>`;
+  }).join('') + `<div class="acciones" style="margin-top:8px"><button class="btn" data-carpeta="reportes">Abrir carpeta de resúmenes</button></div>`;
+
+  $('#tabla-hist').innerHTML = EST.historial.map(h => `<tr><td>${esc(fecha(h.fecha))}</td><td class="num">${compact(h.patrimonio_ars)}</td>
+    <td class="num">${h.patrimonio_usd ? 'US$ ' + nf0.format(h.patrimonio_usd) : '—'}</td><td>${esc(h.fuentes_ok.join(', '))}</td>
+    <td style="color:var(--neg-text)">${esc(Object.keys(h.fuentes_error || {}).join(', '))}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">Sin actualizaciones todavía.</td></tr>';
+
+  llenarConfig(c);
+  pintarSecretos();
+  $$('[data-carpeta]').forEach(b => b.onclick = () => API.abrir_carpeta(b.dataset.carpeta));
+}
+
+// ---------- actualizar ----------
+$('#btn-actualizar').onclick = () => {
+  if (corriendo) return;
+  if ($('#op-iol').checked) { $('#modal-iol').hidden = false; $('#iol-usuario').focus(); }
+  else lanzar({});
+};
+$('#form-iol').onsubmit = e => {
+  e.preventDefault();
+  const cred = { iol_usuario: $('#iol-usuario').value.trim(), iol_clave: $('#iol-clave').value };
+  $('#iol-clave').value = '';
+  $('#modal-iol').hidden = true;
+  lanzar(cred);
+};
+$('#iol-omitir').onclick = () => { $('#iol-clave').value = ''; $('#modal-iol').hidden = true; lanzar({ sinIol: true }); };
+$('#iol-cancelar').onclick = () => { $('#iol-clave').value = ''; $('#modal-iol').hidden = true; };
+
+async function lanzar(cred) {
+  const op = { iol: $('#op-iol').checked && !cred.sinIol, analisis: $('#op-analisis').checked, celular: $('#op-celular').checked && !$('#op-celular').disabled,
+    iol_usuario: cred.iol_usuario, iol_clave: cred.iol_clave };
+  $('#consola').innerHTML = '';
+  const r = await API.actualizar(op);
+  delete op.iol_clave; cred.iol_clave = null;
+  if (!r.ok) { ui.log('✗ ' + r.error); return; }
+  corriendo = true;
+  $('#btn-actualizar').disabled = true;
+  $('#estado-run').innerHTML = '<span class="spinner"></span> Actualizando…';
+}
+
+// ---------- dashboard ----------
+function cargarDashboard() {
+  const u = EST && EST.historial[0];
+  $('#dash-card').innerHTML = EST && EST.dashboard
+    ? `<p style="margin:0 0 14px">Último dashboard: <b>${esc(fecha(u && u.fecha))}</b></p>
+       <div class="acciones"><button class="btn primario grande" id="btn-dash-ventana">Abrir dashboard</button><button class="btn" id="btn-navegador">Abrir en el navegador</button></div>`
+    : '<p class="empty" style="margin:0">Todavía no hay un dashboard. Corré "Actualizar todo" desde Inicio.</p>';
+  const v = $('#btn-dash-ventana'), n = $('#btn-navegador');
+  if (v) v.onclick = () => API.abrir_dashboard_ventana();
+  if (n) n.onclick = () => API.abrir_dashboard_navegador();
+}
+$('#btn-ver-dash').onclick = () => API.abrir_dashboard_ventana();
+
+// ---------- configuración ----------
+const get = (o, path) => path.split('.').reduce((a, k) => a?.[k], o);
+const set = (o, path, v) => { const ks = path.split('.'); ks.slice(0, -1).reduce((a, k) => a[k] = a[k] || {}, o)[ks.at(-1)] = v; };
+function llenarConfig(c) {
+  $$('[data-cfg]').forEach(el => {
+    const v = get(c, el.dataset.cfg);
+    if (el.type === 'checkbox') el.checked = !!v;
+    else if (el.hasAttribute('data-pct')) el.value = v ? +(v * 100).toFixed(2) : 0;
+    else el.value = v ?? '';
+  });
+  mostrarDestino();
+}
+function leerConfig() {
+  const c = {};
+  $$('[data-cfg]').forEach(el => {
+    let v = el.type === 'checkbox' ? el.checked : el.value.trim();
+    if (el.hasAttribute('data-pct')) v = (parseFloat(v) || 0) / 100;
+    set(c, el.dataset.cfg, v);
+  });
+  return c;
+}
+function mostrarDestino() {
+  const d = $('[data-cfg="publicar.destino"]').value;
+  $('#cfg-github').hidden = d !== 'github';
+  $('#cfg-drive').hidden = d !== 'drive';
+  $('[data-secreto="celular_password"]').closest('.campo').hidden = d === 'ninguno';
+}
+$('[data-cfg="publicar.destino"]').onchange = mostrarDestino;
+$('#btn-guardar').onclick = async () => {
+  const c = leerConfig();
+  if (c.publicar.destino === 'github' && c.publicar.github.repo && !/^[\w.-]+\/[\w.-]+$/.test(c.publicar.github.repo)) {
+    $('#msg-guardar').className = 'msg err'; $('#msg-guardar').textContent = 'El repositorio tiene que ser usuario/repo'; return;
+  }
+  await API.guardar_config(c);
+  $('#msg-guardar').className = 'msg ok'; $('#msg-guardar').textContent = '✓ Guardado';
+  setTimeout(() => $('#msg-guardar').textContent = '', 2500);
+  await refrescar();
+};
+$$('[data-elegir]').forEach(b => b.onclick = async () => { const r = await API.elegir_carpeta(); if (r) $(`[data-cfg="${b.dataset.elegir}"]`).value = r; });
+$('#btn-elegir-secret').onclick = async () => { const r = await API.elegir_archivo(); if (r) $('[data-cfg="publicar.drive.client_secret"]').value = r; };
+$('#btn-probar').onclick = async () => {
+  await API.guardar_config(leerConfig());
+  $('#msg-probar').className = 'msg'; $('#msg-probar').textContent = 'Probando…';
+  const r = await API.probar_github();
+  $('#msg-probar').className = 'msg ' + (r.ok ? 'ok' : 'err'); $('#msg-probar').textContent = (r.ok ? '✓ ' : '✗ ') + r.mensaje;
+};
+
+// ---------- secretos ----------
+let secActual = null;
+function pintarSecretos() {
+  $$('[data-secreto]').forEach(el => {
+    const n = el.dataset.secreto, s = EST.secretos[n];
+    el.innerHTML = `<span class="badge ${s.guardado ? 'ok' : ''}">${s.guardado ? '✓ Guardado en el llavero' : 'No guardado'}</span>
+      <button class="btn" data-accion="cambiar" ${EST.llavero.ok ? '' : 'disabled'}>${s.guardado ? 'Cambiar' : 'Guardar'}</button>
+      ${s.guardado ? '<button class="btn peligro" data-accion="borrar">Borrar</button>' : ''}`;
+    el.querySelector('[data-accion="cambiar"]').onclick = () => abrirSecreto(n);
+    const b = el.querySelector('[data-accion="borrar"]');
+    if (b) b.onclick = async () => { if (confirm('¿Borrar del llavero?')) { await API.borrar_secreto(n); await refrescar(); } };
+  });
+}
+function abrirSecreto(n) {
+  secActual = n;
+  $('#sec-titulo').textContent = EST.secretos[n].descripcion;
+  $('#sec-valor').value = ''; $('#sec-repetir').value = ''; $('#sec-error').textContent = '';
+  $('#sec-valor').placeholder = n === 'github_token' ? 'github_pat_…' : 'Contraseña (mínimo 12 caracteres)';
+  $('#sec-repetir').hidden = n !== 'celular_password';
+  $('#modal-secreto').hidden = false; $('#sec-valor').focus();
+}
+$('#sec-cancelar').onclick = () => { $('#sec-valor').value = ''; $('#sec-repetir').value = ''; $('#modal-secreto').hidden = true; };
+$('#form-secreto').onsubmit = async e => {
+  e.preventDefault();
+  const v = $('#sec-valor').value;
+  if (secActual === 'celular_password' && v !== $('#sec-repetir').value) { $('#sec-error').textContent = 'No coinciden'; return; }
+  const r = await API.guardar_secreto(secActual, v);
+  $('#sec-valor').value = ''; $('#sec-repetir').value = '';
+  if (!r.ok) { $('#sec-error').textContent = r.error; return; }
+  $('#modal-secreto').hidden = true;
+  await refrescar();
+};
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $$('.fondo-modal').forEach(m => m.hidden = true); });
+
+// ---------- arranque ----------
+window.addEventListener('pywebviewready', async () => { API = window.pywebview.api; await refrescar(); ir('inicio'); });
+</script>
+</body>
+</html>

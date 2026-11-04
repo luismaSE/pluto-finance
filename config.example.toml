@@ -1,19 +1,31 @@
-# Copiá este archivo como config.toml (config.toml no se sube al repo).
+# Copiá este archivo como config.toml, o configurá todo desde la app de escritorio (python app.py).
+# No pongas secretos acá: los tokens y la contraseña del celular van al llavero del sistema.
+
+[fuentes]
+reportes = "reportes"
+descargas = "~/Descargas"
+importar_descargas = true
+iol = true
+
+[analisis]
+activado = true
+modelo = ""           # "", "opus", "sonnet" o "haiku"
+
+[referencias]
+# Solo se usan si no se puede consultar en línea. 0 = no usar.
+tna_plazo_fijo = 0.0      # ej. 0.30 para 30%
+inflacion_mensual = 0.0   # ej. 0.025 para 2,5%
 
 [publicar]
-# Dónde se sube el dashboard cifrado para la app del celular: "github", "drive" o "ninguno"
-destino = "github"
+destino = "ninguno"   # "github", "drive" o "ninguno"
 
 [publicar.github]
-# Repo PRIVADO solo para el archivo cifrado (distinto del repo del código)
-repo = "tu-usuario/cartera-datos"
+repo = "tu-usuario/repo-de-datos"
 ruta = "cartera.enc"
 rama = "main"
-# Token fine-grained con Contents: Read and write SOLO en ese repo.
-# Si la variable no existe, se pide en la terminal. Nunca se escribe a disco.
+# Si el token no está en el llavero, se busca en esta variable de entorno o se pide en la terminal.
 token_env = "CARTERA_GITHUB_TOKEN"
 
 [publicar.drive]
-# Credenciales OAuth "App de escritorio" de Google Cloud (ver README)
 client_secret = "client_secret.json"
 nombre = "cartera.enc"

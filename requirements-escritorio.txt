@@ -1,0 +1,4 @@
+# App de escritorio (python app.py)
+-r requirements.txt
+pywebview[qt]>=5.0
+keyring>=24

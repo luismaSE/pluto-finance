@@ -15,9 +15,11 @@ BASE = "https://api.invertironline.com"
 NOMBRE = "IOL"
 
 
-def _login() -> str:
-    usuario = input("IOL - usuario: ").strip()
-    clave = getpass.getpass("IOL - clave (no se muestra): ")
+def _login(usuario: str | None = None, clave: str | None = None) -> str:
+    if not usuario:
+        usuario = input("IOL - usuario: ").strip()
+    if not clave:
+        clave = getpass.getpass("IOL - clave (no se muestra): ")
     try:
         r = requests.post(
             f"{BASE}/token",
@@ -31,8 +33,8 @@ def _login() -> str:
     return r.json()["access_token"]
 
 
-def obtener():
-    token = _login()
+def obtener(usuario: str | None = None, clave: str | None = None):
+    token = _login(usuario, clave)
     s = requests.Session()
     s.headers["Authorization"] = f"Bearer {token}"
     cuentas, inversiones = [], []

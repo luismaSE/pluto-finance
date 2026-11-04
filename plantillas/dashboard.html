@@ -309,6 +309,106 @@ function avisosDatosViejos() {
   return items.join('');
 }
 
+// Evolución del patrimonio (un punto por día con corrida)
+function lineaPatrimonio() {
+  const H0 = (DATA.historial || []).filter(x => x.patrimonio_ars);
+  if (H0.length < 2) return `<div class="empty">Se va completando con cada actualización (${H0.length} de 2 corridas como mínimo).</div>`;
+  const angosto = innerWidth < 600;
+  const W = angosto ? 360 : 720, H = 170, pl = angosto ? 40 : 48, pr = 10, pt = 10, pb = 22;
+  const vals = H0.map(x => x.patrimonio_ars);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const pad = (hi - lo) * 0.15 || hi * 0.05; lo = Math.max(0, lo - pad); hi = hi + pad;
+  const xv = i => pl + (W - pl - pr) * (H0.length === 1 ? 0.5 : i / (H0.length - 1));
+  const yv = v => pt + (H - pt - pb) * (1 - (v - lo) / (hi - lo));
+  let g = '';
+  for (let i = 0; i <= 3; i++) {
+    const v = lo + (hi - lo) * i / 3, yy = yv(v);
+    g += `<line x1="${pl}" x2="${W - pr}" y1="${yy}" y2="${yy}" stroke="var(--grid)"/><text class="m" x="${pl - 6}" y="${yy + 4}" text-anchor="end">${compact(v).replace('$ ', '')}</text>`;
+  }
+  g += `<path d="${H0.map((x, i) => (i ? 'L' : 'M') + xv(i).toFixed(1) + ',' + yv(x.patrimonio_ars).toFixed(1)).join(' ')}" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const paso = Math.max(1, Math.ceil(H0.length / (angosto ? 4 : 8)));
+  H0.forEach((x, i) => {
+    const cx = xv(i), cy = yv(x.patrimonio_ars);
+    if (i === H0.length - 1) g += `<circle cx="${cx}" cy="${cy}" r="4.5" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>`;
+    g += `<circle cx="${cx}" cy="${cy}" r="12" fill="transparent" data-tip="${esc(`<b>${dm(x.fecha.slice(0, 10))}</b><br>${compact(x.patrimonio_ars)}${x.patrimonio_usd ? ' · ' + money(x.patrimonio_usd, 'USD') : ''}`)}"/>`;
+    const anc = i === 0 ? 'start' : i === H0.length - 1 ? 'end' : 'middle';
+    if (i % paso === 0 || i === H0.length - 1) g += `<text x="${cx}" y="${H - 5}" text-anchor="${anc}">${dm(x.fecha.slice(0, 10))}</text>`;
+  });
+  const prim = H0[0].patrimonio_ars, ult = H0[H0.length - 1].patrimonio_ars, d = (ult - prim) / prim * 100;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Evolución del patrimonio">${g}</svg>
+    <p class="nota">Desde el ${dm(H0[0].fecha.slice(0, 10))}: <b class="${d >= 0 ? 'pos' : 'neg'}">${pct(d)}</b> en pesos${H0[0].patrimonio_usd && H0[H0.length - 1].patrimonio_usd ? ` · ${pct((H0[H0.length - 1].patrimonio_usd - H0[0].patrimonio_usd) / H0[0].patrimonio_usd * 100)} en dólares` : ''}.</p>`;
+}
+
+// Cuánto cuesta tener pesos quietos
+function plataQuieta() {
+  const ref = DATA.referencias || {};
+  const pesos = R.pesos_liquidos_ars || 0;
+  if (!pesos || (!ref.tna_plazo_fijo && !ref.inflacion_mensual)) return '';
+  const gan = ref.tna_plazo_fijo ? pesos * ref.tna_plazo_fijo / 12 : null;
+  const inf = ref.inflacion_mensual ? pesos * ref.inflacion_mensual : null;
+  const usd = R.liquidez.filter(c => c.moneda === 'USD').reduce((a, c) => a + c.saldo, 0);
+  return `<div class="card c6"><h2>Plata quieta</h2>
+    <div class="trio" style="grid-template-columns:repeat(${gan != null && inf != null ? 2 : 1},1fr)">
+      ${inf != null ? `<div class="kpi"><div class="label">Pierde por inflación</div><div class="value neg">${M(compact(inf))}<span style="font-size:13px;font-weight:500"> /mes</span></div>
+        <div class="note">${nf1.format(ref.inflacion_mensual * 100)}% mensual (${esc(ref.inflacion_mes || '')})</div></div>` : ''}
+      ${gan != null ? `<div class="kpi"><div class="label">Ganaría a plazo fijo</div><div class="value pos">${M(compact(gan))}<span style="font-size:13px;font-weight:500"> /mes</span></div>
+        <div class="note">TNA ${nf1.format(ref.tna_plazo_fijo * 100)}%</div></div>` : ''}
+    </div>
+    <p class="nota">Sobre tus ${M(compact(pesos))} en pesos en cuentas.${usd > 0 ? ` Además tenés ${M(money(usd, 'USD'))} en cuentas sin invertir.` : ''}${ref.tna_fuente ? ' Tasa: ' + esc(ref.tna_fuente) + '.' : ''}</p></div>`;
+}
+
+// Ingresos vs gastos por mes (barras agrupadas)
+function flujoMeses() {
+  if (!MESES.length) return '<div class="empty">Sin datos</div>';
+  const angosto = innerWidth < 600;
+  const meses = MESES.slice(angosto ? -4 : -8);
+  const W = angosto ? 360 : 720, H = 180, pl = angosto ? 40 : 48, pr = 6, pt = 8, pb = 24;
+  const max = Math.max(1, ...meses.flatMap(m => [R.gastos_por_mes[m].total_ars, R.gastos_por_mes[m].ingresos_ars]));
+  const nice = (() => { const p = Math.pow(10, Math.floor(Math.log10(max))); return Math.ceil(max / p) * p; })();
+  const gw = (W - pl - pr) / meses.length, bw = Math.min(28, gw * 0.32), yv = v => pt + (H - pt - pb) * (1 - v / nice);
+  let g = '';
+  for (let i = 0; i <= 3; i++) {
+    const v = nice * i / 3, yy = yv(v);
+    g += `<line x1="${pl}" x2="${W - pr}" y1="${yy}" y2="${yy}" stroke="var(--grid)"/><text class="m" x="${pl - 6}" y="${yy + 4}" text-anchor="end">${compact(v).replace('$ ', '')}</text>`;
+  }
+  const barra = (x, v, color) => { const yy = yv(v), h = H - pb - yy, r = Math.min(4, bw / 2, h);
+    return v > 0 ? `<path d="M${x},${H - pb} V${yy + r} q0,-${r} ${r},-${r} h${bw - 2 * r} q${r},0 ${r},${r} V${H - pb} Z" fill="${color}"/>` : ''; };
+  meses.forEach((m, i) => {
+    const G = R.gastos_por_mes[m], cx = pl + gw * i + gw / 2, parcial = calidadMes(m).sin.length > 0;
+    g += barra(cx - bw - 1, G.ingresos_ars, 'var(--s3)') + barra(cx + 1, G.total_ars, 'var(--s2)');
+    g += `<rect x="${cx - gw / 2}" y="${pt}" width="${gw}" height="${H - pt - pb}" fill="transparent" data-tip="${esc(`<b>${nombreMes(m)}</b>${parcial ? ' (parcial)' : ''}<br>Ingresos ${compact(G.ingresos_ars)}<br>Gastos ${compact(G.total_ars)}`)}"/>`;
+    g += `<text x="${cx}" y="${H - 6}" text-anchor="middle">${esc(nombreMes(m, true))}${parcial ? '*' : ''}</text>`;
+  });
+  g += `<line x1="${pl}" x2="${W - pr}" y1="${H - pb}" y2="${H - pb}" stroke="var(--border)"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Ingresos y gastos por mes">${g}</svg>
+    <div class="legend" style="margin-top:6px"><span><i class="dot" style="background:var(--s3)"></i>Ingresos</span><span><i class="dot" style="background:var(--s2)"></i>Gastos</span><span class="muted">* mes con datos incompletos</span></div>`;
+}
+
+// Suscripciones y gastos que se repiten todos los meses
+function gastosFijos() {
+  const norm = d => d.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\d{4,}/g, '').replace(/\s+/g, ' ').trim();
+  const grupos = {};
+  S.movimientos.filter(m => m.monto < 0 && !EXCL.has(m.categoria) && m.categoria !== 'Pago de tarjeta').forEach(m => {
+    const k = norm(m.descripcion); (grupos[k] = grupos[k] || []).push(m);
+  });
+  const fijos = [];
+  Object.values(grupos).forEach(ms => {
+    const porMes = {};
+    ms.forEach(m => { porMes[m.fecha.slice(0, 7)] = (porMes[m.fecha.slice(0, 7)] || 0) + -m.monto * (m.moneda === 'USD' ? (R.tipo_cambio_mep || 0) : 1); });
+    const vals = Object.values(porMes), prom = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const parecidos = vals.every(v => Math.abs(v - prom) <= prom * 0.2);
+    const esSusc = ms[0].categoria === 'Suscripciones';
+    if ((vals.length >= 2 && parecidos) || esSusc) fijos.push({ desc: ms[0].descripcion, cat: ms[0].categoria, mensual: prom, meses: vals.length, entidad: ms[0].entidad });
+  });
+  fijos.sort((a, b) => b.mensual - a.mensual);
+  if (!fijos.length) return '<div class="empty">Todavía no detecté gastos que se repitan (hacen falta al menos 2 meses de resúmenes).</div>';
+  const total = fijos.reduce((a, f) => a + f.mensual, 0);
+  return `<div class="lista">${fijos.slice(0, 10).map(f => `<div class="fila">
+      <div class="t">${esc(f.desc)}</div><div class="v">${M(compact(f.mensual))}<span class="muted" style="font-weight:400">/mes</span></div>
+      <div class="d">${esc(f.cat)} · ${esc(f.entidad)} · ${f.meses >= 2 ? `se repite ${f.meses} meses` : 'suscripción'}</div><div class="v2">${M(compact(f.mensual * 12))}/año</div></div>`).join('')}</div>
+    <p class="nota">Total estimado: ${M(`<b>${compact(total)}</b>`)} por mes · ${M(compact(total * 12))} por año.</p>`;
+}
+
 // ---------- pestaña: Resumen ----------
 function renderResumen() {
   const tc = R.tipo_cambio_mep;
@@ -357,6 +457,9 @@ function renderResumen() {
       ${A ? alertasHTML(A.alertas, 3) + `<button class="link" data-ir="analisis">Ver análisis completo →</button>`
           : `<div class="empty">${S.analisis?.error ? 'No se pudo hacer el análisis: ' + esc(S.analisis.error) : 'Sin análisis de Claude en esta corrida.'}</div>`}
     </div>
+
+    ${plataQuieta()}
+    <div class="card ${plataQuieta() ? 'c6' : ''}"><h2>Evolución del patrimonio</h2>${lineaPatrimonio()}</div>
 
     <div class="card c6"><h2>Dónde está tu plata</h2>${hbars(ents, { color: r => entColor(r.k), total })}</div>
     <div class="card c6"><h2>Pesos y dólares</h2>
@@ -437,6 +540,8 @@ function renderGastos(mes) {
         <div class="d">${dm(m.fecha)} · ${esc(m.entidad)}</div><div class="v2"><span class="tag">${esc(m.categoria)}</span></div></div>`).join('') || '<div class="empty">Sin gastos</div>'}
     </div>
     <p class="nota">No se cuentan las transferencias entre tus cuentas. "Pago de tarjeta" es el pago del resumen; el detalle está en el resumen de la tarjeta.</p></div>
+    <div class="card c7"><h2>Ingresos y gastos por mes</h2>${flujoMeses()}</div>
+    <div class="card c5"><h2>Gastos fijos y suscripciones</h2>${gastosFijos()}</div>
   </div>`;
   panel.querySelectorAll('[data-mes]').forEach(b => b.onclick = () => { store.set('mes', b.dataset.mes); renderGastos(b.dataset.mes); });
 }
