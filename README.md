@@ -77,9 +77,11 @@ Copiá `config.example.toml` como `config.toml` y elegí `destino`.
 4. La primera vez se crea el archivo con un link de solo lectura y se muestra su ID: ese ID se carga en la app.
 
 ### 2. Instalá la app
-1. En GitHub → **Actions** → "APK Android" → la última ejecución → descargá el artefacto `mi-cartera-apk`.
-2. Descomprimilo, pasá el `.apk` al celular e instalalo. Android te va a pedir permitir "instalar apps desconocidas".
+1. Desde el celular, entrá a la sección **Releases** del repo y descargá `mi-cartera-vX.Y.Z.apk` de la última versión.
+2. Abrilo e instalalo. Android te va a pedir permitir "instalar apps desconocidas" (y Play Protect puede pedir "Instalar de todos modos").
 3. Abrí la app → Configuración → cargá GitHub o Drive → **Probar conexión** → Guardar.
+
+Para publicar una versión nueva: `git tag v1.0.1 && git push origin v1.0.1`. GitHub Actions compila el APK y crea el release.
 
 ### 3. (Recomendado) Firmá la app con tu propia clave
 Sin una clave propia, cada compilación se firma distinto y para actualizar hay que desinstalar la versión anterior. Generá una clave una sola vez:
