@@ -29,25 +29,20 @@ El último comando agrega "Mi cartera" al menú de aplicaciones (Linux).
 
 La terminal (`python main.py`) sigue funcionando y usa la misma configuración y los mismos secretos guardados.
 
-### Descargar resúmenes desde Galicia y Mercado Pago
+### Descargar resúmenes de Galicia
 
-En Inicio → **Descargar resúmenes**, elegí el banco: se abre un navegador **nuevo y vacío** en su web.
-1. Iniciás sesión vos (usuario, clave y 2FA). La app no lee ni guarda nada de eso.
+En Inicio → **Descargar de Galicia** se abre un navegador **nuevo y vacío** en la web del banco.
+1. Iniciás sesión vos (usuario, clave y token). La app no lee ni guarda nada de eso.
 2. Descargás o abrís los PDF de los resúmenes: cada uno se reconoce por su contenido y, si es nuevo, se guarda solo en la carpeta de resúmenes.
 3. Cerrás el navegador (la sesión se borra) y tocás **Actualizar ahora**.
 
-Hay dos modos (se eligen por banco en Configuración → Descarga de resúmenes):
+Necesita Playwright (`pip install -r requirements-descarga.txt` y `playwright install chromium`). Si Galicia bloquea el navegador de Playwright, en Configuración elegí **Google Chrome**.
 
-| Modo | Cómo funciona | Predeterminado para |
-|---|---|---|
-| **Navegador de la app** | Navegador nuevo y vacío controlado por la app; los PDF se capturan aunque solo los abras. Necesita Playwright (`pip install -r requirements-descarga.txt` y `playwright install chromium`). | Galicia |
-| **Navegador habitual** | Abre la web en tu navegador de siempre, sin automatizar nada, y vigila la carpeta de Descargas: apenas bajás un resumen se carga solo. Tocá **Listo** al terminar. | Mercado Pago |
+**Mercado Pago** no tiene descarga asistida: el resumen se genera bajo demanda (tarda varios minutos) y la web bloquea navegadores automatizados. Pedilo desde la web o la app, bajalo a tu carpeta de Descargas y se importa solo al tocar **Actualizar todo**.
 
-Mercado Pago bloquea los navegadores controlados por programas ("Alcanzaste el límite de intentos" / "navegador no seguro"), por eso usa el modo habitual. No se intenta esquivar esa protección: podría bloquear tu cuenta. Si te salió el mensaje de límite de intentos, esperá un rato antes de volver a entrar.
+También funciona desde la terminal: `python descarga_asistida.py galicia`.
 
-También funciona desde la terminal: `python descarga_asistida.py galicia` o `python descarga_asistida.py mercadopago`.
-
-**¿Por qué no es 100% automático?** Para entrar solo, la app tendría que guardar tu clave y saltear el 2FA, lo que va en contra de no guardar credenciales (y de los términos de los bancos). Lo que sí se puede automatizar es la navegación después del login, con una **receta**: un archivo `recetas/galicia.json` o `recetas/mercadopago.json` con pasos como estos:
+**¿Por qué no es 100% automático?** Para entrar solo, la app tendría que guardar tu clave y saltear el 2FA, lo que va en contra de no guardar credenciales (y de los términos de los bancos). Lo que sí se puede automatizar es la navegación después del login, con una **receta**: un archivo `recetas/galicia.json` con pasos como estos:
 ```json
 [
   {"esperar_url": "onlinebanking\\.bancogalicia\\.com\\.ar/(inicio|home)"},

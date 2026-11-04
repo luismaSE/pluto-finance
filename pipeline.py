@@ -3,8 +3,9 @@
     importar Descargas -> leer PDFs -> IOL -> cotizaciones y tasas -> categorías -> resumen
     -> historial -> análisis de Claude -> dashboard HTML -> (opcional) cifrar y publicar
 """
+import json
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 import cotizaciones
@@ -13,6 +14,21 @@ import historial
 import resumen
 from categorias import categorizar
 from modelo import Snapshot
+
+
+ULTIMO_ANALISIS = Path("salida/ultimo_analisis.json")   # local, nunca se sube al repo
+
+
+def _guardar_analisis(a: dict):
+    ULTIMO_ANALISIS.parent.mkdir(exist_ok=True)
+    ULTIMO_ANALISIS.write_text(json.dumps(a, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def _ultimo_analisis() -> dict | None:
+    try:
+        return json.loads(ULTIMO_ANALISIS.read_text(encoding="utf-8"))
+    except Exception:
+        return None
 
 
 @dataclass
@@ -111,12 +127,28 @@ def ejecutar(o: Opciones, log=print) -> dict:
     r = resumen.calcular(s)
     hist = historial.cargar() if o.demo else historial.agregar(r, s.estado_fuentes)
 
-    if o.analisis and not o.demo:
-        from analisis import analizar
-        log("\n=== Análisis de Claude ===")
-        s.analisis = analizar(r, s.cotizaciones, o.modelo)
-        if s.analisis and not s.analisis.get("error"):
+    if not o.demo:
+        nuevo = None
+        if o.analisis:
+            from analisis import analizar
+            log("\n=== Análisis de Claude ===")
+            nuevo = analizar(r, s.cotizaciones, o.modelo)
+        if nuevo and not nuevo.get("error"):
+            nuevo["fecha"] = datetime.now().isoformat(timespec="minutes")
+            _guardar_analisis(nuevo)
+            s.analisis = nuevo
             log("  ✓ Análisis listo")
+        else:
+            # Sin análisis nuevo (no se pidió o falló): se muestra el último que salió bien
+            previo = _ultimo_analisis()
+            if previo:
+                previo["anterior"] = True
+                if nuevo and nuevo.get("error"):
+                    previo["error_nuevo"] = nuevo["error"]
+                s.analisis = previo
+                log(f"  Se mantiene el análisis anterior ({previo.get('fecha', 'sin fecha')}).")
+            else:
+                s.analisis = nuevo
 
     datos = {"snapshot": s.to_dict(), "resumen": r, "demo": o.demo, "hoy": date.today().isoformat(),
              "referencias": refs, "historial": historial.por_dia(hist)}

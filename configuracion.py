@@ -17,8 +17,7 @@ DEFAULT = {
     "fuentes": {"reportes": "reportes", "descargas": "~/Descargas", "importar_descargas": True, "iol": True},
     "analisis": {"activado": True, "modelo": ""},
     # navegador para la descarga asistida: "chromium" (el de Playwright), "chrome", "msedge" o la ruta a un ejecutable
-    # modo: "automatizado" (navegador nuevo controlado por la app) o "habitual" (tu navegador + vigilar Descargas)
-    "descarga": {"navegador": "chromium", "modo_galicia": "automatizado", "modo_mercadopago": "habitual"},
+    "descarga": {"navegador": "chromium"},
     "referencias": {"tna_plazo_fijo": 0.0, "inflacion_mensual": 0.0},
     "publicar": {
         "destino": "ninguno",

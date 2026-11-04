@@ -454,7 +454,7 @@ function renderResumen() {
 
     <div class="card">
       <h2>Lo más importante</h2>
-      ${A ? alertasHTML(A.alertas, 3) + `<button class="link" data-ir="analisis">Ver análisis completo →</button>`
+      ${A ? notaAnalisisAnterior(A) + alertasHTML(A.alertas, 3) + `<button class="link" data-ir="analisis">Ver análisis completo →</button>`
           : `<div class="empty">${S.analisis?.error ? 'No se pudo hacer el análisis: ' + esc(S.analisis.error) : 'Sin análisis de Claude en esta corrida.'}</div>`}
     </div>
 
@@ -580,6 +580,13 @@ function renderInversiones() {
   </div>`;
 }
 
+// Aviso cuando se muestra un análisis de una actualización anterior
+function notaAnalisisAnterior(A) {
+  if (!A || !A.anterior) return '';
+  const f = A.fecha ? new Date(A.fecha).toLocaleString('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'una actualización anterior';
+  return `<p class="nota" style="margin:0 0 10px">⏱ Análisis del ${esc(f)}: en esta actualización no se volvió a analizar${A.error_nuevo ? ' (' + esc(A.error_nuevo) + ')' : ''}. Los números de las otras pestañas sí están al día.</p>`;
+}
+
 // ---------- pestaña: Análisis ----------
 function renderAnalisis() {
   const A = S.analisis;
@@ -589,7 +596,7 @@ function renderAnalisis() {
     return;
   }
   p.innerHTML = `<div class="grid">
-    <div class="card"><h2>Resumen</h2><p class="resumen-ia">${esc(A.resumen)}</p></div>
+    <div class="card"><h2>Resumen</h2>${notaAnalisisAnterior(A)}<p class="resumen-ia">${esc(A.resumen)}</p></div>
     <div class="card c6"><h2>Alertas</h2>${alertasHTML(A.alertas)}</div>
     <div class="card c6"><h2>Recomendaciones</h2>${recosHTML(A.recomendaciones)}</div>
     <div class="card"><h2>Observaciones</h2>${A.observaciones?.length ? '<ul class="obs">' + A.observaciones.map(o => `<li>${esc(o)}</li>`).join('') + '</ul>' : '<div class="empty">—</div>'}
