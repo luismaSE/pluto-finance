@@ -1,0 +1,18 @@
+# Datos personales: nunca al repo
+salida/
+reportes/
+*.pdf
+*.enc
+config.toml
+.estado_publicacion.json
+client_secret*.json
+# Entorno
+__pycache__/
+.venv/
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.jks
+*.keystore

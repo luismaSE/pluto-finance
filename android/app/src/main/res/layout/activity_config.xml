@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fondo">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/origen"
+            android:textColor="@color/texto"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/tipo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+            <RadioButton android:id="@+id/tipo_github" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/github" />
+            <RadioButton android:id="@+id/tipo_drive" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:layout_marginStart="16dp" android:text="@string/drive" />
+        </RadioGroup>
+
+        <LinearLayout
+            android:id="@+id/grupo_github"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <EditText android:id="@+id/gh_repo" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:hint="@string/gh_repo" android:inputType="textUri" android:importantForAutofill="no" />
+            <EditText android:id="@+id/gh_ruta" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:hint="@string/gh_ruta" android:inputType="textUri" android:text="cartera.enc" android:importantForAutofill="no" />
+            <EditText android:id="@+id/gh_rama" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:hint="@string/gh_rama" android:inputType="text" android:text="main" android:importantForAutofill="no" />
+            <EditText android:id="@+id/gh_token" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:hint="@string/gh_token" android:inputType="textPassword" android:importantForAutofill="no" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="4dp" android:text="@string/ayuda_github"
+                android:textColor="@color/texto2" android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/grupo_drive"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <EditText android:id="@+id/drive_id" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:hint="@string/drive_id" android:inputType="textUri" android:importantForAutofill="no" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="4dp" android:text="@string/ayuda_drive"
+                android:textColor="@color/texto2" android:textSize="12sp" />
+        </LinearLayout>
+
+        <Button android:id="@+id/probar" style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="20dp" android:text="@string/probar" />
+        <TextView android:id="@+id/resultado" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="6dp" android:textColor="@color/texto2" android:textSize="13sp" />
+        <Button android:id="@+id/guardar" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:text="@string/guardar" />
+        <Button android:id="@+id/borrar" style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" android:text="@string/borrar_todo" android:textColor="@color/error" />
+    </LinearLayout>
+</ScrollView>

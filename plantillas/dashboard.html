@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:">
+<title>Mi cartera</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f4f3f0;
+  --surface: #fcfcfb;
+  --surface-2: #f0efec;
+  --border: #e2e1dc;
+  --text: #0b0b0b;
+  --text-2: #52514e;
+  --text-3: #7a7974;
+  --grid: #e7e6e1;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4;
+  --seq: #2a78d6; --seq-soft: #cde2fb;
+  --good: #0ca30c; --good-text: #006300;
+  --warning: #fab219; --serious: #ec835a; --critical: #d03b3b;
+  --neg-text: #b42828;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --border: #2f2f2c;
+    --text: #f0efec; --text-2: #c3c2b7; --text-3: #918f86; --grid: #2c2c29;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+    --seq: #3987e5; --seq-soft: #184f95;
+    --good-text: #4cc94c; --neg-text: #f07a7a;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --border: #2f2f2c;
+  --text: #f0efec; --text-2: #c3c2b7; --text-3: #918f86; --grid: #2c2c29;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+  --seq: #3987e5; --seq-soft: #184f95;
+  --good-text: #4cc94c; --neg-text: #f07a7a;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1240px; margin: 0 auto; padding: 24px 16px 64px; }
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+h1 { font-size: 22px; margin: 0; letter-spacing: -0.01em; }
+.sub { color: var(--text-2); font-size: 13px; margin-top: 2px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--border); font-size: 12px; color: var(--text-2); white-space: nowrap; }
+.chip b { color: var(--text); font-weight: 600; }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.demo { background: var(--warning); color: #241a00; border-color: transparent; font-weight: 600; }
+button.chip { cursor: pointer; font: inherit; font-size: 12px; }
+.grid { display: grid; gap: 16px; grid-template-columns: repeat(12, 1fr); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; min-width: 0; }
+.card h2 { font-size: 13px; font-weight: 600; margin: 0 0 14px; color: var(--text-2); text-transform: uppercase; letter-spacing: .04em; }
+.c3 { grid-column: span 3; } .c4 { grid-column: span 4; } .c5 { grid-column: span 5; }
+.c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c12 { grid-column: span 12; }
+@media (max-width: 980px) { .c3 { grid-column: span 6; } .c4, .c5, .c6, .c7, .c8 { grid-column: span 12; } }
+@media (max-width: 560px) { .c3 { grid-column: span 12; } }
+.kpi .label { font-size: 12px; color: var(--text-2); }
+.kpi .value { font-size: 26px; font-weight: 650; letter-spacing: -0.02em; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+.kpi .note { font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+/* horizontal bars */
+.hbars { display: flex; flex-direction: column; gap: 10px; }
+.hbar { display: grid; grid-template-columns: minmax(90px, 34%) 1fr auto; gap: 10px; align-items: center; }
+.hbar .name { font-size: 13px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+.hbar .track { height: 14px; position: relative; }
+.hbar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; min-width: 2px; }
+.hbar .val { font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums; text-align: right; min-width: 72px; }
+.hbar:hover .fill { filter: brightness(1.08); }
+/* stacked bar */
+.stack { display: flex; height: 18px; gap: 2px; margin: 6px 0 12px; }
+.stack > div { min-width: 2px; }
+.stack > div:first-child { border-radius: 4px 0 0 4px; }
+.stack > div:last-child { border-radius: 0 4px 4px 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--text-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+/* tables */
+.tablewrap { overflow-x: auto; margin: 0 -4px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-weight: 600; color: var(--text-3); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; padding: 6px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 8px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.muted { color: var(--text-3); }
+.pos { color: var(--good-text); } .neg { color: var(--neg-text); }
+.tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 6px; background: var(--surface-2); color: var(--text-2); }
+/* analysis */
+.ai-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.ai-head h2 { margin: 0; }
+.resumen { font-size: 15px; margin: 0 0 16px; color: var(--text); max-width: 80ch; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.cols h3 { font-size: 12px; font-weight: 600; color: var(--text-2); margin: 0 0 8px; }
+.alert { display: grid; grid-template-columns: auto 1fr; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); margin-bottom: 8px; }
+.alert .ico { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-size: 13px; font-weight: 700; color: #fff; }
+.alert .t { font-weight: 600; font-size: 13px; }
+.alert .d { font-size: 13px; color: var(--text-2); }
+.alert .lvl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--text-3); margin-left: 6px; }
+ul.obs { margin: 0; padding-left: 18px; color: var(--text-2); }
+ul.obs li { margin-bottom: 6px; }
+.empty { color: var(--text-3); font-size: 13px; padding: 8px 0; }
+.warn { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--warning); border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: var(--text-2); }
+/* daily chart */
+svg text { fill: var(--text-3); font-size: 11px; }
+.tip { position: fixed; pointer-events: none; background: var(--text); color: var(--surface); font-size: 12px; padding: 6px 9px; border-radius: 8px; opacity: 0; transition: opacity .1s; z-index: 10; max-width: 260px; font-variant-numeric: tabular-nums; }
+.tip b { font-weight: 600; }
+.filtros { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chip.sel { background: var(--text); color: var(--surface); border-color: var(--text); }
+.cob { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12px; color: var(--text-2); }
+.cob > span { display: inline-flex; align-items: center; gap: 6px; }
+.stale { color: var(--text-2); font-weight: 600; }
+footer { margin-top: 24px; font-size: 12px; color: var(--text-3); text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="tip" id="tip"></div>
+<script>
+const DATA = /*__DATOS__*/null;
+
+const S = DATA.snapshot, R = DATA.resumen;
+const nf0 = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 });
+const nf2 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const money = (n, m = 'ARS', dec = false) => n == null ? '—' : (n < 0 ? '−' : '') + (m === 'USD' ? 'US$ ' : '$ ') + (dec ? nf2 : nf0).format(Math.abs(n));
+const compact = n => {
+  if (n == null) return '—';
+  const a = Math.abs(n);
+  if (a >= 1e6) return '$ ' + nf2.format(n / 1e6).replace(/,00$/, '') + ' M';
+  if (a >= 1e3) return '$ ' + nf0.format(n / 1e3) + ' k';
+  return '$ ' + nf0.format(n);
+};
+const pct = (n, d = 1) => n == null ? '—' : (n > 0 ? '+' : '') + n.toFixed(d).replace('.', ',') + '%';
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+// Color sigue a la entidad, siempre en el mismo orden (nunca por ranking)
+const ENT_COLOR = { 'Galicia': 'var(--s2)', 'Mercado Pago': 'var(--s1)', 'IOL': 'var(--s3)' };
+const entColor = e => ENT_COLOR[e] || 'var(--s5)';
+
+function hbars(rows, { color, fmt = money, total } = {}) {
+  if (!rows.length) return '<div class="empty">Sin datos</div>';
+  const max = Math.max(...rows.map(r => r.v), 1);
+  return '<div class="hbars">' + rows.map(r => {
+    const share = total ? ` · ${(r.v / total * 100).toFixed(1).replace('.', ',')}%` : '';
+    const c = typeof color === 'function' ? color(r) : color;
+    return `<div class="hbar" data-tip="${esc(`<b>${esc(r.k)}</b><br>${esc(fmt(r.v))}${share}`)}">
+      <div class="name">${r.dot ? `<span class="dot" style="background:${c}"></span>` : ''}${esc(r.k)}</div>
+      <div class="track"><div class="fill" style="width:${(r.v / max * 100).toFixed(2)}%;background:${c}"></div></div>
+      <div class="val">${esc(fmt(r.v))}</div></div>`;
+  }).join('') + '</div>';
+}
+
+function alertasHTML(alertas) {
+  if (!alertas?.length) return '<div class="empty">Sin alertas.</div>';
+  const map = { alta: ['var(--critical)', '!'], media: ['var(--serious)', '!'], baja: ['var(--warning)', 'i'] };
+  return alertas.map(a => {
+    const [c, i] = map[a.nivel] || map.baja;
+    return `<div class="alert"><div class="ico" style="background:${c}">${i}</div>
+      <div><div class="t">${esc(a.titulo)}<span class="lvl">${esc(a.nivel)}</span></div><div class="d">${esc(a.detalle)}</div></div></div>`;
+  }).join('');
+}
+
+function recosHTML(recos) {
+  if (!recos?.length) return '<div class="empty">Sin recomendaciones.</div>';
+  return recos.map(r => `<div class="alert"><div class="ico" style="background:var(--s1)">→</div>
+    <div><div class="t">${esc(r.titulo)}<span class="lvl">impacto ${esc(r.impacto || '')}</span></div><div class="d">${esc(r.detalle)}</div></div></div>`).join('');
+}
+
+const MESES = Object.keys(R.gastos_por_mes).sort();
+const EXCL = new Set(R.categorias_excluidas || []);
+const nombreMes = mes => { const [y, m] = mes.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }); };
+const dm = iso => iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) : '?';
+const finMes = mes => { const [y, m] = mes.split('-').map(Number); return `${mes}-${String(new Date(y, m, 0).getDate()).padStart(2, '0')}`; };
+
+function coberturaMes(mes) {
+  const ini = mes + '-01', fin = finMes(mes);
+  return (R.cobertura || []).map(c => {
+    const d = c.desde > ini ? c.desde : ini, h = c.hasta < fin ? c.hasta : fin;
+    return d <= h ? { ...c, d, h, completo: d === ini && h === fin } : { ...c, d: null };
+  });
+}
+
+function dailyChart(mes) {
+  const [y, m] = mes.split('-').map(Number);
+  const days = new Date(y, m, 0).getDate();
+  const byDay = Array(days).fill(0), covered = Array(days).fill(!(R.cobertura || []).length);
+  const tc = R.tipo_cambio_mep || 0;
+  coberturaMes(mes).forEach(c => { if (c.d) for (let i = +c.d.slice(8) - 1; i <= +c.h.slice(8) - 1; i++) covered[i] = true; });
+  S.movimientos.forEach(x => {
+    if (x.monto < 0 && x.fecha.startsWith(mes) && !EXCL.has(x.categoria)) byDay[+x.fecha.slice(8, 10) - 1] += -x.monto * (x.moneda === 'USD' ? tc : 1);
+  });
+  const W = 720, H = 200, pl = 48, pr = 8, pt = 10, pb = 24;
+  const max = Math.max(...byDay, 1);
+  const nice = (() => { const p = Math.pow(10, Math.floor(Math.log10(max))); return Math.ceil(max / p) * p; })();
+  const bw = (W - pl - pr) / days;
+  const yv = v => pt + (H - pt - pb) * (1 - v / nice);
+  let g = '';
+  covered.forEach((c, i) => { if (!c) g += `<rect x="${pl + i * bw}" y="${pt}" width="${bw}" height="${H - pt - pb}" fill="var(--surface-2)"/>`; });
+  for (let i = 0; i <= 4; i++) {
+    const v = nice * i / 4, yy = yv(v);
+    g += `<line x1="${pl}" x2="${W - pr}" y1="${yy}" y2="${yy}" stroke="var(--grid)" stroke-width="1"/>`;
+    g += `<text x="${pl - 6}" y="${yy + 4}" text-anchor="end">${compact(v).replace('$ ', '')}</text>`;
+  }
+  byDay.forEach((v, i) => {
+    const x = pl + i * bw, w = Math.max(bw - 2, 1), yy = yv(v), h = H - pb - yy;
+    if (v > 0) g += `<path d="M${x + 1},${H - pb} V${yy + Math.min(4, h)} q0,-4 4,-4 h${w - 8} q4,0 4,4 V${H - pb} Z" fill="var(--seq)"/>`;
+    g += `<rect x="${x}" y="${pt}" width="${bw}" height="${H - pt - pb}" fill="transparent" data-tip="${esc(`<b>${i + 1}/${m}</b><br>${covered[i] ? money(v) : 'Sin datos de los reportes'}`)}"/>`;
+    if ((i + 1) % 5 === 0 || i === 0) g += `<text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle">${i + 1}</text>`;
+  });
+  g += `<line x1="${pl}" x2="${W - pr}" y1="${H - pb}" y2="${H - pb}" stroke="var(--border)"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Gastos por día">${g}</svg>`;
+}
+
+function renderGastos(mes) {
+  const G = R.gastos_por_mes[mes] || { total_ars: 0, ingresos_ars: 0, cantidad: 0, por_categoria: {}, por_entidad: {}, ingresos_por_categoria: {}, top: [] };
+  const kpi = document.getElementById('kpi-gastos');
+  kpi.innerHTML = `<div class="label">Gastos · ${esc(nombreMes(mes))}</div>
+    <div class="value">${compact(G.total_ars)}</div>
+    <div class="note">${G.cantidad} movimientos · ingresos ${compact(G.ingresos_ars)}</div>`;
+  const cob = coberturaMes(mes);
+  const cats = Object.entries(G.por_categoria).map(([k, v]) => ({ k, v }));
+  const ings = Object.entries(G.ingresos_por_categoria).map(([k, v]) => ({ k, v }));
+  document.getElementById('gastos').innerHTML = `
+    <div class="card c12">
+      <div class="filtros">${MESES.map(x => `<button class="chip ${x === mes ? 'sel' : ''}" data-mes="${x}">${esc(nombreMes(x))}</button>`).join('')}</div>
+      <div class="cob">${cob.length ? cob.map(c => `<span><span class="dot" style="background:${entColor(c.entidad)}"></span>${esc(c.entidad)} · ${esc(c.cuenta)}:
+        ${c.d ? `${dm(c.d)}–${dm(c.h)}${c.completo ? '' : ' <span class="muted">(parcial)</span>'}` : '<span class="muted">sin reporte de este mes</span>'}</span>`).join('') : '<span class="muted">Sin reportes PDF</span>'}</div>
+    </div>
+    <div class="card c7"><h2>Gastos por día · ${esc(nombreMes(mes))}</h2>${dailyChart(mes)}
+      <div class="legend" style="margin-top:8px">${Object.entries(G.por_entidad).map(([k, v]) => `<span><i class="dot" style="background:${entColor(k)}"></i>${esc(k)} <b>${compact(v)}</b></span>`).join('')}
+        <span class="muted">Gris: días sin reporte</span></div></div>
+    <div class="card c5"><h2>Gastos por categoría</h2>${hbars(cats, { color: 'var(--seq)', fmt: compact, total: G.total_ars })}
+      <h2 style="margin-top:22px">Ingresos por categoría</h2>${hbars(ings, { color: 'var(--s3)', fmt: compact, total: G.ingresos_ars })}</div>
+    <div class="card c12"><h2>Mayores gastos · ${esc(nombreMes(mes))}</h2><div class="tablewrap"><table>
+      <thead><tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th>Entidad</th><th class="num">Monto</th></tr></thead>
+      <tbody>${G.top.map(m => `<tr><td class="muted">${dm(m.fecha)}</td><td>${esc(m.descripcion)}</td>
+        <td><span class="tag">${esc(m.categoria)}</span></td><td>${esc(m.entidad)}</td><td class="num">${money(m.monto, m.moneda, true)}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">Sin gastos</td></tr>'}</tbody>
+    </table></div>
+    <p class="muted" style="font-size:12px;margin:10px 0 0">No se cuentan las transferencias entre tus cuentas (${esc([...EXCL].join(', '))}). "Pago de tarjeta" es el pago del resumen; el detalle de consumos está en el resumen de la tarjeta.</p></div>`;
+  document.querySelectorAll('[data-mes]').forEach(b => b.onclick = () => renderGastos(b.dataset.mes));
+}
+
+function render() {
+  const fecha = new Date(S.fecha);
+  const tc = R.tipo_cambio_mep;
+  const fuentes = Object.entries(S.estado_fuentes).map(([k, v]) =>
+    `<span class="chip" title="${esc(v.detalle)}"><span class="dot" style="background:${v.ok ? 'var(--good)' : 'var(--critical)'}"></span>${esc(k)}${v.ok ? '' : ' · error'}</span>`).join('');
+  const cots = ['oficial', 'mep', 'ccl', 'blue'].filter(k => S.cotizaciones[k]).map(k =>
+    `<span class="chip">${k.toUpperCase()} <b>${money(S.cotizaciones[k].venta)}</b></span>`).join('');
+
+  const pm = R.por_moneda, pmTot = (pm.ARS || 0) + (pm.USD || 0);
+  const ents = Object.entries(R.por_entidad).map(([k, v]) => ({ k, v, dot: true }));
+  const tipos = Object.entries(R.inversiones_por_tipo).map(([k, v]) => ({ k: k.replace('TITULOSPUBLICOS', 'TÍTULOS PÚBLICOS'), v }));
+  const A = S.analisis;
+  const viejo = iso => iso && DATA.hoy && (new Date(DATA.hoy) - new Date(iso)) / 864e5 > 20;
+  const al = iso => iso ? `<span class="${viejo(iso) ? 'stale' : 'muted'}" title="${viejo(iso) ? 'Dato de hace más de 20 días' : ''}">${dm(iso)}${viejo(iso) ? ' ⏱' : ''}</span>` : '<span class="muted">—</span>';
+
+  document.getElementById('app').innerHTML = `
+  <header>
+    <div>
+      <h1>Mi cartera</h1>
+      <div class="sub">Generado ${fecha.toLocaleString('es-AR', { dateStyle: 'long', timeStyle: 'short' })}${tc ? ` · consolidado a dólar MEP ${money(tc)}` : ''}</div>
+    </div>
+    <div class="chips">${DATA.demo ? '<span class="chip demo">DEMO</span>' : ''}${fuentes}${cots}
+      <button class="chip" id="theme" aria-label="Cambiar tema">◐ Tema</button></div>
+  </header>
+
+  ${S.advertencias.map(a => `<div class="warn">${esc(a)}</div>`).join('')}
+
+  <div class="grid">
+    <div class="card kpi c3"><div class="label">Patrimonio total</div>
+      <div class="value">${compact(R.patrimonio_ars)}</div>
+      <div class="note">${R.patrimonio_usd ? '≈ ' + money(R.patrimonio_usd, 'USD') + ' MEP' : 'Sin cotización USD'}</div></div>
+    <div class="card kpi c3"><div class="label">Liquidez (cuentas)</div>
+      <div class="value">${compact(R.liquidez_ars)}</div>
+      <div class="note">Pesos líquidos: ${compact(R.pesos_liquidos_ars)}</div></div>
+    <div class="card kpi c3"><div class="label">Inversiones</div>
+      <div class="value">${compact(R.inversiones_ars)}</div>
+      <div class="note">${R.inversiones.length} posiciones</div></div>
+    <div class="card kpi c3" id="kpi-gastos"></div>
+
+    <div class="card c12">
+      <div class="ai-head"><h2>Análisis de Claude</h2></div>
+      ${A && A.error ? `<div class="warn" style="margin:0">No se pudo hacer el análisis: ${esc(A.error)}</div>` : A ? `<p class="resumen">${esc(A.resumen)}</p>
+      <div class="cols">
+        <div><h3>Alertas</h3>${alertasHTML(A.alertas)}</div>
+        <div><h3>Recomendaciones</h3>${recosHTML(A.recomendaciones)}</div>
+        <div><h3>Observaciones</h3>${A.observaciones?.length ? '<ul class="obs">' + A.observaciones.map(o => `<li>${esc(o)}</li>`).join('') + '</ul>' : '<div class="empty">—</div>'}</div>
+      </div>
+      <p class="muted" style="font-size:12px;margin:12px 0 0">Análisis automático e informativo; no es asesoramiento financiero profesional.</p>`
+      : '<div class="empty">No se ejecutó el análisis (usá main.py sin --sin-analisis y con Claude Code instalado).</div>'}
+    </div>
+
+    <div class="card c6"><h2>Patrimonio por entidad</h2>${hbars(ents, { color: r => entColor(r.k), fmt: compact, total: R.patrimonio_ars })}</div>
+    <div class="card c6"><h2>Exposición por moneda</h2>
+      ${pmTot ? `<div class="stack">
+        <div style="flex:${pm.ARS};background:var(--s1)" data-tip="${esc(`<b>Pesos</b><br>${compact(pm.ARS)} · ${(pm.ARS / pmTot * 100).toFixed(1).replace('.', ',')}%`)}"></div>
+        <div style="flex:${pm.USD};background:var(--s3)" data-tip="${esc(`<b>Dólares</b><br>${compact(pm.USD)} · ${(pm.USD / pmTot * 100).toFixed(1).replace('.', ',')}%`)}"></div></div>
+      <div class="legend"><span><i class="dot" style="background:var(--s1)"></i>Pesos <b>${(pm.ARS / pmTot * 100).toFixed(0)}%</b> ${compact(pm.ARS)}</span>
+        <span><i class="dot" style="background:var(--s3)"></i>Dólares <b>${(pm.USD / pmTot * 100).toFixed(0)}%</b> ${compact(pm.USD)}</span></div>` : '<div class="empty">Sin datos</div>'}
+      <p class="muted" style="font-size:12px;margin:14px 0 0">Se clasifica por la moneda en que cotiza cada activo (un CEDEAR en pesos cuenta como pesos).</p>
+    </div>
+
+    <div class="card c12"><h2>Saldos en cuentas</h2><div class="tablewrap"><table>
+      <thead><tr><th>Entidad</th><th>Cuenta</th><th>Moneda</th><th>Al</th><th class="num">Saldo</th><th class="num">Equiv. ARS</th></tr></thead>
+      <tbody>${R.liquidez.map(c => `<tr><td><span class="dot" style="display:inline-block;margin-right:6px;background:${entColor(c.entidad)}"></span>${esc(c.entidad)}</td>
+        <td>${esc(c.tipo)}</td><td><span class="tag">${c.moneda}</span></td><td>${al(c.al)}</td><td class="num">${money(c.saldo, c.moneda, true)}</td>
+        <td class="num muted">${c.moneda === 'USD' ? money(c.ars) : ''}</td></tr>`).join('') || '<tr><td colspan="6" class="empty">Sin saldos</td></tr>'}</tbody>
+    </table></div></div>
+
+    <div class="card c8"><h2>Inversiones</h2><div class="tablewrap"><table>
+      <thead><tr><th>Activo</th><th>Tipo</th><th>Entidad</th><th>Al</th><th class="num">Valuación</th><th class="num">Peso</th><th class="num">Var. día</th><th class="num">Resultado</th></tr></thead>
+      <tbody>${R.inversiones.map(i => `<tr><td><b>${esc(i.activo)}</b><div class="muted" style="font-size:12px">${esc(i.descripcion !== i.activo && i.descripcion.toLowerCase() !== i.activo.toLowerCase() ? i.descripcion : '')}</div></td>
+        <td><span class="tag">${esc(i.tipo.replace('TITULOSPUBLICOS', 'TÍTULOS PÚB.'))}</span></td><td>${esc(i.entidad)}</td><td>${al(i.al)}</td>
+        <td class="num">${money(i.valuacion, i.moneda)}</td><td class="num">${i.peso_pct == null ? '—' : i.peso_pct.toFixed(1).replace('.', ',') + '%'}</td>
+        <td class="num ${i.variacion_dia_pct > 0 ? 'pos' : i.variacion_dia_pct < 0 ? 'neg' : ''}">${pct(i.variacion_dia_pct)}</td>
+        <td class="num ${i.ganancia_pct > 0 ? 'pos' : i.ganancia_pct < 0 ? 'neg' : ''}">${pct(i.ganancia_pct)}</td></tr>`).join('') || '<tr><td colspan="8" class="empty">Sin inversiones</td></tr>'}</tbody>
+    </table></div></div>
+    <div class="card c4"><h2>Cartera por tipo</h2>${hbars(tipos, { color: 'var(--seq)', fmt: compact, total: R.inversiones_ars })}</div>
+
+    <div id="gastos" style="display:contents"></div>
+  </div>
+  <footer>Generado localmente. Este archivo contiene tus datos financieros: no lo compartas y borralo cuando no lo uses.</footer>`;
+
+  document.getElementById('theme').onclick = () => {
+    const r = document.documentElement;
+    const dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    r.dataset.theme = dark ? 'light' : 'dark';
+  };
+}
+
+render();
+if (MESES.length) renderGastos(MESES[MESES.length - 1]); else renderGastos(new Date().toISOString().slice(0, 7));
+
+// Tooltip compartido
+const tip = document.getElementById('tip');
+document.addEventListener('mousemove', e => {
+  const t = e.target.closest('[data-tip]');
+  if (!t) { tip.style.opacity = 0; return; }
+  tip.innerHTML = t.dataset.tip;
+  const x = Math.min(e.clientX + 14, innerWidth - tip.offsetWidth - 8);
+  const y = e.clientY - tip.offsetHeight - 12 < 0 ? e.clientY + 16 : e.clientY - tip.offsetHeight - 12;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px'; tip.style.opacity = 1;
+});
+</script>
+</body>
+</html>

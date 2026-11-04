@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mi cartera</string>
+    <string name="config_titulo">Configuración</string>
+    <string name="bloqueo_titulo">Mi cartera</string>
+    <string name="password_hint">Contraseña</string>
+    <string name="desbloquear">Desbloquear</string>
+    <string name="usar_huella">Desbloquear con huella</string>
+    <string name="recordar_huella">Usar huella la próxima vez</string>
+    <string name="origen">¿Dónde está tu archivo cifrado?</string>
+    <string name="github">GitHub</string>
+    <string name="drive">Google Drive</string>
+    <string name="gh_repo">Repositorio (usuario/repo)</string>
+    <string name="gh_ruta">Ruta del archivo</string>
+    <string name="gh_rama">Rama</string>
+    <string name="gh_token">Token de solo lectura (vacío si el repo es público)</string>
+    <string name="gh_token_guardado">Token guardado (dejá vacío para mantenerlo)</string>
+    <string name="drive_id">Link compartido o ID del archivo</string>
+    <string name="guardar">Guardar</string>
+    <string name="probar">Probar conexión</string>
+    <string name="borrar_todo">Borrar todos los datos de la app</string>
+    <string name="ayuda_github">Creá un token fine-grained en GitHub → Settings → Developer settings, con acceso solo al repo de datos y permiso Contents: Read-only.</string>
+    <string name="ayuda_drive">Pegá el link que muestra python main.py --celular al subir a Drive. El archivo está cifrado: con el link solo se obtiene contenido ilegible.</string>
+</resources>
