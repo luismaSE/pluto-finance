@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity() {
             prepararBloqueo()
             return
         }
-        pedirHuella(cipher, "Desbloquear Mi cartera", { c -> abrir(Seguro.leerPassword(this, c), false) })
+        pedirHuella(cipher, "Desbloquear Pluto", { c -> abrir(Seguro.leerPassword(this, c), false) })
     }
 
     private fun abrir(pw: ByteArray, guardarHuella: Boolean) {
@@ -193,7 +193,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun mostrar(json: String) {
         val plantilla = assets.open("dashboard.html").bufferedReader().use { it.readText() }
-        val html = plantilla.replace("/*__DATOS__*/null", json.replace("</", "<\\/"))
+        val fuentes = runCatching { assets.open("fuentes.css").bufferedReader().use { it.readText() } }.getOrDefault("")
+        val html = plantilla.replace("/*__FUENTES__*/", fuentes).replace("/*__DATOS__*/null", json.replace("</", "<\\/"))
         web.loadDataWithBaseURL(null, html, "text/html", "utf-8", null)
         web.visibility = View.VISIBLE
         bloqueo.visibility = View.GONE

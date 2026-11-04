@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="fondo">#F4F3F0</color>
-    <color name="superficie">#FCFCFB</color>
-    <color name="texto">#0B0B0B</color>
-    <color name="texto2">#52514E</color>
-    <color name="acento">#2A78D6</color>
-    <color name="error">#B42828</color>
-    <color name="icono_fondo">#2A78D6</color>
+    <!-- Pluto · paleta Kestrel (modo claro) -->
+    <color name="fondo">#F6F4EF</color>
+    <color name="superficie">#FFFDF9</color>
+    <color name="texto">#1B2227</color>
+    <color name="texto2">#4B5760</color>
+    <color name="acento">#B9582A</color>
+    <color name="sobre_acento">#FFFDF9</color>
+    <color name="error">#B23A1E</color>
+    <color name="icono_fondo">#1B2227</color>
 </resources>

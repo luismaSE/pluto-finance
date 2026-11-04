@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Instalación de Mi cartera (Linux y macOS). Uso: ./instalar.sh
+# Instalación de Pluto (Linux y macOS). Uso: ./instalar.sh
 set -euo pipefail
 cd "$(dirname "$0")"
-echo "== Mi cartera: instalación =="
+echo "== Pluto: instalación =="
 
 PY=""
 for c in python3.13 python3.12 python3.11 python3 python; do
@@ -36,4 +36,4 @@ command -v claude >/dev/null 2>&1 || echo "→ Aviso: no encontré Claude Code. 
 
 if [ "$(uname)" = "Linux" ]; then ./escritorio/acceso_directo.sh; fi
 echo
-echo "Listo. Abrí la app con ./iniciar.sh (o buscá \"Mi cartera\" en el menú de aplicaciones)."
+echo "Listo. Abrí la app con ./iniciar.sh (o buscá \"Pluto\" en el menú de aplicaciones)."

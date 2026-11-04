@@ -11,8 +11,9 @@ android {
         applicationId = "ar.cartera.app"
         minSdk = 26
         targetSdk = 35
+        // La versión visible sale del archivo VERSION de la raíz del repo; el número interno, de la compilación
         versionCode = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInt()
-        versionName = "1.0.${System.getenv("GITHUB_RUN_NUMBER") ?: "0"}"
+        versionName = rootProject.file("../VERSION").takeIf { it.exists() }?.readText()?.trim() ?: "dev"
     }
 
     // Firma: si existen las variables (secrets de GitHub Actions) se firma con tu clave,

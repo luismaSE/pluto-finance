@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Mi cartera - app de escritorio.
+"""Pluto - app de escritorio.
 
     python app.py
 
@@ -14,6 +14,15 @@ os.chdir(RAIZ)
 sys.path.insert(0, str(RAIZ))
 
 
+def interfaz() -> str:
+    """ui.html con las tipografías de la marca incrustadas (funciona sin internet)."""
+    html = (RAIZ / "escritorio" / "ui.html").read_text(encoding="utf-8")
+    fuentes = RAIZ / "plantillas" / "fuentes.css"
+    if fuentes.exists():
+        html = html.replace("/*__FUENTES__*/", fuentes.read_text(encoding="utf-8"), 1)
+    return html
+
+
 def main():
     try:
         import webview
@@ -22,10 +31,14 @@ def main():
     from escritorio.api import Api
 
     api = Api()
-    html = (RAIZ / "escritorio" / "ui.html").read_text(encoding="utf-8")
-    ventana = webview.create_window("Mi cartera", html=html, js_api=api, width=1240, height=860, min_size=(900, 640))
+    ventana = webview.create_window("Pluto", html=interfaz(), js_api=api, width=1240, height=860,
+                                    min_size=(900, 640), background_color="#1b2227")
     api._set_ventana(ventana)
-    webview.start(private_mode=True, debug="--debug" in sys.argv)
+    icono = RAIZ / "marca" / "icono-256.png"
+    try:   # `icon` existe desde pywebview 5 (Linux); en versiones viejas se arranca sin ícono
+        webview.start(private_mode=True, debug="--debug" in sys.argv, icon=str(icono) if icono.exists() else None)
+    except TypeError:
+        webview.start(private_mode=True, debug="--debug" in sys.argv)
 
 
 if __name__ == "__main__":

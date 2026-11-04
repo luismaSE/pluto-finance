@@ -2,6 +2,8 @@
 <resources>
     <style name="Theme.Cartera" parent="Theme.Material3.DayNight">
         <item name="colorPrimary">@color/acento</item>
+        <item name="colorOnPrimary">@color/sobre_acento</item>
+        <item name="colorSurface">@color/superficie</item>
         <item name="android:colorBackground">@color/fondo</item>
         <item name="android:windowBackground">@color/fondo</item>
         <item name="android:statusBarColor">@color/fondo</item>

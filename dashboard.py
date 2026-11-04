@@ -9,6 +9,9 @@ PLANTILLA = Path(__file__).parent / "plantillas" / "dashboard.html"
 
 def generar(datos: dict, destino: Path | None = None, abrir=True) -> Path:
     html = PLANTILLA.read_text(encoding="utf-8")
+    fuentes = PLANTILLA.parent / "fuentes.css"
+    if fuentes.exists():
+        html = html.replace("/*__FUENTES__*/", fuentes.read_text(encoding="utf-8"), 1)
     js = json.dumps(datos, ensure_ascii=False, default=str).replace("</", "<\\/")
     html = html.replace("/*__DATOS__*/null", js)
     if destino is None:

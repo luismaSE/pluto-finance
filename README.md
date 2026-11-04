@@ -1,4 +1,9 @@
-# Mi cartera
+<p align="center"><img src="marca/icono.svg" width="96" alt="Pluto"></p>
+
+<h1 align="center">Pluto</h1>
+<p align="center"><i>The riches you already have.</i></p>
+
+Plutón era el dueño de las riquezas escondidas bajo tierra: su nombre griego significa "el rico". Pluto saca a la luz la plata que tenés y no ves.
 
 Tus bancos, billeteras y brokers en un solo lugar: un dashboard con patrimonio, gastos e inversiones, un análisis hecho por IA y una app para verlo en el celular. Todo corre en tu computadora.
 
@@ -22,7 +27,7 @@ cd wallet-dashboard && ./instalar.sh
 ./iniciar.sh
 ```
 
-**Windows:** descargá el repo (Code → Download ZIP), descomprimilo y hacé doble clic en **`instalar.bat`**. Después abrí la app con el acceso directo "Mi cartera" del escritorio o con `iniciar.bat`.
+**Windows:** descargá el repo (Code → Download ZIP), descomprimilo y hacé doble clic en **`instalar.bat`**. Después abrí la app con el acceso directo "Pluto" del escritorio o con `iniciar.bat`.
 
 La primera vez se abre un **asistente** que te pregunta en 4 pasos dónde guardar los resúmenes, qué bancos y brokers usás y con qué IA querés el análisis. Todo se puede cambiar después en Configuración.
 
@@ -148,7 +153,7 @@ Copiá `config.example.toml` como `config.toml` y elegí `destino`.
 4. La primera vez se crea el archivo con un link de solo lectura y se muestra su ID: ese ID se carga en la app.
 
 ### 2. Instalá la app
-1. Desde el celular, entrá a la sección **Releases** del repo y descargá `mi-cartera-vX.Y.Z.apk` de la última versión.
+1. Desde el celular, entrá a la sección **Releases** del repo y descargá `pluto-vX.Y.Z.apk` de la última versión.
 2. Abrilo e instalalo. Android te va a pedir permitir "instalar apps desconocidas" (y Play Protect puede pedir "Instalar de todos modos").
 3. Abrí la app → Configuración → cargá GitHub o Drive → **Probar conexión** → Guardar.
 
@@ -175,6 +180,19 @@ Cada fuente es un archivo; la app los muestra solos en Configuración y en el as
 | Un proveedor de IA | `ia/_plantilla.py` | `PROVEEDORES` en `ia/__init__.py` |
 
 Para ver el texto de un PDF y armar el lector: `python -c "from conectores.pdf import leer_texto; print(leer_texto('resumen.pdf'))"`. Antes de compartir un lector, sacá cualquier dato tuyo de los comentarios y ejemplos.
+
+## Marca
+
+| | |
+|---|---|
+| Logo | `marca/logo.svg` (fondo oscuro), `marca/logo-claro.svg` (fondo claro) |
+| Ícono | `marca/icono.svg`, `icono-512.png`, `icono-256.png`, `icono.ico` |
+| Colores | Pizarra `#1B2227` · Granito `#33404A` · Óxido `#E07A45` · Cielo `#9CC9DB` · Hueso `#F1EEE8` |
+| Tipografías | Bricolage Grotesque (títulos), IBM Plex Sans (texto), IBM Plex Mono (cifras). Licencia SIL OFL 1.1; se incrustan con `python marca/generar_fuentes.py` |
+
+## Publicar una versión
+1. Actualizá el número en `VERSION` y agregá los cambios en `CHANGELOG.md`.
+2. Subí los cambios y creá el release en GitHub con el tag `v` + ese número (por ejemplo `v1.2.0`). El APK se compila y se adjunta solo.
 
 ## Estructura
 | Archivo | Qué hace |

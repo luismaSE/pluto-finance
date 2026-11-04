@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="fondo">#121211</color>
-    <color name="superficie">#1A1A19</color>
-    <color name="texto">#F0EFEC</color>
-    <color name="texto2">#C3C2B7</color>
-    <color name="acento">#3987E5</color>
-    <color name="error">#F07A7A</color>
+    <!-- Pluto · paleta Kestrel (modo oscuro, el predeterminado) -->
+    <color name="fondo">#1B2227</color>
+    <color name="superficie">#232C33</color>
+    <color name="texto">#F1EEE8</color>
+    <color name="texto2">#C3CCD1</color>
+    <color name="acento">#E07A45</color>
+    <color name="sobre_acento">#1B2227</color>
+    <color name="error">#F4A28C</color>
 </resources>

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Mi cartera desde la terminal. Para la app de escritorio: python app.py
+"""Pluto desde la terminal. Para la app de escritorio: python app.py
 
 Uso:
   python main.py                          # brokers activos + PDFs de ./reportes (+ Descargas)

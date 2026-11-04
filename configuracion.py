@@ -101,7 +101,7 @@ def _escribir(d, prefijo, lineas):
 
 
 def guardar(cfg: dict):
-    lineas = ["# Configuración de Mi cartera (generado por la app; no contiene secretos)"]
+    lineas = ["# Configuración de Pluto (generado por la app; no contiene secretos)"]
     _escribir(cfg, "", lineas)
     ARCHIVO.write_text("\n".join(lineas) + "\n", encoding="utf-8")
 

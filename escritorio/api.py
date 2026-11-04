@@ -16,7 +16,7 @@ from pathlib import Path
 import configuracion
 import historial
 
-VERSION = "1.1.0"
+VERSION = (Path(__file__).resolve().parent.parent / "VERSION").read_text().strip() if (Path(__file__).resolve().parent.parent / "VERSION").exists() else "dev"
 
 
 class Api:

@@ -1,5 +1,5 @@
 @echo off
-rem Abre la app de escritorio de Mi cartera.
+rem Abre la app de escritorio de Pluto.
 cd /d "%~dp0"
 if not exist .venv\Scripts\pythonw.exe (
   echo Primero ejecuta instalar.bat
