@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -625,10 +625,12 @@ function init() {
   setPriv(store.get('privado') === '1');
   bp.onclick = () => setPriv(!document.body.classList.contains('privado'));
 
+  // Oscuro por defecto; si elegiste claro, se recuerda
+  const r = document.documentElement;
+  if (store.get('tema') === 'light') r.dataset.theme = 'light';
   document.getElementById('btn-tema').onclick = () => {
-    const r = document.documentElement;
-    const dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-    r.dataset.theme = dark ? 'light' : 'dark';
+    r.dataset.theme = r.dataset.theme === 'light' ? 'dark' : 'light';
+    store.set('tema', r.dataset.theme);
   };
 }
 init();

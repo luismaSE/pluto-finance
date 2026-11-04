@@ -3,7 +3,8 @@
 Reglas de seguridad:
 - Ningún método devuelve secretos: solo si están guardados o no.
 - La clave de IOL llega para una corrida, se usa y se descarta (nunca se guarda).
-- El dashboard se abre en una ventana aparte que NO tiene acceso a esta API.
+- El dashboard se muestra en un iframe con sandbox (origen opaco): no puede leer la app
+  ni llamar a esta API, y su política de contenido le impide conectarse a internet.
 """
 import glob
 import os
@@ -144,6 +145,44 @@ class Api:
             import json
             self._js(f"ui.fin({json.dumps(resultado)})")
 
+    # ---------- descarga asistida ----------
+    def descarga_disponible(self) -> dict:
+        import descarga_asistida
+        ok, detalle = descarga_asistida.disponible()
+        return {"ok": ok, "detalle": detalle}
+
+    def descargar(self, sitio: str) -> dict:
+        """Abre el navegador en Galicia o Mercado Pago para bajar resúmenes. Progreso en ui.log()."""
+        import descarga_asistida
+        if sitio not in descarga_asistida.SITIOS:
+            return {"ok": False, "error": "Sitio desconocido"}
+        ok, detalle = descarga_asistida.disponible()
+        if not ok:
+            return {"ok": False, "error": detalle}
+        if not self._corriendo.acquire(blocking=False):
+            return {"ok": False, "error": "Hay otra tarea en curso"}
+        threading.Thread(target=self._descargar, args=(sitio,), daemon=True).start()
+        return {"ok": True}
+
+    def _descargar(self, sitio: str):
+        import json
+        import descarga_asistida
+        res = {"ok": False, "nuevos": []}
+        try:
+            cfg = configuracion.cargar()
+            nuevos = descarga_asistida.sesion(sitio, cfg["fuentes"]["reportes"], log=self._log,
+                                              navegador=cfg["descarga"].get("navegador") or "chromium")
+            res = {"ok": True, "nuevos": nuevos}
+        except Exception as e:
+            msg = str(e).splitlines()[0]
+            if "Executable doesn't exist" in str(e) or "playwright install" in str(e):
+                msg = "Falta el navegador de Playwright: corré `playwright install chromium`"
+            self._log(f"✗ {msg}")
+            res = {"ok": False, "error": msg, "nuevos": []}
+        finally:
+            self._corriendo.release()
+            self._js(f"ui.finDescarga({json.dumps(res)})")
+
     # ---------- dashboard ----------
     def _ultimo_dashboard(self) -> Path | None:
         archivos = sorted(glob.glob("salida/dashboard_*.html"), key=os.path.getmtime)
@@ -152,15 +191,6 @@ class Api:
     def dashboard_html(self) -> str | None:
         p = self._ultimo_dashboard()
         return p.read_text(encoding="utf-8") if p else None
-
-    def abrir_dashboard_ventana(self) -> dict:
-        """Ventana nueva sin js_api: el dashboard no puede llamar a nada de Python."""
-        import webview
-        html = self.dashboard_html()
-        if not html:
-            return {"ok": False}
-        webview.create_window("Mi cartera · Dashboard", html=html, width=1280, height=900, min_size=(380, 600))
-        return {"ok": True}
 
     def abrir_dashboard_navegador(self) -> dict:
         p = self._ultimo_dashboard()

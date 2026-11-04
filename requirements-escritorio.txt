@@ -2,3 +2,4 @@
 -r requirements.txt
 pywebview[qt]>=5.0
 keyring>=24
+-r requirements-descarga.txt

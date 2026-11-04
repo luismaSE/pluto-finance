@@ -6,19 +6,17 @@
 <title>Mi cartera</title>
 <style>
 :root {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --border: #2f2f2c;
+  --text: #f0efec; --text-2: #c3c2b7; --text-3: #918f86;
+  --accent: #3987e5; --good: #0ca30c; --good-text: #4cc94c; --warning: #fab219; --critical: #d03b3b; --neg-text: #f07a7a;
+  --console: #0c0c0b; --console-text: #e6e5e0;
+}
+:root[data-theme="light"] {
   color-scheme: light;
   --bg: #f4f3f0; --surface: #fcfcfb; --surface-2: #f0efec; --border: #e2e1dc;
   --text: #0b0b0b; --text-2: #52514e; --text-3: #7a7974;
-  --accent: #2a78d6; --good: #0ca30c; --good-text: #006300; --warning: #fab219; --critical: #d03b3b; --neg-text: #b42828;
-  --console: #161615; --console-text: #e6e5e0;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --border: #2f2f2c;
-    --text: #f0efec; --text-2: #c3c2b7; --text-3: #918f86;
-    --accent: #3987e5; --good-text: #4cc94c; --neg-text: #f07a7a; --console: #0c0c0b;
-  }
+  --accent: #2a78d6; --good-text: #006300; --neg-text: #b42828; --console: #161615;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -35,7 +33,7 @@ aside button.nav { display: flex; align-items: center; gap: 10px; border: 0; bac
 aside button.nav svg { width: 18px; height: 18px; flex: none; }
 aside button.nav:hover { background: var(--surface-2); }
 aside button.nav[aria-current="true"] { background: var(--text); color: var(--surface); }
-aside .pie { margin-top: auto; font-size: 11px; color: var(--text-3); padding: 0 10px; }
+aside .pie { margin-top: 6px; font-size: 11px; color: var(--text-3); padding: 0 10px; }
 
 main { overflow: auto; padding: 28px 32px; }
 .pagina[hidden] { display: none; }
@@ -54,6 +52,7 @@ h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
 .btn.grande { padding: 14px 22px; font-size: 16px; border-radius: 12px; display: inline-flex; align-items: center; gap: 10px; }
 .btn.peligro { color: var(--neg-text); }
 .btn:disabled { opacity: .55; cursor: default; }
+.btn .dot { display: inline-block; margin-right: 6px; vertical-align: middle; }
 .acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
 /* Inicio */
@@ -115,6 +114,8 @@ td { padding: 9px 8px; border-bottom: 1px solid var(--surface-2); font-variant-n
 .modal input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); margin-bottom: 10px; }
 .modal .acciones { justify-content: flex-end; margin-top: 6px; }
 .empty { color: var(--text-3); }
+main.con-dash { padding: 0; overflow: hidden; }
+.marco { display: block; width: 100%; height: 100vh; border: 0; background: var(--bg); }
 </style>
 </head>
 <body>
@@ -125,6 +126,7 @@ td { padding: 9px 8px; border-bottom: 1px solid var(--surface-2); font-variant-n
     <button class="nav" data-pag="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Dashboard</button>
     <button class="nav" data-pag="config"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Configuración</button>
     <button class="nav" data-pag="historial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Historial</button>
+    <button class="nav" id="btn-tema" style="margin-top:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg><span id="txt-tema">Modo claro</span></button>
     <div class="pie" id="version"></div>
   </aside>
 
@@ -151,6 +153,16 @@ td { padding: 9px 8px; border-bottom: 1px solid var(--surface-2); font-variant-n
         </div>
       </div>
 
+      <div class="card">
+        <h2>Descargar resúmenes</h2>
+        <p style="margin:0 0 12px;color:var(--text-2)">Se abre un navegador nuevo en la web del banco. Iniciás sesión vos (la clave no pasa por la app) y descargás los PDF: se guardan solos en la carpeta de resúmenes.</p>
+        <div class="acciones">
+          <button class="btn" data-descargar="galicia"><span class="dot" style="background:#eb6834"></span> Galicia</button>
+          <button class="btn" data-descargar="mercadopago"><span class="dot" style="background:#2a78d6"></span> Mercado Pago</button>
+          <span class="msg" id="msg-descarga"></span>
+        </div>
+      </div>
+
       <div class="fila2">
         <div class="card"><h2>Última actualización</h2><div id="ultima"></div></div>
         <div class="card"><h2>Fuentes</h2><div id="fuentes" class="fuentes"></div></div>
@@ -159,7 +171,7 @@ td { padding: 9px 8px; border-bottom: 1px solid var(--surface-2); font-variant-n
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <h2 style="margin:0">Consola</h2>
-          <div class="acciones"><button class="btn" id="btn-ver-dash">Abrir dashboard</button><button class="btn" data-carpeta="salida">Abrir carpeta de salida</button></div>
+          <div class="acciones"><button class="btn" id="btn-ver-dash">Ver dashboard</button><button class="btn" id="btn-navegador">Abrir en el navegador</button><button class="btn" data-carpeta="salida">Abrir carpeta de salida</button></div>
         </div>
         <div class="consola" id="consola"><span class="tit">Listo.</span> Tocá "Actualizar todo" para empezar.
 </div>
@@ -168,9 +180,9 @@ td { padding: 9px 8px; border-bottom: 1px solid var(--surface-2); font-variant-n
 
     <!-- ============ DASHBOARD ============ -->
     <section class="pagina" id="pag-dashboard" hidden>
-      <h1>Dashboard</h1>
-      <p class="sub">Se abre en una ventana aparte, aislada de la configuración y los secretos.</p>
-      <div class="card" id="dash-card"></div>
+      <!-- sandbox sin allow-same-origin: el dashboard corre aislado, sin acceso a la app ni a sus funciones -->
+      <iframe class="marco" id="marco" sandbox="allow-scripts" title="Dashboard"></iframe>
+      <div class="card" id="sin-dash" hidden style="margin:28px 32px"><p class="empty" style="margin:0">Todavía no hay un dashboard. Corré "Actualizar todo" desde Inicio.</p></div>
     </section>
 
     <!-- ============ CONFIGURACIÓN ============ -->
@@ -190,6 +202,12 @@ td { padding: 9px 8px; border-bottom: 1px solid var(--surface-2); font-variant-n
         <div class="campo"><label>Consultar IOL por defecto</label>
           <label class="interruptor"><input type="checkbox" data-cfg="fuentes.iol"><span></span></label>
           <div class="ayuda">Usuario y clave se piden en cada actualización y no se guardan.</div></div>
+      </div>
+
+      <div class="card"><h2>Descarga de resúmenes</h2>
+        <div class="campo"><label>Navegador</label>
+          <select data-cfg="descarga.navegador"><option value="chromium">Chromium (incluido con Playwright)</option><option value="chrome">Google Chrome instalado</option><option value="msedge">Microsoft Edge instalado</option></select>
+          <div class="ayuda">Si el banco no te deja entrar desde Chromium, probá con Chrome. Siempre se abre una sesión nueva, sin tus cookies.</div></div>
       </div>
 
       <div class="card"><h2>Análisis de Claude</h2>
@@ -273,6 +291,7 @@ let API = null, EST = null, corriendo = false;
 function ir(pag) {
   $$('aside .nav').forEach(b => b.setAttribute('aria-current', b.dataset.pag === pag));
   $$('.pagina').forEach(p => p.hidden = p.id !== 'pag-' + pag);
+  document.querySelector('main').classList.toggle('con-dash', pag === 'dashboard');
   if (pag === 'dashboard') cargarDashboard();
 }
 $$('aside .nav').forEach(b => b.onclick = () => ir(b.dataset.pag));
@@ -295,13 +314,38 @@ const ui = {
     await refrescar();
   },
 };
+ui.finDescarga = async r => {
+  corriendo = false;
+  $$('[data-descargar]').forEach(b => b.disabled = false);
+  $('#btn-actualizar').disabled = false;
+  const n = (r.nuevos || []).length;
+  $('#msg-descarga').className = 'msg ' + (r.ok ? 'ok' : 'err');
+  $('#msg-descarga').innerHTML = !r.ok ? '✗ ' + esc(r.error || 'Falló')
+    : n ? `✓ ${n} ${n > 1 ? 'resúmenes' : 'resumen'} nuevo${n > 1 ? 's' : ''}. <button class="btn primario" id="btn-act-ahora" style="margin-left:8px">Actualizar ahora</button>`
+    : 'No se descargaron resúmenes nuevos.';
+  const b = $('#btn-act-ahora'); if (b) b.onclick = () => $('#btn-actualizar').click();
+};
 window.ui = ui;
+
+// ---------- tema (oscuro por defecto, se guarda en la configuración) ----------
+const tema = () => document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+function aplicarTema(t) {
+  if (t === 'light') document.documentElement.dataset.theme = 'light'; else delete document.documentElement.dataset.theme;
+  $('#txt-tema').textContent = t === 'light' ? 'Modo oscuro' : 'Modo claro';
+}
+$('#btn-tema').onclick = async () => {
+  const t = tema() === 'light' ? 'dark' : 'light';
+  aplicarTema(t);
+  await API.guardar_config({ ui: { tema: t } });
+  if (!$('#pag-dashboard').hidden) cargarDashboard();
+};
 
 // ---------- estado ----------
 async function refrescar() {
   EST = await API.estado();
   $('#version').textContent = 'v' + EST.version;
   const c = EST.config;
+  aplicarTema(c.ui?.tema || 'dark');
   $('#op-iol').checked = c.fuentes.iol;
   $('#op-analisis').checked = c.analisis.activado;
   $('#op-celular').checked = c.publicar.destino !== 'ninguno';
@@ -363,18 +407,30 @@ async function lanzar(cred) {
   $('#estado-run').innerHTML = '<span class="spinner"></span> Actualizando…';
 }
 
+// ---------- descarga asistida ----------
+$$('[data-descargar]').forEach(b => b.onclick = async () => {
+  if (corriendo) return;
+  $('#consola').innerHTML = '';
+  const r = await API.descargar(b.dataset.descargar);
+  if (!r.ok) { $('#msg-descarga').className = 'msg err'; $('#msg-descarga').textContent = '✗ ' + r.error; return; }
+  corriendo = true;
+  $$('[data-descargar]').forEach(x => x.disabled = true);
+  $('#btn-actualizar').disabled = true;
+  $('#msg-descarga').className = 'msg'; $('#msg-descarga').innerHTML = '<span class="spinner" style="display:inline-block;vertical-align:middle"></span> Esperando que descargues los PDF y cierres el navegador…';
+});
+
 // ---------- dashboard ----------
-function cargarDashboard() {
-  const u = EST && EST.historial[0];
-  $('#dash-card').innerHTML = EST && EST.dashboard
-    ? `<p style="margin:0 0 14px">Último dashboard: <b>${esc(fecha(u && u.fecha))}</b></p>
-       <div class="acciones"><button class="btn primario grande" id="btn-dash-ventana">Abrir dashboard</button><button class="btn" id="btn-navegador">Abrir en el navegador</button></div>`
-    : '<p class="empty" style="margin:0">Todavía no hay un dashboard. Corré "Actualizar todo" desde Inicio.</p>';
-  const v = $('#btn-dash-ventana'), n = $('#btn-navegador');
-  if (v) v.onclick = () => API.abrir_dashboard_ventana();
-  if (n) n.onclick = () => API.abrir_dashboard_navegador();
+async function cargarDashboard() {
+  let html = await API.dashboard_html();
+  $('#marco').hidden = !html; $('#sin-dash').hidden = !!html;
+  if (!html) return;
+  // mismo tema que la app
+  html = html.replace('<html lang="es" data-theme="dark">', `<html lang="es" data-theme="${tema()}">`);
+  const v = String(html.length) + tema();
+  if ($('#marco').dataset.v !== v) { $('#marco').srcdoc = html; $('#marco').dataset.v = v; }
 }
-$('#btn-ver-dash').onclick = () => API.abrir_dashboard_ventana();
+$('#btn-ver-dash').onclick = () => ir('dashboard');
+$('#btn-navegador').onclick = () => API.abrir_dashboard_navegador();
 
 // ---------- configuración ----------
 const get = (o, path) => path.split('.').reduce((a, k) => a?.[k], o);

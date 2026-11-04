@@ -23,10 +23,32 @@ El último comando agrega "Mi cartera" al menú de aplicaciones (Linux).
 - Ventana propia: no abre puertos ni levanta servidores.
 - Tokens y contraseña del celular se guardan en el **llavero del sistema** (GNOME Keyring / KWallet, Credential Manager en Windows, Keychain en macOS), nunca en archivos del proyecto.
 - La clave de IOL se pide en cada actualización y no se guarda.
-- El dashboard se abre en una ventana aislada, sin acceso a la configuración ni a los secretos.
+- El dashboard se ve dentro de la app, en un marco aislado: no puede leer la configuración ni los secretos, ni conectarse a internet.
+- Modo oscuro por defecto (se cambia desde la barra lateral).
 - En Linux necesitás un llavero activo (gnome-keyring o kwallet). Si usás la variante GTK de pywebview en lugar de Qt: `sudo pacman -S python-gobject webkit2gtk-4.1` y creá el venv con `--system-site-packages`.
 
 La terminal (`python main.py`) sigue funcionando y usa la misma configuración y los mismos secretos guardados.
+
+### Descargar resúmenes desde Galicia y Mercado Pago
+
+En Inicio → **Descargar resúmenes**, elegí el banco: se abre un navegador **nuevo y vacío** en su web.
+1. Iniciás sesión vos (usuario, clave y 2FA). La app no lee ni guarda nada de eso.
+2. Descargás o abrís los PDF de los resúmenes: cada uno se reconoce por su contenido y, si es nuevo, se guarda solo en la carpeta de resúmenes.
+3. Cerrás el navegador (la sesión se borra) y tocás **Actualizar ahora**.
+
+Necesita Playwright (`pip install -r requirements-descarga.txt` y `playwright install chromium`). Si el banco bloquea el navegador de Playwright, en Configuración elegí **Google Chrome** como navegador.
+
+También funciona desde la terminal: `python descarga_asistida.py galicia` o `python descarga_asistida.py mercadopago`.
+
+**¿Por qué no es 100% automático?** Para entrar solo, la app tendría que guardar tu clave y saltear el 2FA, lo que va en contra de no guardar credenciales (y de los términos de los bancos). Lo que sí se puede automatizar es la navegación después del login, con una **receta**: un archivo `recetas/galicia.json` o `recetas/mercadopago.json` con pasos como estos:
+```json
+[
+  {"esperar_url": "onlinebanking\\.bancogalicia\\.com\\.ar/(inicio|home)"},
+  {"click": "text=Cuentas"},
+  {"click": "text=Resúmenes"}
+]
+```
+Pasos posibles: `esperar_url` (regex), `ir` (url), `click` (selector o `text=...`) y `esperar` (ms). Si un paso falla, la app sigue en modo manual. Los selectores dependen de cómo se ve tu cuenta, así que se arman una vez mirando la web (o grabando los clics con `playwright codegen`, sin incluir los campos de usuario y clave).
 
 ## Seguridad
 - **No se guardan credenciales.** La clave de IOL se pide sin mostrarse y se descarta después del login.
