@@ -36,7 +36,14 @@ En Inicio → **Descargar resúmenes**, elegí el banco: se abre un navegador **
 2. Descargás o abrís los PDF de los resúmenes: cada uno se reconoce por su contenido y, si es nuevo, se guarda solo en la carpeta de resúmenes.
 3. Cerrás el navegador (la sesión se borra) y tocás **Actualizar ahora**.
 
-Necesita Playwright (`pip install -r requirements-descarga.txt` y `playwright install chromium`). Si el banco bloquea el navegador de Playwright, en Configuración elegí **Google Chrome** como navegador.
+Hay dos modos (se eligen por banco en Configuración → Descarga de resúmenes):
+
+| Modo | Cómo funciona | Predeterminado para |
+|---|---|---|
+| **Navegador de la app** | Navegador nuevo y vacío controlado por la app; los PDF se capturan aunque solo los abras. Necesita Playwright (`pip install -r requirements-descarga.txt` y `playwright install chromium`). | Galicia |
+| **Navegador habitual** | Abre la web en tu navegador de siempre, sin automatizar nada, y vigila la carpeta de Descargas: apenas bajás un resumen se carga solo. Tocá **Listo** al terminar. | Mercado Pago |
+
+Mercado Pago bloquea los navegadores controlados por programas ("Alcanzaste el límite de intentos" / "navegador no seguro"), por eso usa el modo habitual. No se intenta esquivar esa protección: podría bloquear tu cuenta. Si te salió el mensaje de límite de intentos, esperá un rato antes de volver a entrar.
 
 También funciona desde la terminal: `python descarga_asistida.py galicia` o `python descarga_asistida.py mercadopago`.
 

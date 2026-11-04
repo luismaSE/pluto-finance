@@ -207,7 +207,12 @@ main.con-dash { padding: 0; overflow: hidden; }
       <div class="card"><h2>Descarga de resúmenes</h2>
         <div class="campo"><label>Navegador</label>
           <select data-cfg="descarga.navegador"><option value="chromium">Chromium (incluido con Playwright)</option><option value="chrome">Google Chrome instalado</option><option value="msedge">Microsoft Edge instalado</option></select>
-          <div class="ayuda">Si el banco no te deja entrar desde Chromium, probá con Chrome. Siempre se abre una sesión nueva, sin tus cookies.</div></div>
+          <div class="ayuda">Para el modo automatizado. Siempre se abre una sesión nueva, sin tus cookies.</div></div>
+        <div class="campo"><label>Galicia</label>
+          <select data-cfg="descarga.modo_galicia"><option value="automatizado">Navegador de la app (guarda los PDF solo)</option><option value="habitual">Mi navegador habitual + vigilar Descargas</option></select></div>
+        <div class="campo"><label>Mercado Pago</label>
+          <select data-cfg="descarga.modo_mercadopago"><option value="habitual">Mi navegador habitual + vigilar Descargas</option><option value="automatizado">Navegador de la app (guarda los PDF solo)</option></select>
+          <div class="ayuda">Mercado Pago bloquea los navegadores controlados por programas ("límite de intentos" / "navegador no seguro"). En modo habitual no se automatiza nada.</div></div>
       </div>
 
       <div class="card"><h2>Análisis de Claude</h2>
@@ -416,7 +421,14 @@ $$('[data-descargar]').forEach(b => b.onclick = async () => {
   corriendo = true;
   $$('[data-descargar]').forEach(x => x.disabled = true);
   $('#btn-actualizar').disabled = true;
-  $('#msg-descarga').className = 'msg'; $('#msg-descarga').innerHTML = '<span class="spinner" style="display:inline-block;vertical-align:middle"></span> Esperando que descargues los PDF y cierres el navegador…';
+  const spin = '<span class="spinner" style="display:inline-block;vertical-align:middle"></span> ';
+  $('#msg-descarga').className = 'msg';
+  if (r.modo === 'habitual') {
+    $('#msg-descarga').innerHTML = spin + 'Descargá el resumen en tu navegador: lo detecto en Descargas. <button class="btn primario" id="btn-listo" style="margin-left:8px">Listo</button>';
+    $('#btn-listo').onclick = () => API.terminar_descarga();
+  } else {
+    $('#msg-descarga').innerHTML = spin + 'Esperando que descargues los PDF y cierres el navegador…';
+  }
 });
 
 // ---------- dashboard ----------

@@ -9,6 +9,10 @@ Cómo funciona:
 
 Opcional: una "receta" (recetas/<sitio>.json) puede navegar sola hasta los resúmenes después del
 login. Se arma una vez para tu cuenta (ver README); si un paso falla, seguís a mano.
+
+Modo "habitual" (el predeterminado para Mercado Pago, que bloquea navegadores automatizados):
+se abre la web en TU navegador de siempre, sin ninguna automatización, y la app vigila la
+carpeta de Descargas para cargar los resúmenes apenas los bajás.
 """
 import hashlib
 import json
@@ -24,6 +28,12 @@ SITIOS = {
     "galicia": {
         "nombre": "Galicia",
         "url": "https://onlinebanking.bancogalicia.com.ar/login",
+        "modo": "automatizado",
+        "guia_habitual": [
+            "Se abrió Galicia en tu navegador de siempre.",
+            "Cuentas → Resúmenes e Inversiones → Resúmenes: descargá los PDF.",
+            "Apenas lleguen a Descargas los cargo solos. Cuando termines, tocá Listo en la app.",
+        ],
         "guia": [
             "Iniciá sesión con tu usuario, clave y token.",
             "Cuentas → Resúmenes: descargá el último de la caja de ahorro en pesos y el de dólares.",
@@ -34,6 +44,13 @@ SITIOS = {
     "mercadopago": {
         "nombre": "Mercado Pago",
         "url": "https://www.mercadopago.com.ar/",
+        "modo": "habitual",
+        "guia_habitual": [
+            "Se abrió Mercado Pago en tu navegador de siempre (si ya tenías sesión, no hace falta loguearte).",
+            "Tu dinero → Resúmenes de cuenta (o Actividad → Descargar resumen): elegí el mes y descargá el PDF.",
+            "Si dice que el resumen se está generando, esperá a que aparezca y descargalo.",
+            "Apenas el PDF llegue a Descargas lo cargo solo. Cuando termines, tocá Listo en la app.",
+        ],
         "guia": [
             "Iniciá sesión.",
             "Tu dinero → Resúmenes de cuenta (o Actividad → Descargar resumen): elegí el mes y descargá el PDF.",
@@ -164,10 +181,68 @@ def sesion(sitio: str, reportes: str, log=print, navegador: str = "chromium",
     return nuevos
 
 
+def _pdf_completo(p: Path) -> bool:
+    """El navegador terminó de escribirlo: empieza con %PDF y tiene el cierre %%EOF."""
+    try:
+        if p.stat().st_size < 200:
+            return False
+        with p.open("rb") as f:
+            inicio = f.read(5)
+            f.seek(-1024, 2)
+            fin = f.read()
+        return inicio.startswith(b"%PDF") and b"%%EOF" in fin
+    except Exception:
+        return False
+
+
+def vigilar(sitio: str, descargas: str, reportes: str, log=print, parar=None,
+            tiempo_max: int = 1200, abrir: bool = True) -> list[str]:
+    """Abre la web en el navegador habitual (sin automatizar nada) y carga los PDF
+    que aparezcan en Descargas mientras tanto. Termina con `parar.set()` o por tiempo."""
+    import threading
+    import webbrowser
+    info = SITIOS[sitio]
+    carpeta = Path(descargas).expanduser()
+    if not carpeta.is_dir():
+        raise RuntimeError(f"La carpeta de descargas {carpeta} no existe: revisala en Configuración")
+    parar = parar or threading.Event()
+    log(f"\n=== {info['nombre']} en tu navegador ===")
+    for g in info.get("guia_habitual", []):
+        log("  → " + g)
+    log(f"  Vigilando {carpeta}…")
+    inicio = time.time() - 5
+    if abrir:
+        webbrowser.open(info["url"])
+    procesados, nuevos = set(), []
+    while not parar.is_set() and time.time() - inicio < tiempo_max:
+        for p in carpeta.glob("*.pdf"):
+            try:
+                if p in procesados or p.stat().st_mtime < inicio or not _pdf_completo(p):
+                    continue
+            except OSError:
+                continue
+            procesados.add(p)
+            n = incorporar(p, reportes, log)
+            if n:
+                nuevos.append(n)
+            else:
+                log(f"  · {p.name}: ya lo tenías o no es un resumen que sepa leer.")
+        parar.wait(1.5)
+    log(f"  Listo. Resúmenes nuevos: {len(nuevos)}")
+    return nuevos
+
+
 if __name__ == "__main__":
     import sys
     import configuracion
     if len(sys.argv) < 2 or sys.argv[1] not in SITIOS:
         sys.exit(f"Uso: python descarga_asistida.py {'|'.join(SITIOS)}")
     cfg = configuracion.cargar()
-    sesion(sys.argv[1], cfg["fuentes"]["reportes"], navegador=cfg.get("descarga", {}).get("navegador", "chromium"))
+    modo = cfg["descarga"].get(f"modo_{sys.argv[1]}") or SITIOS[sys.argv[1]]["modo"]
+    if modo == "habitual":
+        import threading
+        parar = threading.Event()
+        threading.Thread(target=lambda: (input("Presioná Enter cuando termines de descargar…\n"), parar.set()), daemon=True).start()
+        vigilar(sys.argv[1], cfg["fuentes"]["descargas"], cfg["fuentes"]["reportes"], parar=parar)
+    else:
+        sesion(sys.argv[1], cfg["fuentes"]["reportes"], navegador=cfg["descarga"].get("navegador", "chromium"))

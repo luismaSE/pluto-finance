@@ -23,6 +23,7 @@ class Api:
     def __init__(self):
         self._ventana = None
         self._corriendo = threading.Lock()
+        self._parar = threading.Event()
 
     # pywebview expone todos los métodos públicos; los internos empiezan con "_"
     def _set_ventana(self, v):
@@ -156,22 +157,35 @@ class Api:
         import descarga_asistida
         if sitio not in descarga_asistida.SITIOS:
             return {"ok": False, "error": "Sitio desconocido"}
-        ok, detalle = descarga_asistida.disponible()
-        if not ok:
-            return {"ok": False, "error": detalle}
+        cfg = configuracion.cargar()
+        modo = cfg["descarga"].get(f"modo_{sitio}") or descarga_asistida.SITIOS[sitio]["modo"]
+        if modo != "habitual":
+            ok, detalle = descarga_asistida.disponible()
+            if not ok:
+                return {"ok": False, "error": detalle}
         if not self._corriendo.acquire(blocking=False):
             return {"ok": False, "error": "Hay otra tarea en curso"}
-        threading.Thread(target=self._descargar, args=(sitio,), daemon=True).start()
+        self._parar.clear()
+        threading.Thread(target=self._descargar, args=(sitio, modo), daemon=True).start()
+        return {"ok": True, "modo": modo}
+
+    def terminar_descarga(self) -> dict:
+        """Botón "Listo" del modo habitual."""
+        self._parar.set()
         return {"ok": True}
 
-    def _descargar(self, sitio: str):
+    def _descargar(self, sitio: str, modo: str = "automatizado"):
         import json
         import descarga_asistida
         res = {"ok": False, "nuevos": []}
         try:
             cfg = configuracion.cargar()
-            nuevos = descarga_asistida.sesion(sitio, cfg["fuentes"]["reportes"], log=self._log,
-                                              navegador=cfg["descarga"].get("navegador") or "chromium")
+            if modo == "habitual":
+                nuevos = descarga_asistida.vigilar(sitio, cfg["fuentes"]["descargas"], cfg["fuentes"]["reportes"],
+                                                   log=self._log, parar=self._parar)
+            else:
+                nuevos = descarga_asistida.sesion(sitio, cfg["fuentes"]["reportes"], log=self._log,
+                                                  navegador=cfg["descarga"].get("navegador") or "chromium")
             res = {"ok": True, "nuevos": nuevos}
         except Exception as e:
             msg = str(e).splitlines()[0]
