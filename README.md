@@ -81,7 +81,7 @@ Copiá `config.example.toml` como `config.toml` y elegí `destino`.
 2. Abrilo e instalalo. Android te va a pedir permitir "instalar apps desconocidas" (y Play Protect puede pedir "Instalar de todos modos").
 3. Abrí la app → Configuración → cargá GitHub o Drive → **Probar conexión** → Guardar.
 
-Para publicar una versión nueva: `git tag v1.0.1 && git push origin v1.0.1`. GitHub Actions compila el APK y crea el release.
+Para publicar una versión nueva: creá un release en GitHub (Releases → *Draft a new release*, tag `v1.0.1`) o subí un tag con `git tag v1.0.1 && git push origin v1.0.1`. GitHub Actions compila el APK y lo adjunta al release.
 
 ### 3. (Recomendado) Firmá la app con tu propia clave
 Sin una clave propia, cada compilación se firma distinto y para actualizar hay que desinstalar la versión anterior. Generá una clave una sola vez:

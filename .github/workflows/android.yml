@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths: ["android/**", "plantillas/**", ".github/workflows/android.yml"]
     tags: ["v*"]
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -56,25 +58,17 @@ jobs:
           path: android/app/build/outputs/apk/release/*.apk
           retention-days: 30
 
+      # Tag v* subido con git -> crea el release.  Release creado desde la web -> le adjunta el APK.
       - name: Publicar release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ github.event.release.tag_name || github.ref_name }}
         run: |
           apk=$(ls android/app/build/outputs/apk/release/*.apk | head -1)
           cp "$apk" "mi-cartera-$TAG.apk"
-          cat > notas.md <<'NOTAS'
-          App Android de **Mi cartera**: muestra el dashboard cifrado que genera `python main.py --celular`.
-
-          ### Instalación
-          1. Descargá `mi-cartera-*.apk` desde este release, desde el celular.
-          2. Abrilo y permití "instalar apps desconocidas" para el navegador o la app de archivos.
-          3. Si aparece Play Protect: "Más detalles" → "Instalar de todos modos".
-          4. En la app: Configuración → GitHub o Google Drive → Probar conexión → Guardar.
-
-          La configuración completa (repo de datos, tokens, Drive) está en el README.
-
-          > Si el APK no está firmado con una clave propia (secrets `CARTERA_KEYSTORE_*`), para actualizar hay que desinstalar la versión anterior.
-          NOTAS
-          gh release create "$TAG" "mi-cartera-$TAG.apk" --title "Mi cartera $TAG" --notes-file notas.md --repo "$GITHUB_REPOSITORY"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" "mi-cartera-$TAG.apk" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" "mi-cartera-$TAG.apk" --title "Mi cartera $TAG" --notes-file .github/release-notes.md --repo "$GITHUB_REPOSITORY"
+          fi
