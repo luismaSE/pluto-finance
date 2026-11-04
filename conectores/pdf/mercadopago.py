@@ -6,6 +6,8 @@ from modelo import Cuenta, Movimiento
 from .comun import ddmmyy, monto, verificar_saldos, MESES
 
 ENTIDAD = "Mercado Pago"
+TIPO = "billetera"
+DOCUMENTO = "Resumen de cuenta: Tu dinero → Resúmenes de cuenta (se genera en unos minutos)"
 # [prefijo] 05-10-2026   Transferencia enviada Comercio   123456789012   $ -1.500,00   $ 10.000,00
 LINEA = re.compile(r"^\s*(\d{2}-\d{2}-\d{4})\s+(.*?)\s+(\d{6,})\s+(\$\s?-?[\d.]+,\d{2})\s+(\$\s?-?[\d.]+,\d{2})\s*$")
 RUIDO = re.compile(r"^(fecha\b|operaci[oó]n$|\d+/\d+$|fecha de generaci|mercado libre s\.r\.l|de consulta|detalle de movimientos)", re.I)

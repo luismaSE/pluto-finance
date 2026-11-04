@@ -1,8 +1,11 @@
-"""Lectura de resúmenes en PDF (Galicia y Mercado Pago).
+"""Lectura de resúmenes en PDF de bancos y billeteras.
 
 Poné los PDF que descargás del home banking / app en la carpeta `reportes/`
 (o pasalos con --reportes). Cada archivo se identifica solo por su contenido.
-Para sumar un formato nuevo, agregá un módulo con `detectar(texto)` y `parsear(texto)`.
+
+Cada lector es un módulo con ENTIDAD, TIPO ("banco" | "billetera" | "broker"), DOCUMENTO
+(qué PDF lee y dónde se descarga), detectar(texto) y parsear(texto).
+Para sumar un banco: copiá _plantilla.py, completalo y agregalo a PARSERS.
 """
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -12,6 +15,16 @@ from pypdf import PdfReader
 from . import galicia_caja, galicia_fci, mercadopago
 
 PARSERS = [galicia_caja, galicia_fci, mercadopago]
+
+
+def entidades() -> list[dict]:
+    """Entidades que se pueden leer por PDF, en orden, con los documentos que acepta cada una."""
+    out = {}
+    for p in PARSERS:
+        e = out.setdefault(p.ENTIDAD, {"nombre": p.ENTIDAD, "tipo": getattr(p, "TIPO", "banco"), "metodo": "pdf", "documentos": []})
+        if getattr(p, "DOCUMENTO", None):
+            e["documentos"].append(p.DOCUMENTO)
+    return list(out.values())
 
 
 @dataclass

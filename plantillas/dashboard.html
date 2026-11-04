@@ -218,8 +218,11 @@ const dm = iso => iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) : '?';
 const dias = iso => iso ? Math.round((new Date(HOY) - new Date(iso)) / 864e5) : null;
 const nombreMes = (mes, corto) => { const [y, m] = mes.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('es-AR', corto ? { month: 'short' } : { month: 'long', year: 'numeric' }); };
 const finMes = mes => { const [y, m] = mes.split('-').map(Number); return `${mes}-${String(new Date(y, m, 0).getDate()).padStart(2, '0')}`; };
-const ENT_COLOR = { 'Galicia': 'var(--s2)', 'Mercado Pago': 'var(--s1)', 'IOL': 'var(--s3)' };
-const entColor = e => ENT_COLOR[e] || 'var(--s5)';
+// Color fijo por entidad, en el orden del catálogo de fuentes (nunca por ranking)
+const PALETA_ENT = ['var(--s2)', 'var(--s1)', 'var(--s3)', 'var(--s4)', 'var(--s5)'];
+const ENT_COLOR = {};
+(DATA.entidades || ['Galicia', 'Mercado Pago', 'IOL']).forEach((e, i) => ENT_COLOR[e] = PALETA_ENT[i] || 'var(--text-3)');
+const entColor = e => ENT_COLOR[e] || 'var(--text-3)';
 const tipoBonito = t => String(t || '').replace('TITULOSPUBLICOS', 'Títulos públicos').replace('CEDEARS', 'CEDEARs').replace('ACCIONES', 'Acciones').replace('PLAZO FIJO', 'Plazo fijo');
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 

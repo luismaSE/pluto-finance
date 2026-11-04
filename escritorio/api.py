@@ -44,9 +44,16 @@ class Api:
         cfg = configuracion.cargar()
         ok, detalle = configuracion.llavero_disponible()
         h = historial.cargar()
+        import fuentes
+        import ia
         return {
             "version": VERSION,
+            "primer_uso": configuracion.primer_uso(),
             "config": cfg,
+            "fuentes": fuentes.catalogo(cfg),
+            "descarga_sitios": [{"id": k, "nombre": v["nombre"]} for k, v in __import__("descarga_asistida").SITIOS.items()],
+            "proveedores_ia": [{"id": m.ID, "nombre": m.NOMBRE, "descripcion": m.DESCRIPCION, "secreto": m.SECRETO,
+                                "modelo": m.MODELO, "usa_url": m.USA_URL} for m in ia.PROVEEDORES.values()],
             "secretos": {k: {"descripcion": d, "guardado": bool(configuracion.leer_secreto(k)) if ok else False}
                          for k, d in configuracion.SECRETOS.items()},
             "llavero": {"ok": ok, "detalle": detalle},
@@ -79,6 +86,11 @@ class Api:
     def borrar_secreto(self, nombre: str) -> dict:
         configuracion.borrar_secreto(nombre)
         return {"ok": True}
+
+    def probar_ia(self) -> dict:
+        """Prueba corta del proveedor de IA configurado (no manda datos personales)."""
+        import ia
+        return ia.probar(configuracion.cargar()["analisis"], configuracion.leer_secreto)
 
     def probar_github(self) -> dict:
         import publicar
@@ -121,11 +133,10 @@ class Api:
             o = Opciones(
                 reportes=[f["reportes"]],
                 descargas=f["descargas"] if f.get("importar_descargas") else None,
-                iol=bool(op.get("iol")) and bool(op.get("iol_usuario")) and bool(op.get("iol_clave")),
-                iol_usuario=op.get("iol_usuario"),
-                iol_clave=op.get("iol_clave"),
+                # {"iol": {"usuario": ..., "clave": ...}} solo de los brokers que el usuario completó
+                brokers={k: v for k, v in (op.get("brokers") or {}).items() if v} if op.get("consultar_brokers") else {},
                 analisis=bool(op.get("analisis")),
-                modelo=cfg["analisis"].get("modelo") or None,
+                ia=cfg["analisis"],
                 celular=celular,
                 celular_password=configuracion.leer_secreto("celular_password") if celular else None,
                 github_token=configuracion.leer_secreto("github_token") if celular else None,
@@ -133,7 +144,7 @@ class Api:
                 publicar=cfg["publicar"],
                 interactivo=False,
             )
-            op.clear()   # descarta la clave de IOL de este diccionario
+            op.clear()   # descarta las credenciales de los brokers de este diccionario
             r = ejecutar(o, log=self._log)
             resultado = {"ok": True, "publicado": r["publicado"], "celular": celular}
         except Exception as e:

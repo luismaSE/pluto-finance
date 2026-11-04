@@ -1,31 +1,41 @@
-# Mi cartera: IOL + Galicia + Mercado Pago → Claude → dashboard
+# Mi cartera
 
-Junta tus saldos, gastos e inversiones, se los pasa a Claude para que los analice y arma un dashboard HTML local.
+Tus bancos, billeteras y brokers en un solo lugar: un dashboard con patrimonio, gastos e inversiones, un análisis hecho por IA y una app para verlo en el celular. Todo corre en tu computadora.
 
-- **IOL:** en vivo por la API oficial (te pide usuario y clave en la terminal).
-- **Galicia y Mercado Pago:** desde los **resúmenes PDF** que descargás vos.
+- **Bancos y billeteras** (Galicia y Mercado Pago incluidos): se leen de los **resúmenes PDF** que descargás.
+- **Brokers con API** (IOL incluido): se consultan en vivo; usuario y clave se piden cada vez y no se guardan.
+- **IA a elección:** Claude Code, API de Anthropic, cualquier API compatible con OpenAI, u **Ollama** (local, los datos no salen de tu equipo).
+- Se suman bancos, brokers y proveedores de IA con un archivo cada uno (ver [Sumar fuentes o proveedores](#sumar-bancos-brokers-o-proveedores-de-ia)).
 
-## App de escritorio (recomendado)
+## Instalación rápida
 
-Configurás todo una vez y después es un clic: **Actualizar todo** importa los resúmenes nuevos de tu carpeta de Descargas, consulta IOL, hace el análisis con Claude, genera el dashboard y lo publica al celular.
+Necesitás **Python 3.11 o más nuevo** ([python.org](https://www.python.org/downloads/)).
 
+**Linux / macOS**
 ```bash
-pip install -r requirements-escritorio.txt
+git clone https://github.com/luismaSE/wallet-dashboard.git
 ```
 ```bash
-python app.py
+cd wallet-dashboard && ./instalar.sh
 ```
 ```bash
-./escritorio/acceso_directo.sh
+./iniciar.sh
 ```
-El último comando agrega "Mi cartera" al menú de aplicaciones (Linux).
+
+**Windows:** descargá el repo (Code → Download ZIP), descomprimilo y hacé doble clic en **`instalar.bat`**. Después abrí la app con el acceso directo "Mi cartera" del escritorio o con `iniciar.bat`.
+
+La primera vez se abre un **asistente** que te pregunta en 4 pasos dónde guardar los resúmenes, qué bancos y brokers usás y con qué IA querés el análisis. Todo se puede cambiar después en Configuración.
+
+## App de escritorio
+
+Configurás todo una vez y después es un clic: **Actualizar todo** importa los resúmenes nuevos de tu carpeta de Descargas, consulta tus brokers, hace el análisis con IA, genera el dashboard y lo publica al celular.
 
 - Ventana propia: no abre puertos ni levanta servidores.
-- Tokens y contraseña del celular se guardan en el **llavero del sistema** (GNOME Keyring / KWallet, Credential Manager en Windows, Keychain en macOS), nunca en archivos del proyecto.
-- La clave de IOL se pide en cada actualización y no se guarda.
+- Tokens, claves de API y la contraseña del celular se guardan en el **llavero del sistema** (GNOME Keyring / KWallet en Linux, Credential Manager en Windows, Keychain en macOS), nunca en archivos del proyecto.
+- Las claves de los brokers se piden en cada actualización y no se guardan.
 - El dashboard se ve dentro de la app, en un marco aislado: no puede leer la configuración ni los secretos, ni conectarse a internet.
 - Modo oscuro por defecto (se cambia desde la barra lateral).
-- En Linux necesitás un llavero activo (gnome-keyring o kwallet). Si usás la variante GTK de pywebview en lugar de Qt: `sudo pacman -S python-gobject webkit2gtk-4.1` y creá el venv con `--system-site-packages`.
+- En Linux necesitás un llavero activo (gnome-keyring o kwallet).
 
 La terminal (`python main.py`) sigue funcionando y usa la misma configuración y los mismos secretos guardados.
 
@@ -53,18 +63,31 @@ También funciona desde la terminal: `python descarga_asistida.py galicia`.
 Pasos posibles: `esperar_url` (regex), `ir` (url), `click` (selector o `text=...`) y `esperar` (ms). Si un paso falla, la app sigue en modo manual. Los selectores dependen de cómo se ve tu cuenta, así que se arman una vez mirando la web (o grabando los clics con `playwright codegen`, sin incluir los campos de usuario y clave).
 
 ## Seguridad
-- **No se guardan credenciales.** La clave de IOL se pide sin mostrarse y se descarta después del login.
+- **No se guardan las claves de bancos ni brokers.** Se piden en cada actualización y se descartan después del login.
 - Los PDF y el dashboard quedan solo en tu computadora (`reportes/` y `salida/` están en `.gitignore`).
-- **A Claude le llega solo un resumen** (saldos, posiciones, gastos por mes). Los números largos (CBU, CUIT, nros. de operación) se borran antes.
+- **A la IA le llega solo un resumen** (saldos, posiciones, gastos por mes). Los números largos (CBU, CUIT, nros. de operación) se borran antes. Con Ollama no sale nada de tu equipo.
 
-## Instalación
+## Análisis con IA
+
+Se elige en Configuración → Análisis con IA (o en el asistente). Cada proveedor tiene su modelo y, si hace falta, su clave (guardada en el llavero).
+
+| Proveedor | Qué necesitás |
+|---|---|
+| **Claude Code** | [Claude Code](https://claude.com/claude-code) instalado y con sesión iniciada (comando `claude`). Sin clave aparte. |
+| **Claude (API de Anthropic)** | Una clave de [console.anthropic.com](https://console.anthropic.com). Modelo por defecto: `claude-opus-5-5`. |
+| **API compatible con OpenAI** | Dirección del servidor, modelo y clave. Sirve para OpenAI, OpenRouter, Gemini, LM Studio, etc. |
+| **Ollama (local)** | [Ollama](https://ollama.com) corriendo y un modelo descargado (`ollama pull llama3.1`). |
+
+Prueba rápida del proveedor configurado: `python analisis.py` (o el botón **Probar** en la app). Si una actualización no corre el análisis (o falla), se muestra el último que salió bien, con su fecha.
+
+## Instalación manual
 ```bash
 python -m venv .venv
 source .venv/bin/activate      # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements-escritorio.txt
+playwright install chromium    # solo para la descarga asistida
 ```
-Para el análisis necesitás [Claude Code](https://claude.com/claude-code) instalado y logueado (comando `claude`).
-En **IOL** habilitá el acceso por API: Mi cuenta → Personalización → APIs.
+Solo terminal, sin app: `pip install -r requirements.txt`.
 
 ## Qué PDFs descargar (y dejar en `reportes/`)
 | Entidad | Reporte | Dónde |
@@ -78,11 +101,12 @@ Cada PDF se reconoce por su contenido, no por el nombre. Si dejás varios meses,
 
 ## Uso
 ```bash
-python main.py                                  # IOL + PDFs de ./reportes
+python main.py                                  # brokers activos + PDFs de ./reportes
 python main.py --reportes ~/Descargas/resumenes # otra carpeta o lista de PDFs
-python main.py --sin-iol                        # solo PDFs
+python main.py --sin-brokers                    # solo PDFs
 python main.py --demo                           # datos ficticios
-python main.py --modelo opus --sin-analisis     # opciones de Claude
+python main.py --proveedor ollama --modelo llama3.1   # otro proveedor de IA
+python main.py --sin-analisis                   # sin IA
 python main.py --celular                        # además cifra y publica para la app Android
 ```
 
@@ -140,6 +164,18 @@ base64 -w0 cartera.jks
 ```
 En el repo del código → Settings → Secrets and variables → Actions, creá estos secrets: `CARTERA_KEYSTORE_BASE64` (la salida de base64), `CARTERA_KEYSTORE_PASSWORD`, `CARTERA_KEY_ALIAS` (`cartera`) y `CARTERA_KEY_PASSWORD`. Guardá `cartera.jks` en un lugar seguro y **nunca lo subas al repo**.
 
+## Sumar bancos, brokers o proveedores de IA
+
+Cada fuente es un archivo; la app los muestra solos en Configuración y en el asistente.
+
+| Querés sumar | Copiá | Y agregalo a |
+|---|---|---|
+| Un banco o billetera con resúmenes PDF | `conectores/pdf/_plantilla.py` | `PARSERS` en `conectores/pdf/__init__.py` |
+| Un broker con API | `conectores/brokers/_plantilla.py` | `BROKERS` en `conectores/brokers/__init__.py` |
+| Un proveedor de IA | `ia/_plantilla.py` | `PROVEEDORES` en `ia/__init__.py` |
+
+Para ver el texto de un PDF y armar el lector: `python -c "from conectores.pdf import leer_texto; print(leer_texto('resumen.pdf'))"`. Antes de compartir un lector, sacá cualquier dato tuyo de los comentarios y ejemplos.
+
 ## Estructura
 | Archivo | Qué hace |
 |---|---|
@@ -149,14 +185,16 @@ En el repo del código → Settings → Secrets and variables → Actions, creá
 | `configuracion.py` | config.toml + llavero del sistema |
 | `importar.py` | Importa resúmenes nuevos desde Descargas |
 | `historial.py` | Totales de cada corrida para la evolución del patrimonio |
-| `conectores/iol.py` | API oficial de IOL |
+| `conectores/brokers/` | Brokers con API (IOL) |
+| `fuentes.py` | Catálogo de bancos, billeteras y brokers |
+| `ia/` | Proveedores de IA (Claude Code, Anthropic, OpenAI compatible, Ollama) |
 | `conectores/pdf/galicia_caja.py` | Resumen de caja de ahorro (ARS y USD) |
 | `conectores/pdf/galicia_fci.py` | Posición de fondos FIMA / comitente |
 | `conectores/pdf/mercadopago.py` | Resumen de cuenta de Mercado Pago |
 | `categorias.py` | Reglas de categorías (editables) |
 | `cotizaciones.py` | Dólar oficial, MEP, CCL y blue (dolarapi.com) |
 | `resumen.py` | Totales, consolidación al MEP y gastos por mes |
-| `analisis.py` | Análisis con Claude Code (`claude -p`) |
+| `instalar.sh`, `instalar.bat` | Instaladores (Linux/macOS y Windows) |
 | `plantillas/dashboard.html` | Dashboard (claro/oscuro, sin internet); lo usan la PC y la app |
 | `cifrado.py` | Cifrado del archivo para el celular |
 | `publicar.py` | Subida a GitHub o Google Drive |

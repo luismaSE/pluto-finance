@@ -114,6 +114,23 @@ td { padding: 9px 8px; border-bottom: 1px solid var(--surface-2); font-variant-n
 .modal input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); margin-bottom: 10px; }
 .modal .acciones { justify-content: flex-end; margin-top: 6px; }
 .empty { color: var(--text-3); }
+.modal.asistente { width: min(620px, 94vw); max-height: 90vh; overflow: auto; }
+.asistente .et { display: block; font-weight: 600; font-size: 13px; margin: 14px 0 6px; }
+.asistente .con-boton input, .asistente input[type=text], .asistente input[type=password] { margin-bottom: 0; }
+.pasos { display: flex; gap: 6px; margin-bottom: 16px; }
+.pasos span { flex: 1; height: 4px; border-radius: 4px; background: var(--border); }
+.pasos span.on { background: var(--accent); }
+.opcion { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; cursor: pointer; }
+.opcion:has(input:checked) { border-color: var(--accent); background: var(--surface-2); }
+.opcion input, .modal .opcion input, .entidad input[type=checkbox] { width: auto; flex: none; margin: 3px 0 0; }
+.opciones label[hidden] { display: none; }
+.opcion .d { font-size: 12px; color: var(--text-3); }
+.nota-wz { font-size: 12px; color: var(--text-3); margin: 6px 0 0; }
+.entidad { padding: 10px 0; border-bottom: 1px solid var(--surface-2); }
+.entidad:last-child { border-bottom: 0; }
+.entidad .cab { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+.entidad ul { margin: 6px 0 0; padding-left: 18px; color: var(--text-3); font-size: 12px; }
+.tipo { font-size: 11px; padding: 1px 7px; border-radius: 6px; background: var(--surface-2); color: var(--text-2); margin-left: 6px; font-weight: 500; }
 main.con-dash { padding: 0; overflow: hidden; }
 .marco { display: block; width: 100%; height: 100vh; border: 0; background: var(--bg); }
 </style>
@@ -144,8 +161,8 @@ main.con-dash { padding: 0; overflow: hidden; }
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
               Actualizar todo</button>
             <div class="opciones">
-              <label><input type="checkbox" id="op-iol"> Consultar IOL</label>
-              <label><input type="checkbox" id="op-analisis"> Análisis de Claude</label>
+              <label id="lbl-brokers"><input type="checkbox" id="op-brokers"> <span id="txt-brokers">Consultar brokers</span></label>
+              <label><input type="checkbox" id="op-analisis"> Análisis con IA</label>
               <label><input type="checkbox" id="op-celular"> Publicar al celular</label>
             </div>
           </div>
@@ -156,10 +173,7 @@ main.con-dash { padding: 0; overflow: hidden; }
       <div class="card">
         <h2>Descargar resúmenes</h2>
         <p style="margin:0 0 12px;color:var(--text-2)"><b>Galicia:</b> se abre un navegador nuevo en la web del banco. Iniciás sesión vos (la clave no pasa por la app) y descargás los PDF: se guardan solos en la carpeta de resúmenes.</p>
-        <div class="acciones">
-          <button class="btn" data-descargar="galicia"><span class="dot" style="background:#eb6834"></span> Descargar de Galicia</button>
-          <span class="msg" id="msg-descarga"></span>
-        </div>
+        <div class="acciones"><span id="botones-descarga"></span><span class="msg" id="msg-descarga"></span></div>
         <p style="margin:14px 0 0;color:var(--text-3);font-size:13px"><b>Mercado Pago:</b> pedí el resumen desde su web o app (tarda unos minutos en generarse) y bajalo a tu carpeta de Descargas. Se importa solo al tocar "Actualizar todo".</p>
       </div>
 
@@ -193,15 +207,17 @@ main.con-dash { padding: 0; overflow: hidden; }
       <div class="card"><h2>Fuentes de datos</h2>
         <div class="campo"><label>Carpeta de resúmenes</label>
           <div class="con-boton"><input type="text" data-cfg="fuentes.reportes"><button class="btn" data-elegir="fuentes.reportes">Elegir…</button></div>
-          <div class="ayuda">Donde quedan guardados los PDF de Galicia y Mercado Pago.</div></div>
+          <div class="ayuda">Donde quedan guardados los resúmenes en PDF de tus bancos y billeteras.</div></div>
         <div class="campo"><label>Importar desde Descargas</label>
           <label class="interruptor"><input type="checkbox" data-cfg="fuentes.importar_descargas"><span></span></label>
           <div class="ayuda">Al actualizar, copia los resúmenes nuevos que encuentre en esta carpeta.</div></div>
         <div class="campo"><label>Carpeta de Descargas</label>
           <div class="con-boton"><input type="text" data-cfg="fuentes.descargas"><button class="btn" data-elegir="fuentes.descargas">Elegir…</button></div></div>
-        <div class="campo"><label>Consultar IOL por defecto</label>
-          <label class="interruptor"><input type="checkbox" data-cfg="fuentes.iol"><span></span></label>
-          <div class="ayuda">Usuario y clave se piden en cada actualización y no se guardan.</div></div>
+      </div>
+
+      <div class="card"><h2>Bancos, billeteras y brokers</h2>
+        <div id="cfg-entidades"></div>
+        <p class="empty" style="font-size:12px;margin:10px 0 0">¿Tu banco o broker no está? Se suma con un archivo: ver <code>conectores/pdf/_plantilla.py</code> (resúmenes PDF) o <code>conectores/brokers/_plantilla.py</code> (API).</p>
       </div>
 
       <div class="card"><h2>Descarga de resúmenes</h2>
@@ -210,11 +226,14 @@ main.con-dash { padding: 0; overflow: hidden; }
           <div class="ayuda">Para descargar de Galicia. Siempre se abre una sesión nueva, sin tus cookies.</div></div>
       </div>
 
-      <div class="card"><h2>Análisis de Claude</h2>
+      <div class="card"><h2>Análisis con IA</h2>
         <div class="campo"><label>Activado por defecto</label>
           <label class="interruptor"><input type="checkbox" data-cfg="analisis.activado"><span></span></label></div>
-        <div class="campo"><label>Modelo</label>
-          <select data-cfg="analisis.modelo"><option value="">Predeterminado de Claude Code</option><option value="opus">Opus</option><option value="sonnet">Sonnet</option><option value="haiku">Haiku (más rápido)</option></select></div>
+        <div class="campo"><label>Proveedor</label><select data-cfg="analisis.proveedor" id="sel-proveedor"></select>
+          <div class="ayuda" id="ayuda-proveedor"></div></div>
+        <div id="cfg-proveedores"></div>
+        <div class="campo"><label></label><div><button class="btn" id="btn-probar-ia">Probar</button><div class="msg" id="msg-probar-ia"></div></div></div>
+        <p class="empty" style="font-size:12px;margin:6px 0 0">Se envía un resumen (saldos, posiciones y gastos), sin números de cuenta, CBU ni CUIT. Con Ollama los datos no salen de tu computadora.</p>
       </div>
 
       <div class="card"><h2>Celular</h2>
@@ -244,7 +263,7 @@ main.con-dash { padding: 0; overflow: hidden; }
         <div class="campo"><label>Inflación mensual (%)</label><input type="number" step="0.1" min="0" data-cfg="referencias.inflacion_mensual" data-pct></div>
       </div>
 
-      <div class="guardar-barra"><button class="btn primario" id="btn-guardar">Guardar configuración</button><span class="msg" id="msg-guardar"></span></div>
+      <div class="guardar-barra"><button class="btn primario" id="btn-guardar">Guardar configuración</button><button class="btn" id="btn-asistente">Abrir asistente de bienvenida</button><span class="msg" id="msg-guardar"></span></div>
     </section>
 
     <!-- ============ HISTORIAL ============ -->
@@ -256,15 +275,52 @@ main.con-dash { padding: 0; overflow: hidden; }
   </main>
 </div>
 
-<!-- Modal: IOL -->
-<div class="fondo-modal" id="modal-iol" hidden>
-  <form class="modal" id="form-iol" autocomplete="off">
-    <h3>Ingresar a IOL</h3>
+<!-- Modal: credenciales de brokers (se arma según los brokers activos) -->
+<div class="fondo-modal" id="modal-brokers" hidden>
+  <form class="modal" id="form-brokers" autocomplete="off">
+    <h3>Ingresar a tus brokers</h3>
     <p>Se usa solo para esta actualización y no se guarda.</p>
-    <input type="text" id="iol-usuario" placeholder="Usuario" autocomplete="off" required>
-    <input type="password" id="iol-clave" placeholder="Clave" autocomplete="off" required>
-    <div class="acciones"><button type="button" class="btn" id="iol-omitir">Seguir sin IOL</button><button type="button" class="btn" id="iol-cancelar">Cancelar</button><button type="submit" class="btn primario">Actualizar</button></div>
+    <div id="campos-brokers"></div>
+    <div class="acciones"><button type="button" class="btn" id="brk-omitir">Seguir sin brokers</button><button type="button" class="btn" id="brk-cancelar">Cancelar</button><button type="submit" class="btn primario">Actualizar</button></div>
   </form>
+</div>
+
+<!-- Asistente de bienvenida (primer uso) -->
+<div class="fondo-modal" id="bienvenida" hidden>
+  <div class="modal asistente">
+    <div class="pasos" id="wz-pasos"></div>
+    <section data-paso="1">
+      <h3>Te damos la bienvenida a Mi cartera</h3>
+      <p>Junta tus bancos, billeteras y brokers en un solo lugar, te muestra un dashboard y le pide a una IA que lo analice. Todo queda en esta computadora.</p>
+      <label class="et">Carpeta donde guardar los resúmenes PDF</label>
+      <div class="con-boton"><input type="text" id="wz-reportes"><button type="button" class="btn" data-wz-elegir="wz-reportes">Elegir…</button></div>
+      <label class="et">Tu carpeta de Descargas (de ahí se importan los resúmenes nuevos)</label>
+      <div class="con-boton"><input type="text" id="wz-descargas"><button type="button" class="btn" data-wz-elegir="wz-descargas">Elegir…</button></div>
+    </section>
+    <section data-paso="2" hidden>
+      <h3>¿Qué usás?</h3>
+      <p>Los bancos y billeteras se leen de los resúmenes PDF que descargás. Los brokers con API se consultan en vivo (usuario y clave se piden cada vez y no se guardan).</p>
+      <div id="wz-fuentes"></div>
+    </section>
+    <section data-paso="3" hidden>
+      <h3>¿Con qué IA querés el análisis?</h3>
+      <p>Podés cambiarlo después. Con Ollama, los datos no salen de tu computadora.</p>
+      <div id="wz-ia"></div>
+      <label class="et">Modelo</label><input type="text" id="wz-modelo">
+      <div id="wz-clave-box"><label class="et" id="wz-clave-et">Clave de API</label><input type="password" id="wz-clave" autocomplete="off">
+        <p class="nota-wz">Se guarda en el llavero del sistema, no en un archivo.</p></div>
+    </section>
+    <section data-paso="4" hidden>
+      <h3>¡Listo!</h3>
+      <p>Para empezar: descargá tus resúmenes en PDF y tocá <b>Actualizar todo</b>. Si querés ver el dashboard en el celular, configuralo después en <b>Configuración → Celular</b>.</p>
+      <div id="wz-resumen"></div>
+    </section>
+    <div class="msg err" id="wz-error"></div>
+    <div class="acciones" style="justify-content:space-between;margin-top:16px">
+      <button type="button" class="btn" id="wz-saltar">Saltar</button>
+      <div class="acciones"><button type="button" class="btn" id="wz-atras">Atrás</button><button type="button" class="btn primario" id="wz-siguiente">Siguiente</button></div>
+    </div>
+  </div>
 </div>
 
 <!-- Modal: secreto -->
@@ -346,7 +402,12 @@ async function refrescar() {
   $('#version').textContent = 'v' + EST.version;
   const c = EST.config;
   aplicarTema(c.ui?.tema || 'dark');
-  $('#op-iol').checked = c.fuentes.iol;
+  const activos = EST.fuentes.filter(f => f.metodo === 'api' && f.activo);
+  $('#lbl-brokers').hidden = !activos.length;
+  $('#txt-brokers').textContent = 'Consultar ' + activos.map(f => f.nombre).join(', ');
+  $('#op-brokers').checked = activos.length > 0;
+  $('#botones-descarga').innerHTML = EST.descarga_sitios.map(x => `<button class="btn" data-descargar="${esc(x.id)}" style="margin-right:8px">Descargar de ${esc(x.nombre)}</button>`).join('');
+  $$('[data-descargar]').forEach(b => b.onclick = () => descargar(b));
   $('#op-analisis').checked = c.analisis.activado;
   $('#op-celular').checked = c.publicar.destino !== 'ninguno';
   $('#op-celular').disabled = c.publicar.destino === 'ninguno';
@@ -362,45 +423,52 @@ async function refrescar() {
       <div class="kpi"><div class="l">Invertido</div><div class="v">${compact(u.inversiones_ars)}</div></div></div>
       <p class="empty" style="margin:12px 0 0">${esc(fecha(u.fecha))}</p>` : '<div class="empty">Todavía no actualizaste.</div>';
 
-  const fuentes = ['IOL', 'Galicia', 'Mercado Pago'];
-  $('#fuentes').innerHTML = fuentes.map(f => {
-    const ok = u && u.fuentes_ok.includes(f), err = u && u.fuentes_error[f];
+  $('#fuentes').innerHTML = EST.fuentes.map(f => {
+    const n = f.nombre, ok = u && u.fuentes_ok.includes(n), err = u && u.fuentes_error[n];
     const color = ok ? 'var(--good)' : err ? 'var(--critical)' : 'var(--border)';
-    const txt = ok ? 'OK en la última actualización' : err ? esc(err) : (f === 'IOL' && !c.fuentes.iol ? 'Desactivado' : 'Sin datos');
-    return `<div class="fuente"><span class="dot" style="background:${color}"></span><b>${f}</b><span class="empty">${txt}</span></div>`;
+    const txt = ok ? 'OK en la última actualización' : err ? esc(err) : (f.metodo === 'api' && !f.activo ? 'Desactivado' : 'Sin datos');
+    return `<div class="fuente"><span class="dot" style="background:${color}"></span><b>${esc(n)}</b><span class="empty">${txt}</span></div>`;
   }).join('') + `<div class="acciones" style="margin-top:8px"><button class="btn" data-carpeta="reportes">Abrir carpeta de resúmenes</button></div>`;
 
   $('#tabla-hist').innerHTML = EST.historial.map(h => `<tr><td>${esc(fecha(h.fecha))}</td><td class="num">${compact(h.patrimonio_ars)}</td>
     <td class="num">${h.patrimonio_usd ? 'US$ ' + nf0.format(h.patrimonio_usd) : '—'}</td><td>${esc(h.fuentes_ok.join(', '))}</td>
     <td style="color:var(--neg-text)">${esc(Object.keys(h.fuentes_error || {}).join(', '))}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">Sin actualizaciones todavía.</td></tr>';
 
+  armarConfigDinamica();
   llenarConfig(c);
   pintarSecretos();
+  if (EST.primer_uso && !window._bienvenidaMostrada) { window._bienvenidaMostrada = true; abrirBienvenida(); }
   $$('[data-carpeta]').forEach(b => b.onclick = () => API.abrir_carpeta(b.dataset.carpeta));
 }
 
 // ---------- actualizar ----------
+const brokersActivos = () => EST.fuentes.filter(f => f.metodo === 'api' && f.activo);
 $('#btn-actualizar').onclick = () => {
   if (corriendo) return;
-  if ($('#op-iol').checked) { $('#modal-iol').hidden = false; $('#iol-usuario').focus(); }
-  else lanzar({});
+  const activos = brokersActivos();
+  if ($('#op-brokers').checked && activos.length) {
+    $('#campos-brokers').innerHTML = activos.map(b => `<fieldset style="border:0;padding:0;margin:0 0 6px"><legend style="font-weight:600;margin-bottom:6px">${esc(b.nombre)}</legend>
+      ${b.campos.map(c => `<input data-broker="${esc(b.id)}" data-campo="${esc(c.id)}" type="${c.secreto ? 'password' : 'text'}" placeholder="${esc(c.etiqueta)}" autocomplete="off" required>`).join('')}</fieldset>`).join('');
+    $('#modal-brokers').hidden = false;
+    const primero = $('#campos-brokers input'); if (primero) primero.focus();
+  } else lanzar(null);
 };
-$('#form-iol').onsubmit = e => {
+const limpiarBrokers = () => { $$('#campos-brokers input').forEach(i => i.value = ''); $('#campos-brokers').innerHTML = ''; $('#modal-brokers').hidden = true; };
+$('#form-brokers').onsubmit = e => {
   e.preventDefault();
-  const cred = { iol_usuario: $('#iol-usuario').value.trim(), iol_clave: $('#iol-clave').value };
-  $('#iol-clave').value = '';
-  $('#modal-iol').hidden = true;
+  const cred = {};
+  $$('#campos-brokers input').forEach(i => { (cred[i.dataset.broker] = cred[i.dataset.broker] || {})[i.dataset.campo] = i.value.trim ? (i.type === 'password' ? i.value : i.value.trim()) : i.value; });
+  limpiarBrokers();
   lanzar(cred);
 };
-$('#iol-omitir').onclick = () => { $('#iol-clave').value = ''; $('#modal-iol').hidden = true; lanzar({ sinIol: true }); };
-$('#iol-cancelar').onclick = () => { $('#iol-clave').value = ''; $('#modal-iol').hidden = true; };
+$('#brk-omitir').onclick = () => { limpiarBrokers(); lanzar(null); };
+$('#brk-cancelar').onclick = limpiarBrokers;
 
 async function lanzar(cred) {
-  const op = { iol: $('#op-iol').checked && !cred.sinIol, analisis: $('#op-analisis').checked, celular: $('#op-celular').checked && !$('#op-celular').disabled,
-    iol_usuario: cred.iol_usuario, iol_clave: cred.iol_clave };
+  const op = { consultar_brokers: !!cred, brokers: cred || {}, analisis: $('#op-analisis').checked, celular: $('#op-celular').checked && !$('#op-celular').disabled };
   $('#consola').innerHTML = '';
   const r = await API.actualizar(op);
-  delete op.iol_clave; cred.iol_clave = null;
+  op.brokers = null; cred = null;
   if (!r.ok) { ui.log('✗ ' + r.error); return; }
   corriendo = true;
   $('#btn-actualizar').disabled = true;
@@ -408,7 +476,7 @@ async function lanzar(cred) {
 }
 
 // ---------- descarga asistida ----------
-$$('[data-descargar]').forEach(b => b.onclick = async () => {
+async function descargar(b) {
   if (corriendo) return;
   $('#consola').innerHTML = '';
   const r = await API.descargar(b.dataset.descargar);
@@ -418,7 +486,7 @@ $$('[data-descargar]').forEach(b => b.onclick = async () => {
   $('#btn-actualizar').disabled = true;
   $('#msg-descarga').className = 'msg';
   $('#msg-descarga').innerHTML = '<span class="spinner" style="display:inline-block;vertical-align:middle"></span> Esperando que descargues los PDF y cierres el navegador…';
-});
+}
 
 // ---------- dashboard ----------
 async function cargarDashboard() {
@@ -433,6 +501,101 @@ async function cargarDashboard() {
 $('#btn-ver-dash').onclick = () => ir('dashboard');
 $('#btn-navegador').onclick = () => API.abrir_dashboard_navegador();
 
+// ---------- configuración armada según el catálogo ----------
+const TIPOS = { banco: 'Banco', billetera: 'Billetera', broker: 'Broker' };
+function entidadHTML(f, conInterruptor) {
+  const docs = (f.documentos || []).map(d => `<li>PDF: ${esc(d)}</li>`).join('');
+  const api = f.metodo === 'api' || f.id ? `<li>${esc(f.descripcion || 'Conexión por API')}</li>` : '';
+  const tog = f.id ? (conInterruptor === 'wz'
+      ? `<input type="checkbox" data-wz-broker="${esc(f.id)}" ${f.activo ? 'checked' : ''}>`
+      : `<label class="interruptor"><input type="checkbox" data-cfg="brokers.${esc(f.id)}.activo"><span></span></label>`)
+    : '<span class="empty" style="font-size:12px">por PDF</span>';
+  return `<div class="entidad"><div class="cab"><b>${esc(f.nombre)}<span class="tipo">${esc(TIPOS[f.tipo] || f.tipo)}</span></b>${tog}</div><ul>${docs}${api}</ul></div>`;
+}
+let dinamicaArmada = false;
+function armarConfigDinamica() {
+  if (dinamicaArmada) return;
+  dinamicaArmada = true;
+  $('#cfg-entidades').innerHTML = EST.fuentes.map(f => entidadHTML(f)).join('');
+  $('#sel-proveedor').innerHTML = EST.proveedores_ia.map(p => `<option value="${esc(p.id)}">${esc(p.nombre)}</option>`).join('');
+  $('#cfg-proveedores').innerHTML = EST.proveedores_ia.map(p => `<div data-prov="${esc(p.id)}" hidden>
+    <div class="campo"><label>Modelo</label><input type="text" data-cfg="analisis.${esc(p.id)}.modelo" placeholder="${esc(p.modelo || 'el predeterminado')}"></div>
+    ${p.usa_url ? `<div class="campo"><label>Dirección del servidor</label><input type="text" data-cfg="analisis.${esc(p.id)}.url"></div>` : ''}
+    ${p.secreto ? `<div class="campo"><label>Clave de API</label><div class="secreto" data-secreto="${esc(p.secreto)}"></div></div>` : ''}
+  </div>`).join('');
+  $('#sel-proveedor').onchange = mostrarProveedor;
+}
+function mostrarProveedor() {
+  const id = $('#sel-proveedor').value, p = EST.proveedores_ia.find(x => x.id === id);
+  $$('[data-prov]').forEach(d => d.hidden = d.dataset.prov !== id);
+  $('#ayuda-proveedor').textContent = p ? p.descripcion : '';
+}
+$('#btn-probar-ia').onclick = async () => {
+  await API.guardar_config(leerConfig());
+  $('#msg-probar-ia').className = 'msg'; $('#msg-probar-ia').textContent = 'Probando…';
+  const r = await API.probar_ia();
+  $('#msg-probar-ia').className = 'msg ' + (r.ok ? 'ok' : 'err'); $('#msg-probar-ia').textContent = (r.ok ? '✓ ' : '✗ ') + r.mensaje;
+};
+
+// ---------- asistente de bienvenida ----------
+let wzPaso = 1;
+function abrirBienvenida() {
+  const c = EST.config;
+  $('#wz-reportes').value = c.fuentes.reportes; $('#wz-descargas').value = c.fuentes.descargas;
+  $('#wz-fuentes').innerHTML = EST.fuentes.map(f => entidadHTML(f, 'wz')).join('');
+  $('#wz-ia').innerHTML = EST.proveedores_ia.map(p => `<label class="opcion"><input type="radio" name="wz-prov" value="${esc(p.id)}" ${p.id === c.analisis.proveedor ? 'checked' : ''}>
+    <div><b>${esc(p.nombre)}</b><div class="d">${esc(p.descripcion)}</div></div></label>`).join('');
+  $$('[name="wz-prov"]').forEach(r => r.onchange = wzProveedor);
+  wzProveedor();
+  $$('[data-wz-elegir]').forEach(b => b.onclick = async () => { const r = await API.elegir_carpeta(); if (r) $('#' + b.dataset.wzElegir).value = r; });
+  wzIr(1);
+  $('#bienvenida').hidden = false;
+}
+function wzProveedor() {
+  const id = ($('[name="wz-prov"]:checked') || {}).value, p = EST.proveedores_ia.find(x => x.id === id) || {};
+  $('#wz-modelo').value = EST.config.analisis[id]?.modelo || p.modelo || '';
+  $('#wz-modelo').placeholder = p.modelo || 'el predeterminado';
+  $('#wz-clave-box').hidden = !p.secreto;
+  $('#wz-clave').value = '';
+}
+function wzIr(n) {
+  wzPaso = n;
+  $$('#bienvenida [data-paso]').forEach(sec => sec.hidden = +sec.dataset.paso !== n);
+  $('#wz-pasos').innerHTML = [1, 2, 3, 4].map(i => `<span class="${i <= n ? 'on' : ''}"></span>`).join('');
+  $('#wz-atras').hidden = n === 1;
+  $('#wz-siguiente').textContent = n === 4 ? 'Empezar' : 'Siguiente';
+  $('#wz-error').textContent = '';
+  if (n === 4) {
+    const brokers = $$('[data-wz-broker]').filter(x => x.checked).map(x => EST.fuentes.find(f => f.id === x.dataset.wzBroker).nombre);
+    const prov = EST.proveedores_ia.find(x => x.id === ($('[name="wz-prov"]:checked') || {}).value);
+    $('#wz-resumen').innerHTML = `<ul class="obs" style="color:var(--text-2)"><li>Resúmenes en <b>${esc($('#wz-reportes').value)}</b></li>
+      <li>Brokers en vivo: <b>${esc(brokers.join(', ') || 'ninguno')}</b></li><li>IA: <b>${esc(prov ? prov.nombre : '—')}</b></li></ul>`;
+  }
+}
+$('#wz-atras').onclick = () => wzIr(Math.max(1, wzPaso - 1));
+$('#wz-saltar').onclick = async () => { await API.guardar_config({}); $('#bienvenida').hidden = true; await refrescar(); };
+$('#wz-siguiente').onclick = async () => {
+  if (wzPaso === 1 && !$('#wz-reportes').value.trim()) { $('#wz-error').textContent = 'Elegí una carpeta para los resúmenes'; return; }
+  if (wzPaso < 4) return wzIr(wzPaso + 1);
+  const prov = ($('[name="wz-prov"]:checked') || {}).value || 'claude_code';
+  const p = EST.proveedores_ia.find(x => x.id === prov);
+  const brokers = {};
+  $$('[data-wz-broker]').forEach(x => brokers[x.dataset.wzBroker] = { activo: x.checked });
+  await API.guardar_config({
+    fuentes: { reportes: $('#wz-reportes').value.trim(), descargas: $('#wz-descargas').value.trim(), importar_descargas: true },
+    brokers, analisis: { activado: true, proveedor: prov, [prov]: { modelo: $('#wz-modelo').value.trim() } },
+  });
+  const clave = $('#wz-clave').value; $('#wz-clave').value = '';
+  if (p && p.secreto && clave) {
+    const r = await API.guardar_secreto(p.secreto, clave);
+    if (!r.ok) { $('#wz-error').textContent = 'No pude guardar la clave: ' + r.error + '. Podés cargarla después en Configuración.'; }
+  }
+  $('#bienvenida').hidden = true;
+  dinamicaArmada = false;
+  await refrescar();
+};
+$('#btn-asistente').onclick = abrirBienvenida;
+
 // ---------- configuración ----------
 const get = (o, path) => path.split('.').reduce((a, k) => a?.[k], o);
 const set = (o, path, v) => { const ks = path.split('.'); ks.slice(0, -1).reduce((a, k) => a[k] = a[k] || {}, o)[ks.at(-1)] = v; };
@@ -444,6 +607,7 @@ function llenarConfig(c) {
     else el.value = v ?? '';
   });
   mostrarDestino();
+  mostrarProveedor();
 }
 function leerConfig() {
   const c = {};

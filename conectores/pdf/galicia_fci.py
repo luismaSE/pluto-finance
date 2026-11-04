@@ -6,6 +6,8 @@ from utils import parse_monto
 from .comun import ddmmyy
 
 ENTIDAD = "Galicia"
+TIPO = "banco"
+DOCUMENTO = "Posición de inversiones / fondos FIMA: Inversiones → Resúmenes"
 # FONDO EJEMPLO CLASE A      1.000,00  $ 100,000000  $ 100.000,00
 LINEA = re.compile(r"^\s*(\S.*?)\s{2,}([\d.]+,\d+)\s*(\$|USD)\s*([\d.]+,\d+)\s*(\$|USD)\s*([\d.]+,\d{2})\s*$")
 

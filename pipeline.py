@@ -1,7 +1,7 @@
 """El proceso completo, compartido por la terminal (main.py) y la app de escritorio (escritorio/).
 
-    importar Descargas -> leer PDFs -> IOL -> cotizaciones y tasas -> categorías -> resumen
-    -> historial -> análisis de Claude -> dashboard HTML -> (opcional) cifrar y publicar
+    importar Descargas -> leer PDFs -> brokers -> cotizaciones y tasas -> categorías -> resumen
+    -> historial -> análisis con IA -> dashboard HTML -> (opcional) cifrar y publicar
 """
 import json
 from dataclasses import dataclass, field
@@ -35,11 +35,11 @@ def _ultimo_analisis() -> dict | None:
 class Opciones:
     reportes: list = field(default_factory=lambda: ["reportes"])
     descargas: str | None = None          # carpeta de la que se importan resúmenes nuevos
-    iol: bool = True
-    iol_usuario: str | None = None        # si faltan y iol=True, se piden en la terminal
-    iol_clave: str | None = None
+    # brokers a consultar: {"iol": {"usuario": ..., "clave": ...}}. Si faltan datos y la
+    # corrida es interactiva, se piden en la terminal. Nunca se guardan.
+    brokers: dict = field(default_factory=dict)
     analisis: bool = True
-    modelo: str | None = None
+    ia: dict = field(default_factory=dict)          # sección [analisis] de la configuración
     celular: bool = False
     celular_password: str | None = None
     github_token: str | None = None
@@ -49,23 +49,45 @@ class Opciones:
     demo: bool = False
 
 
-def _cargar_iol(s: Snapshot, o: Opciones, log):
-    log("\n=== IOL ===")
-    try:
-        from conectores import iol
-        c, _, i = iol.obtener(o.iol_usuario, o.iol_clave)
-        hoy = date.today().isoformat()
-        for x in c + i:
-            x.al = x.al or hoy
-        s.cuentas += c
-        s.inversiones += i
-        s.estado_fuentes["IOL"] = {"ok": True, "detalle": f"API en vivo: {len(c)} saldos, {len(i)} posiciones"}
-        log(f"  ✓ {len(c)} saldos, {len(i)} posiciones")
-    except Exception as e:
-        log(f"  ✗ Error en IOL: {e}")
-        s.estado_fuentes["IOL"] = {"ok": False, "detalle": str(e)[:200]}
-    finally:
-        o.iol_clave = None
+def _pedir_campos(b, cred: dict) -> dict:
+    import getpass
+    for c in b.CAMPOS:
+        if not cred.get(c["id"]):
+            pregunta = f"{b.NOMBRE} - {c['etiqueta']}: "
+            cred[c["id"]] = getpass.getpass(pregunta) if c.get("secreto") else input(pregunta).strip()
+    return cred
+
+
+def _cargar_brokers(s: Snapshot, o: Opciones, log):
+    from conectores.brokers import BROKERS
+    for bid, cred in list(o.brokers.items()):
+        b = BROKERS.get(bid)
+        if not b:
+            log(f"\n✗ Broker desconocido: {bid}")
+            continue
+        log(f"\n=== {b.NOMBRE} ===")
+        try:
+            cred = dict(cred or {})
+            if o.interactivo:
+                cred = _pedir_campos(b, cred)
+            faltan = [c["etiqueta"] for c in b.CAMPOS if not cred.get(c["id"])]
+            if faltan:
+                raise RuntimeError("faltan datos de acceso: " + ", ".join(faltan))
+            c, m, i = b.obtener(cred)
+            hoy = date.today().isoformat()
+            for x in c + i:
+                x.al = x.al or hoy
+            s.cuentas += c
+            s.movimientos += m
+            s.inversiones += i
+            s.estado_fuentes[b.NOMBRE] = {"ok": True, "detalle": f"API en vivo: {len(c)} saldos, {len(i)} posiciones"}
+            log(f"  ✓ {len(c)} saldos, {len(i)} posiciones")
+        except Exception as e:
+            log(f"  ✗ Error en {b.NOMBRE}: {e}")
+            s.estado_fuentes[b.NOMBRE] = {"ok": False, "detalle": str(e)[:200]}
+        finally:
+            cred = None
+            o.brokers[bid] = None          # descarta las credenciales
 
 
 def _cargar_pdfs(s: Snapshot, rutas, log) -> set:
@@ -116,8 +138,8 @@ def ejecutar(o: Opciones, log=print) -> dict:
         log(f"  MEP: {s.cotizaciones.get('mep', {}).get('venta', 'sin dato')}"
             + (f" · TNA plazo fijo {refs['tna_plazo_fijo']*100:.1f}%" if refs.get("tna_plazo_fijo") else ""))
         titulares = _cargar_pdfs(s, o.reportes, log)
-        if o.iol:
-            _cargar_iol(s, o, log)
+        if o.brokers:
+            _cargar_brokers(s, o, log)
 
     for m in s.movimientos:
         m.categoria = m.categoria or categorizar(m.descripcion, titulares)
@@ -130,9 +152,13 @@ def ejecutar(o: Opciones, log=print) -> dict:
     if not o.demo:
         nuevo = None
         if o.analisis:
-            from analisis import analizar
-            log("\n=== Análisis de Claude ===")
-            nuevo = analizar(r, s.cotizaciones, o.modelo)
+            import configuracion
+            import ia
+            log("\n=== Análisis con IA ===")
+            nuevo = ia.analizar(r, s.cotizaciones, o.ia or configuracion.cargar()["analisis"],
+                                configuracion.leer_secreto, refs, log)
+            if nuevo.get("error"):
+                log(f"  ✗ {nuevo['error']}")
         if nuevo and not nuevo.get("error"):
             nuevo["fecha"] = datetime.now().isoformat(timespec="minutes")
             _guardar_analisis(nuevo)
@@ -150,8 +176,9 @@ def ejecutar(o: Opciones, log=print) -> dict:
             else:
                 s.analisis = nuevo
 
+    import fuentes
     datos = {"snapshot": s.to_dict(), "resumen": r, "demo": o.demo, "hoy": date.today().isoformat(),
-             "referencias": refs, "historial": historial.por_dia(hist)}
+             "referencias": refs, "historial": historial.por_dia(hist), "entidades": fuentes.nombres()}
     ruta = dashboard.generar(datos, abrir=False)
     log(f"\nDashboard: {Path(ruta).resolve()}")
 

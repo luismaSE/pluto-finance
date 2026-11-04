@@ -5,11 +5,28 @@
 reportes = "reportes"
 descargas = "~/Descargas"
 importar_descargas = true
-iol = true
+
+# Brokers con API: las credenciales se piden en cada actualización y no se guardan
+[brokers.iol]
+activo = false
 
 [analisis]
 activado = true
-modelo = ""           # "", "opus", "sonnet" o "haiku"
+proveedor = "claude_code"   # "claude_code", "anthropic", "openai_compatible" u "ollama"
+
+[analisis.claude_code]
+modelo = ""                 # "", "opus", "sonnet" o "haiku"
+
+[analisis.anthropic]
+modelo = "claude-opus-5-5"  # la clave se guarda en el llavero desde la app (o ANTHROPIC_API_KEY)
+
+[analisis.openai_compatible]
+modelo = ""
+url = "https://api.openai.com/v1"
+
+[analisis.ollama]
+modelo = "llama3.1"
+url = "http://localhost:11434"
 
 [referencias]
 # Solo se usan si no se puede consultar en línea. 0 = no usar.

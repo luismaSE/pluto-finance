@@ -5,6 +5,8 @@ from modelo import Cuenta, Movimiento
 from .comun import ddmmyy, monto, verificar_saldos
 
 ENTIDAD = "Galicia"
+TIPO = "banco"
+DOCUMENTO = "Resumen de caja de ahorro (pesos o dólares): Cuentas → Resúmenes"
 LINEA = re.compile(r"^\s*(\d{2}/\d{2}/\d{2})\s+(.+?)\s+(-?[\d.]+,\d{2})\s+(-?[\d.]+,\d{2})\s*$")
 RUIDO = re.compile(r"resumen de caja|p[aá]gina|^fecha\b|^total\b|^varios$|^operacion\b|banco de galicia y b|^\d{10,}\w?$|^[A-Z0-9]{16,}$", re.I)
 

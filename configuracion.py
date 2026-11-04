@@ -14,8 +14,18 @@ SERVICIO = "wallet-dashboard"
 
 DEFAULT = {
     "ui": {"tema": "dark"},
-    "fuentes": {"reportes": "reportes", "descargas": "~/Descargas", "importar_descargas": True, "iol": True},
-    "analisis": {"activado": True, "modelo": ""},
+    "fuentes": {"reportes": "reportes", "descargas": "~/Descargas", "importar_descargas": True},
+    # brokers con API: se activan acá y sus credenciales se piden en cada actualización
+    "brokers": {"iol": {"activo": False}},
+    # proveedor: "claude_code", "anthropic", "openai_compatible" u "ollama" (ver ia/)
+    "analisis": {
+        "activado": True,
+        "proveedor": "claude_code",
+        "claude_code": {"modelo": ""},
+        "anthropic": {"modelo": "claude-opus-5-5"},
+        "openai_compatible": {"modelo": "", "url": "https://api.openai.com/v1"},
+        "ollama": {"modelo": "llama3.1", "url": "http://localhost:11434"},
+    },
     # navegador para la descarga asistida: "chromium" (el de Playwright), "chrome", "msedge" o la ruta a un ejecutable
     "descarga": {"navegador": "chromium"},
     "referencias": {"tna_plazo_fijo": 0.0, "inflacion_mensual": 0.0},
@@ -30,7 +40,14 @@ DEFAULT = {
 SECRETOS = {
     "github_token": "Token de GitHub (escritura en el repo de datos)",
     "celular_password": "Contraseña de cifrado del celular",
+    "ia_anthropic": "Clave de API de Anthropic",
+    "ia_openai": "Clave de la API compatible con OpenAI",
 }
+
+
+def primer_uso() -> bool:
+    """True si todavía no hay configuración (se muestra el asistente de bienvenida)."""
+    return not ARCHIVO.exists()
 
 
 def _mezclar(base, extra):
@@ -42,11 +59,25 @@ def _mezclar(base, extra):
     return base
 
 
+def _migrar(cfg: dict, archivo: dict):
+    """Convierte configuraciones de versiones anteriores."""
+    f = archivo.get("fuentes", {})
+    if "iol" in f and "brokers" not in archivo:            # antes: fuentes.iol = true/false
+        cfg["brokers"]["iol"]["activo"] = bool(f["iol"])
+    cfg["fuentes"].pop("iol", None)
+    a = archivo.get("analisis", {})
+    if isinstance(a.get("modelo"), str) and "proveedor" not in a:   # antes: analisis.modelo (Claude Code)
+        cfg["analisis"]["claude_code"]["modelo"] = a["modelo"]
+    cfg["analisis"].pop("modelo", None)
+
+
 def cargar() -> dict:
     cfg = copy.deepcopy(DEFAULT)
     if ARCHIVO.exists():
         with ARCHIVO.open("rb") as f:
-            _mezclar(cfg, tomllib.load(f))
+            archivo = tomllib.load(f)
+        _mezclar(cfg, archivo)
+        _migrar(cfg, archivo)
     return cfg
 
 

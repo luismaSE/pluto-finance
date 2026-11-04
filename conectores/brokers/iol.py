@@ -12,7 +12,15 @@ from modelo import Cuenta, Inversion
 from utils import normalizar_moneda
 
 BASE = "https://api.invertironline.com"
+
+# --- metadatos para el registro de brokers ---
+ID = "iol"
 NOMBRE = "IOL"
+DESCRIPCION = "InvertirOnline (API oficial). Habilitá el acceso por API en Mi cuenta → Personalización → APIs."
+CAMPOS = [  # se piden en cada actualización; los marcados "secreto" nunca se guardan
+    {"id": "usuario", "etiqueta": "Usuario"},
+    {"id": "clave", "etiqueta": "Clave", "secreto": True},
+]
 
 
 def _login(usuario: str | None = None, clave: str | None = None) -> str:
@@ -33,8 +41,12 @@ def _login(usuario: str | None = None, clave: str | None = None) -> str:
     return r.json()["access_token"]
 
 
-def obtener(usuario: str | None = None, clave: str | None = None):
-    token = _login(usuario, clave)
+def obtener(credenciales: dict | None = None, clave: str | None = None):
+    """credenciales = {"usuario": ..., "clave": ...}. Devuelve (cuentas, movimientos, inversiones)."""
+    if isinstance(credenciales, str):          # compatibilidad: obtener(usuario, clave)
+        credenciales = {"usuario": credenciales, "clave": clave}
+    credenciales = credenciales or {}
+    token = _login(credenciales.get("usuario"), credenciales.pop("clave", None))
     s = requests.Session()
     s.headers["Authorization"] = f"Bearer {token}"
     cuentas, inversiones = [], []

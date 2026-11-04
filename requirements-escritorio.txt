@@ -1,5 +1,9 @@
 # App de escritorio (python app.py)
 -r requirements.txt
-pywebview[qt]>=5.0
-keyring>=24
 -r requirements-descarga.txt
+# Ventana: en Linux con Qt (se instala por pip); en Windows usa WebView2 y en macOS WebKit del sistema
+pywebview[qt]>=5.0; sys_platform == "linux"
+pywebview>=5.0; sys_platform != "linux"
+keyring>=24
+# Proveedor de IA "Claude (API de Anthropic)"
+anthropic>=1.0
