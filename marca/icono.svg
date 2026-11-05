@@ -3,6 +3,6 @@
   <g transform="translate(96 96) scale(3.333)">
     <path d="M24 26 H72 L88 44 L48 86 L8 44 Z" fill="#f1eee8"/>
     <path d="M24 26 L36 44 H60 L72 26 Z" fill="#e07a45"/>
-    <path d="M8 44 H88 M36 44 L48 86 L60 44" stroke="#1b2227" stroke-width="3.2" stroke-linejoin="round" fill="none"/>
+    <path d="M8 44 H88 M36 44 L48 86 L60 44 M24 26 L36 44 M72 26 L60 44" stroke="#1b2227" stroke-width="3.2" stroke-linejoin="round" fill="none"/>
   </g>
 </svg>

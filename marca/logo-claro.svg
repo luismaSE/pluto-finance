@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Pluto">
   <!-- Versión para fondos claros -->
-  <defs><mask id="talla"><rect width="96" height="96" fill="#fff"/><path d="M8 44 H88 M36 44 L48 86 L60 44" stroke="#000" stroke-width="3.2" stroke-linejoin="round" fill="none"/></mask></defs>
+  <defs><mask id="talla"><rect width="96" height="96" fill="#fff"/><path d="M8 44 H88 M36 44 L48 86 L60 44 M24 26 L36 44 M72 26 L60 44" stroke="#000" stroke-width="3.2" stroke-linejoin="round" fill="none"/></mask></defs>
   <g mask="url(#talla)">
     <path d="M24 26 H72 L88 44 L48 86 L8 44 Z" fill="#1b2227"/>
     <path d="M24 26 L36 44 H60 L72 26 Z" fill="#b9582a"/>

@@ -1,9 +1,13 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp" android:height="108dp"
     android:viewportWidth="108" android:viewportHeight="108">
-    <!-- Ícono temático (Android 13+): silueta de la gema con la faceta superior calada -->
+    <!-- Ícono temático (Android 13+): las seis facetas de la gema, separadas como en el logo -->
     <group android:scaleX="0.62" android:scaleY="0.62" android:translateX="24.24" android:translateY="19.3">
-        <path android:fillColor="#FFFFFF" android:fillType="evenOdd"
-            android:pathData="M24,26 H72 L88,44 L48,86 L8,44 Z M28,29 L37.5,41.5 H58.5 L68,29 Z"/>
+        <path android:fillColor="#FFFFFF" android:pathData="M25.92,26 L36.86,42.4 L59.14,42.4 L70.08,26 Z"/>
+        <path android:fillColor="#FFFFFF" android:pathData="M9.42,42.4 L33.01,42.4 L22.9,27.24 Z"/>
+        <path android:fillColor="#FFFFFF" android:pathData="M73.1,27.24 L62.99,42.4 L86.58,42.4 Z"/>
+        <path android:fillColor="#FFFFFF" android:pathData="M45.62,83.5 L34.79,45.6 L9.52,45.6 Z"/>
+        <path android:fillColor="#FFFFFF" android:pathData="M48,80.18 L57.88,45.6 L38.12,45.6 Z"/>
+        <path android:fillColor="#FFFFFF" android:pathData="M86.48,45.6 L61.21,45.6 L50.38,83.5 Z"/>
     </group>
 </vector>
