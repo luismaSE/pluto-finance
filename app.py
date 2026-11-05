@@ -15,8 +15,9 @@ sys.path.insert(0, str(RAIZ))
 
 
 def interfaz() -> str:
-    """ui.html con las tipografías de la marca incrustadas (funciona sin internet)."""
-    html = (RAIZ / "escritorio" / "ui.html").read_text(encoding="utf-8")
+    """Interfaz armada desde escritorio/ui/, con las tipografías incrustadas (funciona sin internet)."""
+    from plantillas.ensamblar import ensamblar
+    html = ensamblar(RAIZ / "escritorio" / "ui")
     fuentes = RAIZ / "plantillas" / "fuentes.css"
     if fuentes.exists():
         html = html.replace("/*__FUENTES__*/", fuentes.read_text(encoding="utf-8"), 1)

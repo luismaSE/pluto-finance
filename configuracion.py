@@ -6,11 +6,13 @@
   Nunca se escriben en archivos del proyecto.
 """
 import copy
+import re
 import tomllib
 from pathlib import Path
 
 ARCHIVO = Path("config.toml")
-SERVICIO = "wallet-dashboard"
+SERVICIO = "pluto"
+SERVICIO_ANTERIOR = "wallet-dashboard"   # nombre del llavero hasta la versión 1.2
 
 DEFAULT = {
     "ui": {"tema": "dark"},
@@ -29,6 +31,14 @@ DEFAULT = {
     # navegador para la descarga asistida: "chromium" (el de Playwright), "chrome", "msedge" o la ruta a un ejecutable
     "descarga": {"navegador": "chromium"},
     "referencias": {"tna_plazo_fijo": 0.0, "inflacion_mensual": 0.0},
+    # Límites de gasto mensuales (0 = sin límite) y metas
+    "presupuestos": {"total": 0, "categorias": {}},
+    "metas": {"fondo_emergencia_meses": 6},
+    # Tarjetas: {"visa_galicia": {"nombre": "Visa Galicia", "cierre": 24, "vencimiento": 6}}
+    "tarjetas": {},
+    # Reglas propias de categoría: {"transferencia enviada verduleria melina": "Supermercado"}
+    "categorias": {"reglas": {}},
+    "privacidad": {"conservar_dashboards": 5, "cifrar_datos_locales": True},
     "publicar": {
         "destino": "ninguno",
         "github": {"repo": "", "ruta": "cartera.enc", "rama": "main", "token_env": "CARTERA_GITHUB_TOKEN"},
@@ -89,15 +99,22 @@ def _valor(v):
     return '"' + str(v).replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
+def _clave(k) -> str:
+    """Claves TOML: sin comillas si son simples, entre comillas si tienen espacios o acentos."""
+    k = str(k)
+    return k if re.fullmatch(r"[A-Za-z0-9_-]+", k) else _valor(k)
+
+
 def _escribir(d, prefijo, lineas):
     simples = {k: v for k, v in d.items() if not isinstance(v, dict)}
-    if prefijo and simples:
+    vacia = not d
+    if prefijo and (simples or vacia):
         lineas.append(f"\n[{prefijo}]")
     for k, v in simples.items():
-        lineas.append(f"{k} = {_valor(v)}")
+        lineas.append(f"{_clave(k)} = {_valor(v)}")
     for k, v in d.items():
         if isinstance(v, dict):
-            _escribir(v, f"{prefijo}.{k}" if prefijo else k, lineas)
+            _escribir(v, f"{prefijo}.{_clave(k)}" if prefijo else _clave(k), lineas)
 
 
 def guardar(cfg: dict):
@@ -134,7 +151,17 @@ def leer_secreto(nombre: str) -> str | None:
     if not kr:
         return None
     try:
-        return kr.get_password(SERVICIO, nombre)
+        v = kr.get_password(SERVICIO, nombre)
+        if v is None:
+            # Migración: secretos guardados con el nombre anterior del llavero
+            v = kr.get_password(SERVICIO_ANTERIOR, nombre)
+            if v is not None:
+                kr.set_password(SERVICIO, nombre, v)
+                try:
+                    kr.delete_password(SERVICIO_ANTERIOR, nombre)
+                except Exception:
+                    pass
+        return v
     except Exception:
         return None
 
@@ -149,7 +176,8 @@ def guardar_secreto(nombre: str, valor: str):
 def borrar_secreto(nombre: str):
     kr = _keyring()
     if kr:
-        try:
-            kr.delete_password(SERVICIO, nombre)
-        except Exception:
-            pass
+        for servicio in (SERVICIO, SERVICIO_ANTERIOR):
+            try:
+                kr.delete_password(servicio, nombre)
+            except Exception:
+                pass

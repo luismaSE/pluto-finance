@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:">
+<title>Pluto</title>
+<style>
+/*__FUENTES__*/
+/*__ESTILOS__*/
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1><svg class="gema" viewBox="0 0 96 96" aria-hidden="true"><path d="M24 26 H72 L88 44 L48 86 L8 44 Z" fill="var(--text)"/><path d="M24 26 L36 44 H60 L72 26 Z" fill="var(--accent)"/><path d="M8 44 H88 M36 44 L48 86 L60 44 M24 26 L36 44 M72 26 L60 44" stroke="var(--bg)" stroke-width="3.2" stroke-linejoin="round" fill="none"/></svg>Pluto<span id="demo"></span></h1>
+      <div class="sub" id="sub"></div>
+    </div>
+    <div class="acciones">
+      <button class="icon-btn" id="btn-privado" aria-pressed="false" title="Ocultar montos" aria-label="Ocultar montos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+      <button class="icon-btn" id="btn-tema" title="Cambiar tema" aria-label="Cambiar tema">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="resumen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Resumen</button>
+    <button role="tab" data-tab="gastos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Gastos</button>
+    <button role="tab" data-tab="inversiones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Inversiones</button>
+    <button role="tab" data-tab="analisis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>Análisis</button>
+  </nav>
+
+  <section class="panel" id="p-resumen"></section>
+  <section class="panel" id="p-gastos"></section>
+  <section class="panel" id="p-inversiones"></section>
+  <section class="panel" id="p-analisis"></section>
+
+  <footer>Pluto · generado en tu computadora. Contiene tus datos financieros: no lo compartas.</footer>
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+/*__CODIGO__*/
+</script>
+</body>
+</html>

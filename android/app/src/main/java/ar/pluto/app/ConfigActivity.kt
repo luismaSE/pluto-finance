@@ -1,4 +1,4 @@
-package ar.cartera.app
+package ar.pluto.app
 
 import android.os.Bundle
 import android.view.View
@@ -19,6 +19,7 @@ class ConfigActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         window.setFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE, android.view.WindowManager.LayoutParams.FLAG_SECURE)
         setContentView(R.layout.activity_config)
+        Bordes.aplicar(this, findViewById(R.id.raiz))
 
         val tipo = findViewById<RadioGroup>(R.id.tipo)
         val gGithub = findViewById<View>(R.id.grupo_github)

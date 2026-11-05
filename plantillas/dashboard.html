@@ -170,6 +170,27 @@ footer { margin-top: 20px; font-size: 11px; color: var(--text-3); text-align: ce
 /* Modo privado: oculta todos los montos */
 body.privado .m { filter: blur(7px); user-select: none; }
 body.privado .tip { display: none; }
+
+/* Tarjetas de crédito */
+.tarjeta-f { padding: 10px 0; border-bottom: 1px solid var(--grid); display: grid; gap: 6px; }
+.tarjeta-f:last-of-type { border-bottom: 0; }
+.tarjeta-f .t { font-weight: 600; }
+.tarjeta-f .d { font-size: 12px; color: var(--text-3); }
+.chips-t { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-t { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; background: var(--surface-2); border-radius: 999px; padding: 4px 10px; }
+.chip-t i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+/* Límites de gasto */
+.lims { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.lim { display: grid; gap: 6px; min-width: 0; }
+.lim-cab { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; font-size: 14px; }
+.lim-cab b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.estado-l { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); white-space: nowrap; }
+.estado-l i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.lim-barra { height: 10px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.lim-barra > div { height: 100%; border-radius: 999px; }
+.lim .d { font-size: 12px; color: var(--text-3); }
+.meta { margin-top: 10px; display: grid; gap: 4px; }
 </style>
 </head>
 <body>
@@ -424,11 +445,81 @@ function gastosFijos() {
 }
 
 // ---------- pestaña: Resumen ----------
+// ---------- tarjetas, límites de gasto y avisos ----------
+const HOY0 = (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; })();
+const isoAFecha = iso => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); };
+// Próxima fecha con ese día del mes (hoy incluido); 31 en meses cortos = último día
+function proximaFecha(dia) {
+  const f = (y, m) => new Date(y, m, Math.min(dia, new Date(y, m + 1, 0).getDate()));
+  let d = f(HOY0.getFullYear(), HOY0.getMonth());
+  if (d < HOY0) d = f(HOY0.getFullYear(), HOY0.getMonth() + 1);
+  return d;
+}
+// Si el dashboard se abre días después de generarse, recalcula con la fecha de hoy
+function fechaTarjeta(iso, dia) {
+  let d = iso ? isoAFecha(iso) : null;
+  if ((!d || d < HOY0) && dia) d = proximaFecha(dia);
+  return d && d >= HOY0 ? d : null;
+}
+const diasHasta = d => Math.round((d - HOY0) / 864e5);
+const cuandoTxt = n => n === 0 ? 'hoy' : n === 1 ? 'mañana' : `en ${n} días`;
+const ddmm = d => String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
+const URG = n => n <= 3 ? ['var(--critical)', 'Urgente'] : n <= 7 ? ['var(--warning)', 'Pronto'] : ['var(--good)', 'Tranquilo'];
+
+function tarjetasHTML() {
+  const T = R.tarjetas || [];
+  if (!T.length) return '';
+  const fila = (t) => {
+    const c = fechaTarjeta(t.proximo_cierre, t.cierre_dia), v = fechaTarjeta(t.proximo_vencimiento, t.vencimiento_dia);
+    const chip = (etq, d) => {
+      if (!d) return `<span class="chip-t muted">${etq}: sin fecha</span>`;
+      const n = diasHasta(d), [col, txt] = URG(n);
+      return `<span class="chip-t"><i style="background:${col}" title="${txt}"></i>${etq} ${cuandoTxt(n)} <span class="muted">· ${ddmm(d)}</span></span>`;
+    };
+    const up = t.ultimo_pago ? `Último pago: ${M(money(t.ultimo_pago.monto, t.ultimo_pago.moneda))} el ${dm(t.ultimo_pago.fecha)}` : '';
+    return `<div class="tarjeta-f"><div class="t">${esc(t.nombre)}</div><div class="chips-t">${chip('Cierra', c)}${chip('Vence', v)}</div>${up ? `<div class="d">${up}</div>` : ''}</div>`;
+  };
+  return `<div class="card c6"><h2>Tarjetas</h2>${T.map(fila).join('')}
+    <p class="nota">Los bancos corren las fechas unos días algunos meses: si tu resumen dice otra, cargala en la app.</p></div>`;
+}
+
+// Avisos de tarjetas y límites, recalculados para la fecha de hoy
+function avisosPlan() {
+  const out = [];
+  (R.tarjetas || []).forEach(t => {
+    const v = fechaTarjeta(t.proximo_vencimiento, t.vencimiento_dia), c = fechaTarjeta(t.proximo_cierre, t.cierre_dia);
+    if (v && diasHasta(v) <= 7) out.push({ nivel: diasHasta(v) <= 3 ? 'alta' : 'media', titulo: `${t.nombre} vence ${cuandoTxt(diasHasta(v))}`, detalle: `Vencimiento el ${ddmm(v)}.` });
+    if (c && diasHasta(c) <= 3) out.push({ nivel: 'baja', titulo: `${t.nombre} cierra ${cuandoTxt(diasHasta(c))}`, detalle: 'Lo que compres después del cierre entra en el resumen siguiente.' });
+  });
+  (R.avisos || []).filter(a => a.tipo === 'presupuesto').forEach(a => out.push(a));
+  return out;
+}
+
+const ESTADO_LIM = { ok: ['var(--good)', 'En línea'], cerca: ['var(--warning)', 'Cerca'], excedido: ['var(--critical)', 'Excedido'] };
+function limitesHTML(mes) {
+  const P = R.presupuestos || {};
+  if (!P.configurado) return `<div class="card"><h2>Límites de gasto</h2><div class="empty">Todavía no configuraste límites. En la app de escritorio: Configuración → Límites de gasto.</div></div>`;
+  const pm = (P.meses || {})[mes];
+  if (!pm) return '';
+  const fila = it => {
+    const [col, txt] = ESTADO_LIM[it.estado] || ESTADO_LIM.ok, w = Math.min(it.pct, 100);
+    const proy = it.proyeccion ? ` · a este ritmo: ${M(compact(it.proyeccion))}` : '';
+    return `<div class="lim">
+      <div class="lim-cab"><b>${esc(it.nombre)}</b><span class="estado-l"><i style="background:${col}"></i>${txt} · ${nf0.format(it.pct)}%</span></div>
+      <div class="lim-barra" data-tip="${esc(`<b>${esc(it.nombre)}</b><br>${compact(it.gastado)} de ${compact(it.limite)}`)}"><div style="width:${w.toFixed(1)}%;background:${it.estado === 'ok' ? 'var(--seq)' : col}"></div></div>
+      <div class="d">${M(compact(it.gastado))} de ${M(compact(it.limite))} · ${it.restante >= 0 ? 'quedan ' + M(compact(it.restante)) : 'excedido por ' + M(compact(-it.restante))}${proy}</div></div>`;
+  };
+  const items = (pm.total ? [pm.total] : []).concat(pm.categorias || []);
+  return `<div class="card"><h2>Límites de gasto · ${esc(nombreMes(mes))}</h2><div class="lims">${items.map(fila).join('')}</div>
+    ${calidadMes(mes).sin.length ? '<p class="nota">Mes con datos incompletos: el gasto real puede ser mayor.</p>' : ''}</div>`;
+}
+
 function renderResumen() {
   const tc = R.tipo_cambio_mep;
   const enCuentas = R.liquidez_ars, total = R.patrimonio_ars || 0;
   const gtipico = gastoMensualTipico();
   const meses = gtipico ? enCuentas / gtipico : null;
+  const meta = (R.metas || {}).fondo_emergencia_meses || 0;
   const G = MES_REF ? R.gastos_por_mes[MES_REF] : null;
   const ahorro = G ? G.ingresos_ars - G.total_ars : null;
   const tasa = G && G.ingresos_ars ? ahorro / G.ingresos_ars * 100 : null;
@@ -447,6 +538,7 @@ function renderResumen() {
 
   document.getElementById('p-resumen').innerHTML = `<div class="grid">
     ${avisosDatosViejos()}
+    ${avisosPlan().map(a => `<div class="aviso" style="border-left-color:${(NIVEL[a.nivel] || NIVEL.baja)[0]}">${a.nivel === 'alta' ? '⚠' : '•'} <div><b>${esc(a.titulo)}</b> ${esc(a.detalle)}</div></div>`).join('')}
     <div class="card hero">
       <div class="kpi"><div class="label">Patrimonio total</div></div>
       <div class="total">${M(compact(total))}${R.patrimonio_usd ? `<small>${M('≈ ' + money(R.patrimonio_usd, 'USD'))}</small>` : ''}</div>
@@ -458,7 +550,9 @@ function renderResumen() {
       <div class="note">${tasa != null ? pct(tasa, false) + ' de los ingresos' : 'Sin ingresos registrados'}</div></div>`}
     <div class="card kpi c3"><div class="label">Fondo de emergencia</div>
       <div class="value">${meses != null ? nf1.format(meses) + ' meses' : '—'}</div>
-      <div class="note">${gtipico ? `de gastos (${M(compact(gtipico))}/mes)` : 'Faltan datos de gastos'}</div></div>
+      <div class="note">${gtipico ? `de gastos (${M(compact(gtipico))}/mes)` : 'Faltan datos de gastos'}</div>
+      ${meta && meses != null ? `<div class="meta"><div class="lim-barra"><div style="width:${Math.min(meses / meta * 100, 100).toFixed(1)}%;background:${meses >= meta ? 'var(--good)' : 'var(--seq)'}"></div></div>
+        <div class="note">${meses >= meta ? '✓ Meta cumplida' : 'Meta'}: ${meta} meses</div></div>` : ''}</div>
     <div class="card kpi c3"><div class="label">En cuentas sin invertir</div>
       <div class="value">${M(compact(enCuentas))}</div>
       <div class="note">${nf0.format(pctCuentas)}% del patrimonio</div></div>
@@ -466,7 +560,8 @@ function renderResumen() {
       <div class="value">${M(compact(R.inversiones_ars))}</div>
       <div class="note">${R.inversiones.length} posiciones · ${total ? nf0.format(R.inversiones_ars / total * 100) : 0}%</div></div>
 
-    <div class="card">
+    ${tarjetasHTML()}
+    <div class="card ${tarjetasHTML() ? 'c6' : ''}">
       <h2>Lo más importante</h2>
       ${A ? notaAnalisisAnterior(A) + alertasHTML(A.alertas, 3) + `<button class="link" data-ir="analisis">Ver análisis completo →</button>`
           : `<div class="empty">${S.analisis?.error ? 'No se pudo hacer el análisis: ' + esc(S.analisis.error) : 'Sin análisis de Claude en esta corrida.'}</div>`}
@@ -542,6 +637,7 @@ function renderGastos(mes) {
         : `<div class="value ${ahorro > 0 ? 'pos' : ahorro < 0 ? 'neg' : ''}">${M(compact(ahorro))}</div><div class="note">${G.ingresos_ars ? pct(ahorro / G.ingresos_ars * 100, false) + ' de los ingresos' : '—'}</div>`}</div>
     </div>
 
+    ${limitesHTML(mes)}
     <div class="card c7"><h2>Gastos por día</h2>${dailyChart(mes)}
       <div class="legend" style="margin-top:8px">${Object.entries(G.por_entidad).map(([k, v]) => `<span><i class="dot" style="background:${entColor(k)}"></i>${esc(k)} ${M(`<b>${compact(v)}</b>`)}</span>`).join('')}
         <span class="muted">Gris: días sin reporte</span></div></div>

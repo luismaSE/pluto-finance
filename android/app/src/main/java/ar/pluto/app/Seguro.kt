@@ -1,4 +1,4 @@
-package ar.cartera.app
+package ar.pluto.app
 
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
@@ -19,8 +19,8 @@ import javax.crypto.spec.GCMParameterSpec
  */
 object Seguro {
     private const val KS = "AndroidKeyStore"
-    private const val CONFIG = "cartera_config"
-    private const val HUELLA = "cartera_huella"
+    private const val CONFIG = "pluto_config"
+    private const val HUELLA = "pluto_huella"
     private const val PREFS = "huella"
 
     private fun keystore() = KeyStore.getInstance(KS).apply { load(null) }

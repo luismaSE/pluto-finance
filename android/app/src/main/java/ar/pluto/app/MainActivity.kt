@@ -1,9 +1,7 @@
-package ar.cartera.app
+package ar.pluto.app
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
@@ -15,6 +13,7 @@ import android.widget.CheckBox
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.biometric.BiometricManager
@@ -41,6 +40,14 @@ class MainActivity : AppCompatActivity() {
     private var desbloqueado = false
     private var huellaAuto = true
     private var configPedida = false
+    private val atras = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            bloquear()
+            huellaAuto = false
+            prepararBloqueo()
+            aviso("Pluto bloqueado")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)   // oscuro por defecto
@@ -48,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         // Sin capturas de pantalla y contenido oculto en "apps recientes"
         window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
         setContentView(R.layout.activity_main)
+        Bordes.aplicar(this, findViewById(R.id.raiz))
 
         web = findViewById(R.id.web)
         bloqueo = findViewById(R.id.bloqueo)
@@ -61,6 +69,9 @@ class MainActivity : AppCompatActivity() {
         configurarWeb()
         btnDesbloquear.setOnClickListener { desbloquearConPassword() }
         btnHuella.setOnClickListener { desbloquearConHuella() }
+        findViewById<Button>(R.id.configuracion).setOnClickListener { startActivity(Intent(this, ConfigActivity::class.java)) }
+        // Sin barra superior: "atrás" bloquea el dashboard; en la pantalla de bloqueo, sale de la app
+        onBackPressedDispatcher.addCallback(this, atras)
         password.setOnEditorActionListener { _, id, _ ->
             if (id == EditorInfo.IME_ACTION_DONE) { desbloquearConPassword(); true } else false
         }
@@ -200,8 +211,8 @@ class MainActivity : AppCompatActivity() {
         bloqueo.visibility = View.GONE
         password.setText("")
         desbloqueado = true
+        atras.isEnabled = true
         cargando(false)
-        invalidateOptionsMenu()
     }
 
     private fun bloquear() {
@@ -211,8 +222,8 @@ class MainActivity : AppCompatActivity() {
         web.visibility = View.GONE
         bloqueo.visibility = View.VISIBLE
         desbloqueado = false
+        atras.isEnabled = false
         huellaAuto = true
-        invalidateOptionsMenu()
     }
 
     private fun cargando(si: Boolean) {
@@ -222,23 +233,4 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun aviso(s: String) = Toast.makeText(this, s, Toast.LENGTH_LONG).show()
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        if (desbloqueado) {
-            menu.add(0, 1, 0, "Actualizar")
-            menu.add(0, 2, 1, "Bloquear")
-        }
-        menu.add(0, 3, 2, "Configuración")
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            1 -> { bloquear(); prepararBloqueo() }
-            2 -> { bloquear(); huellaAuto = false; prepararBloqueo() }
-            3 -> startActivity(Intent(this, ConfigActivity::class.java))
-            else -> return super.onOptionsItemSelected(item)
-        }
-        return true
-    }
 }

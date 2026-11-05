@@ -1,4 +1,4 @@
-"""Funciones que la interfaz (ui.html) puede llamar desde JavaScript.
+"""Funciones que la interfaz (escritorio/ui/) puede llamar desde JavaScript.
 
 Reglas de seguridad:
 - Ningún método devuelve secretos: solo si están guardados o no.
@@ -60,6 +60,7 @@ class Api:
             "historial": h[-30:][::-1],
             "dashboard": bool(self._ultimo_dashboard()),
             "corriendo": self._corriendo.locked(),
+            "categorias": __import__("categorias").CATEGORIAS,
             "carpeta": str(Path.cwd()),
         }
 
@@ -67,6 +68,63 @@ class Api:
     def guardar_config(self, cfg: dict) -> dict:
         base = configuracion.cargar()
         configuracion._mezclar(base, cfg)
+        configuracion.guardar(base)
+        return {"ok": True}
+
+    # Secciones que se guardan completas (no se mezclan): así se pueden borrar límites y tarjetas
+    _REEMPLAZABLES = {"presupuestos", "tarjetas"}
+
+    def reemplazar_config(self, seccion: str, valor: dict) -> dict:
+        if seccion not in self._REEMPLAZABLES:
+            return {"ok": False, "error": "Sección no permitida"}
+        base = configuracion.cargar()
+        base[seccion] = valor or {}
+        configuracion.guardar(base)
+        return {"ok": True}
+
+    # ---------- categorías ----------
+    def _ultimos_datos(self) -> dict | None:
+        """Datos del último dashboard generado (para listar movimientos a corregir)."""
+        import json
+        import re
+        p = self._ultimo_dashboard()
+        if not p:
+            return None
+        m = re.search(r"const DATA = (.*?);\n", p.read_text(encoding="utf-8"))
+        try:
+            return json.loads(m.group(1)) if m else None
+        except ValueError:
+            return None
+
+    def categorias(self) -> dict:
+        import categorias as cat
+        datos = self._ultimos_datos() or {}
+        reglas = configuracion.cargar()["categorias"].get("reglas", {})
+        movs = [m for m in (datos.get("snapshot") or {}).get("movimientos", []) if m.get("categoria") != "Rendimientos"]
+        vistos, lista = set(), []
+        for m in sorted(movs, key=lambda m: m["fecha"], reverse=True):
+            clave = cat.clave_regla(m["descripcion"])
+            if clave in vistos:
+                continue
+            vistos.add(clave)
+            lista.append({"clave": clave, "descripcion": m["descripcion"], "fecha": m["fecha"], "monto": m["monto"],
+                          "moneda": m["moneda"], "entidad": m["entidad"], "categoria": reglas.get(clave, m.get("categoria") or "Otros"),
+                          "propia": clave in reglas})
+        return {"categorias": cat.CATEGORIAS, "movimientos": lista[:300], "reglas": reglas,
+                "excluidas": sorted(cat.EXCLUIDAS), "hay_datos": bool(datos)}
+
+    def guardar_regla(self, descripcion: str, categoria: str) -> dict:
+        import categorias as cat
+        if categoria not in cat.CATEGORIAS:
+            return {"ok": False, "error": "Categoría desconocida"}
+        base = configuracion.cargar()
+        base["categorias"].setdefault("reglas", {})[cat.clave_regla(descripcion)] = categoria
+        configuracion.guardar(base)
+        return {"ok": True}
+
+    def borrar_regla(self, clave: str) -> dict:
+        base = configuracion.cargar()
+        base["categorias"].get("reglas", {}).pop(clave, None)
         configuracion.guardar(base)
         return {"ok": True}
 

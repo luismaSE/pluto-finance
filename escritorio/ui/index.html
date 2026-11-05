@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pluto</title>
+<style>
+/*__FUENTES__*/
+/*__ESTILOS__*/
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="marca"><svg viewBox="0 0 96 96" aria-hidden="true"><path d="M24 26 H72 L88 44 L48 86 L8 44 Z" fill="var(--text)"/><path d="M24 26 L36 44 H60 L72 26 Z" fill="var(--accent)"/><path d="M8 44 H88 M36 44 L48 86 L60 44 M24 26 L36 44 M72 26 L60 44" stroke="var(--side)" stroke-width="3.2" stroke-linejoin="round" fill="none"/></svg>Pluto</div>
+    <button class="nav" data-pag="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Inicio</button>
+    <button class="nav" data-pag="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Dashboard</button>
+    <button class="nav" data-pag="config"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Configuración</button>
+    <button class="nav" data-pag="categorias"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Categorías</button>
+    <button class="nav" data-pag="historial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Historial</button>
+    <button class="nav" id="btn-tema" style="margin-top:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg><span id="txt-tema">Modo claro</span></button>
+    <div class="pie" id="version"></div>
+  </aside>
+
+  <main>
+    <!-- ============ INICIO ============ -->
+    <section class="pagina" id="pag-inicio">
+      <h1>Inicio</h1>
+      <p class="sub">Un clic para traer todo, analizarlo y mandarlo al celular.</p>
+      <div id="aviso-llavero"></div>
+
+      <div class="card">
+        <div class="hero">
+          <div>
+            <button class="btn primario grande" id="btn-actualizar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+              Actualizar todo</button>
+            <div class="opciones">
+              <label id="lbl-brokers"><input type="checkbox" id="op-brokers"> <span id="txt-brokers">Consultar brokers</span></label>
+              <label><input type="checkbox" id="op-analisis"> Análisis con IA</label>
+              <label><input type="checkbox" id="op-celular"> Publicar al celular</label>
+            </div>
+          </div>
+          <div class="estado-run" id="estado-run"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Descargar resúmenes</h2>
+        <p style="margin:0 0 12px;color:var(--text-2)"><b>Galicia:</b> se abre un navegador nuevo en la web del banco. Iniciás sesión vos (la clave no pasa por la app) y descargás los PDF: se guardan solos en la carpeta de resúmenes.</p>
+        <div class="acciones"><span id="botones-descarga"></span><span class="msg" id="msg-descarga"></span></div>
+        <p style="margin:14px 0 0;color:var(--text-3);font-size:13px"><b>Mercado Pago:</b> pedí el resumen desde su web o app (tarda unos minutos en generarse) y bajalo a tu carpeta de Descargas. Se importa solo al tocar "Actualizar todo".</p>
+      </div>
+
+      <div class="card" id="card-avisos" hidden><h2>Avisos</h2><div id="avisos"></div></div>
+
+      <div class="fila2">
+        <div class="card"><h2>Última actualización</h2><div id="ultima"></div></div>
+        <div class="card"><h2>Fuentes</h2><div id="fuentes" class="fuentes"></div></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <h2 style="margin:0">Consola</h2>
+          <div class="acciones"><button class="btn" id="btn-ver-dash">Ver dashboard</button><button class="btn" id="btn-navegador">Abrir en el navegador</button><button class="btn" data-carpeta="salida">Abrir carpeta de salida</button></div>
+        </div>
+        <div class="consola" id="consola"><span class="tit">Listo.</span> Tocá "Actualizar todo" para empezar.
+</div>
+      </div>
+    </section>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="pagina" id="pag-dashboard" hidden>
+      <!-- sandbox sin allow-same-origin: el dashboard corre aislado, sin acceso a la app ni a sus funciones -->
+      <iframe class="marco" id="marco" sandbox="allow-scripts" title="Dashboard"></iframe>
+      <div class="card" id="sin-dash" hidden style="margin:28px 32px"><p class="empty" style="margin:0">Todavía no hay un dashboard. Corré "Actualizar todo" desde Inicio.</p></div>
+    </section>
+
+    <!-- ============ CONFIGURACIÓN ============ -->
+    <section class="pagina" id="pag-config" hidden>
+      <h1>Configuración</h1>
+      <p class="sub">Se guarda en este equipo. Los tokens y contraseñas van al llavero del sistema, nunca a un archivo.</p>
+
+      <div class="card"><h2>Fuentes de datos</h2>
+        <div class="campo"><label>Carpeta de resúmenes</label>
+          <div class="con-boton"><input type="text" data-cfg="fuentes.reportes"><button class="btn" data-elegir="fuentes.reportes">Elegir…</button></div>
+          <div class="ayuda">Donde quedan guardados los resúmenes en PDF de tus bancos y billeteras.</div></div>
+        <div class="campo"><label>Importar desde Descargas</label>
+          <label class="interruptor"><input type="checkbox" data-cfg="fuentes.importar_descargas"><span></span></label>
+          <div class="ayuda">Al actualizar, copia los resúmenes nuevos que encuentre en esta carpeta.</div></div>
+        <div class="campo"><label>Carpeta de Descargas</label>
+          <div class="con-boton"><input type="text" data-cfg="fuentes.descargas"><button class="btn" data-elegir="fuentes.descargas">Elegir…</button></div></div>
+      </div>
+
+      <div class="card"><h2>Bancos, billeteras y brokers</h2>
+        <div id="cfg-entidades"></div>
+        <p class="empty" style="font-size:12px;margin:10px 0 0">¿Tu banco o broker no está? Se suma con un archivo: ver <code>conectores/pdf/_plantilla.py</code> (resúmenes PDF) o <code>conectores/brokers/_plantilla.py</code> (API).</p>
+      </div>
+
+      <div class="card"><h2>Descarga de resúmenes</h2>
+        <div class="campo"><label>Navegador</label>
+          <select data-cfg="descarga.navegador"><option value="chromium">Chromium (incluido con Playwright)</option><option value="chrome">Google Chrome instalado</option><option value="msedge">Microsoft Edge instalado</option></select>
+          <div class="ayuda">Para descargar de Galicia. Siempre se abre una sesión nueva, sin tus cookies.</div></div>
+      </div>
+
+      <div class="card"><h2>Análisis con IA</h2>
+        <div class="campo"><label>Activado por defecto</label>
+          <label class="interruptor"><input type="checkbox" data-cfg="analisis.activado"><span></span></label></div>
+        <div class="campo"><label>Proveedor</label><select data-cfg="analisis.proveedor" id="sel-proveedor"></select>
+          <div class="ayuda" id="ayuda-proveedor"></div></div>
+        <div id="cfg-proveedores"></div>
+        <div class="campo"><label></label><div><button class="btn" id="btn-probar-ia">Probar</button><div class="msg" id="msg-probar-ia"></div></div></div>
+        <p class="empty" style="font-size:12px;margin:6px 0 0">Se envía un resumen (saldos, posiciones y gastos), sin números de cuenta, CBU ni CUIT. Con Ollama los datos no salen de tu computadora.</p>
+      </div>
+
+      <div class="card"><h2>Celular</h2>
+        <div class="campo"><label>Destino</label>
+          <select data-cfg="publicar.destino"><option value="ninguno">No publicar</option><option value="github">GitHub (repo privado)</option><option value="drive">Google Drive</option></select></div>
+        <div id="cfg-github">
+          <div class="campo"><label>Repositorio</label><input type="text" data-cfg="publicar.github.repo" placeholder="usuario/repo-de-datos">
+            <div class="ayuda">Repo privado solo para el archivo cifrado.</div></div>
+          <div class="campo"><label>Ruta y rama</label>
+            <div class="con-boton"><input type="text" data-cfg="publicar.github.ruta"><input type="text" data-cfg="publicar.github.rama" style="max-width:140px"></div></div>
+          <div class="campo"><label>Token de GitHub</label><div class="secreto" data-secreto="github_token"></div>
+            <div class="ayuda">Fine-grained, solo ese repo, permiso Contents: Read and write.</div></div>
+          <div class="campo"><label></label><div><button class="btn" id="btn-probar">Probar conexión</button><div class="msg" id="msg-probar"></div></div></div>
+        </div>
+        <div id="cfg-drive">
+          <div class="campo"><label>Credenciales OAuth</label>
+            <div class="con-boton"><input type="text" data-cfg="publicar.drive.client_secret"><button class="btn" id="btn-elegir-secret">Elegir…</button></div>
+            <div class="ayuda">JSON de "App de escritorio" de Google Cloud. Se pide permiso en el navegador en cada publicación.</div></div>
+        </div>
+        <div class="campo"><label>Contraseña de cifrado</label><div class="secreto" data-secreto="celular_password"></div>
+          <div class="ayuda">La misma que usás para desbloquear la app del celular. Mínimo 12 caracteres.</div></div>
+      </div>
+
+      <div class="card"><h2>Límites de gasto (por mes)</h2>
+        <div class="campo"><label>Límite total</label><input type="number" min="0" step="1000" id="lim-total" placeholder="Sin límite">
+          <div class="ayuda">Monto en pesos. Vacío o 0 = sin límite.</div></div>
+        <div id="lim-categorias" class="lim-grid"></div>
+        <p class="empty" style="font-size:12px;margin:10px 0 0">El dashboard muestra cuánto llevás de cada límite y te avisa cuando estás cerca o te pasaste.</p>
+      </div>
+
+      <div class="card"><h2>Tarjetas de crédito</h2>
+        <p class="empty" style="font-size:13px;margin:0 0 10px">Cargá el día del mes en que cierra y vence cada tarjeta. Si el resumen trae una fecha distinta, ponela en "fecha exacta" y se usa esa.</p>
+        <div id="tarjetas-filas"></div>
+        <button class="btn" id="btn-agregar-tarjeta" type="button">+ Agregar tarjeta</button>
+      </div>
+
+      <div class="card"><h2>Metas</h2>
+        <div class="campo"><label>Fondo de emergencia</label><input type="number" min="0" max="36" step="1" data-cfg="metas.fondo_emergencia_meses" data-num>
+          <div class="ayuda">Meses de gastos que querés tener disponibles en cuentas. 0 = sin meta.</div></div>
+      </div>
+
+      <div class="card"><h2>Privacidad</h2>
+        <div class="campo"><label>Dashboards guardados</label><input type="number" min="1" max="100" step="1" data-cfg="privacidad.conservar_dashboards" data-num>
+          <div class="ayuda">Se conservan los últimos y se borran los más viejos de la carpeta de salida.</div></div>
+        <div class="campo"><label>Cifrar historial y análisis</label>
+          <label class="interruptor"><input type="checkbox" data-cfg="privacidad.cifrar_datos_locales"><span></span></label>
+          <div class="ayuda">Se cifran con una clave guardada en el llavero del sistema.</div></div>
+      </div>
+
+      <div class="card"><h2>Referencias (si no hay internet)</h2>
+        <div class="campo"><label>TNA plazo fijo (%)</label><input type="number" step="0.1" min="0" data-cfg="referencias.tna_plazo_fijo" data-pct>
+          <div class="ayuda">Se usa solo si no se puede consultar la tasa en línea. 0 = no usar.</div></div>
+        <div class="campo"><label>Inflación mensual (%)</label><input type="number" step="0.1" min="0" data-cfg="referencias.inflacion_mensual" data-pct></div>
+      </div>
+
+      <div class="guardar-barra"><button class="btn primario" id="btn-guardar">Guardar configuración</button><button class="btn" id="btn-asistente">Abrir asistente de bienvenida</button><span class="msg" id="msg-guardar"></span></div>
+    </section>
+
+    <!-- ============ HISTORIAL ============ -->
+    <section class="pagina" id="pag-categorias" hidden>
+      <h1>Categorías</h1>
+      <p class="sub">Elegí la categoría correcta para un movimiento: Pluto la recuerda y la usa para todos los movimientos iguales desde la próxima actualización.</p>
+      <div class="card">
+        <div class="acciones" style="margin-bottom:12px">
+          <select id="cat-filtro"><option value="revisar">Para revisar (Otros y Transferencias)</option><option value="todos">Todos los movimientos</option><option value="propias">Con regla propia</option></select>
+          <input type="text" id="cat-buscar" placeholder="Buscar…" style="padding:8px 10px;border:1px solid var(--border);border-radius:9px;background:var(--bg)">
+          <span class="msg" id="msg-cat"></span>
+        </div>
+        <div id="cat-lista"></div>
+      </div>
+    </section>
+
+    <section class="pagina" id="pag-historial" hidden>
+      <h1>Historial</h1>
+      <p class="sub">Las últimas actualizaciones. Solo se guardan totales, nunca movimientos.</p>
+      <div class="card"><table><thead><tr><th>Fecha</th><th class="num">Patrimonio</th><th class="num">En USD</th><th>Fuentes</th><th>Errores</th></tr></thead><tbody id="tabla-hist"></tbody></table></div>
+    </section>
+  </main>
+</div>
+
+<!-- Modal: credenciales de brokers (se arma según los brokers activos) -->
+<div class="fondo-modal" id="modal-brokers" hidden>
+  <form class="modal" id="form-brokers" autocomplete="off">
+    <h3>Ingresar a tus brokers</h3>
+    <p>Se usa solo para esta actualización y no se guarda.</p>
+    <div id="campos-brokers"></div>
+    <div class="acciones"><button type="button" class="btn" id="brk-omitir">Seguir sin brokers</button><button type="button" class="btn" id="brk-cancelar">Cancelar</button><button type="submit" class="btn primario">Actualizar</button></div>
+  </form>
+</div>
+
+<!-- Asistente de bienvenida (primer uso) -->
+<div class="fondo-modal" id="bienvenida" hidden>
+  <div class="modal asistente">
+    <div class="pasos" id="wz-pasos"></div>
+    <section data-paso="1">
+      <h3>Te damos la bienvenida a Pluto</h3>
+      <p>Junta tus bancos, billeteras y brokers en un solo lugar, te muestra un dashboard y le pide a una IA que lo analice. Todo queda en esta computadora.</p>
+      <label class="et">Carpeta donde guardar los resúmenes PDF</label>
+      <div class="con-boton"><input type="text" id="wz-reportes"><button type="button" class="btn" data-wz-elegir="wz-reportes">Elegir…</button></div>
+      <label class="et">Tu carpeta de Descargas (de ahí se importan los resúmenes nuevos)</label>
+      <div class="con-boton"><input type="text" id="wz-descargas"><button type="button" class="btn" data-wz-elegir="wz-descargas">Elegir…</button></div>
+    </section>
+    <section data-paso="2" hidden>
+      <h3>¿Qué usás?</h3>
+      <p>Los bancos y billeteras se leen de los resúmenes PDF que descargás. Los brokers con API se consultan en vivo (usuario y clave se piden cada vez y no se guardan).</p>
+      <div id="wz-fuentes"></div>
+    </section>
+    <section data-paso="3" hidden>
+      <h3>¿Con qué IA querés el análisis?</h3>
+      <p>Podés cambiarlo después. Con Ollama, los datos no salen de tu computadora.</p>
+      <div id="wz-ia"></div>
+      <label class="et">Modelo</label><input type="text" id="wz-modelo">
+      <div id="wz-clave-box"><label class="et" id="wz-clave-et">Clave de API</label><input type="password" id="wz-clave" autocomplete="off">
+        <p class="nota-wz">Se guarda en el llavero del sistema, no en un archivo.</p></div>
+    </section>
+    <section data-paso="4" hidden>
+      <h3>¡Listo!</h3>
+      <p>Para empezar: descargá tus resúmenes en PDF y tocá <b>Actualizar todo</b>. Si querés ver el dashboard en el celular, configuralo después en <b>Configuración → Celular</b>.</p>
+      <div id="wz-resumen"></div>
+    </section>
+    <div class="msg err" id="wz-error"></div>
+    <div class="acciones" style="justify-content:space-between;margin-top:16px">
+      <button type="button" class="btn" id="wz-saltar">Saltar</button>
+      <div class="acciones"><button type="button" class="btn" id="wz-atras">Atrás</button><button type="button" class="btn primario" id="wz-siguiente">Siguiente</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: secreto -->
+<div class="fondo-modal" id="modal-secreto" hidden>
+  <form class="modal" id="form-secreto" autocomplete="off">
+    <h3 id="sec-titulo"></h3>
+    <p>Se guarda en el llavero del sistema, cifrado con tu sesión.</p>
+    <input type="password" id="sec-valor" autocomplete="off" required>
+    <input type="password" id="sec-repetir" placeholder="Repetila" autocomplete="off">
+    <div class="msg err" id="sec-error"></div>
+    <div class="acciones"><button type="button" class="btn" id="sec-cancelar">Cancelar</button><button type="submit" class="btn primario">Guardar</button></div>
+  </form>
+</div>
+
+<script>
+/*__CODIGO__*/
+</script>
+</body>
+</html>

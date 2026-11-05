@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "ar.cartera.app"
+    namespace = "ar.pluto.app"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "ar.cartera.app"
+        applicationId = "ar.pluto.app"
         minSdk = 26
         targetSdk = 35
         // La versión visible sale del archivo VERSION de la raíz del repo; el número interno, de la compilación

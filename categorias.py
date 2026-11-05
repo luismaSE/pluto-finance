@@ -30,8 +30,22 @@ def _norm(s):
     return " " + " ".join(sin_acentos(s or "").lower().replace(",", " ").split()) + " "
 
 
-def categorizar(descripcion: str, titulares=()) -> str:
+# Categorías que se pueden elegir en la app (las de las reglas, más "Otros")
+CATEGORIAS = list(REGLAS) + ["Otros"]
+
+
+def clave_regla(descripcion: str) -> str:
+    """Texto que se guarda como regla del usuario: la descripción normalizada, sin números largos."""
+    t = re.sub(r"\d{4,}", " ", _norm(descripcion))
+    return " ".join(re.sub(r"[^a-z0-9ñ ]", " ", t).split())
+
+
+def categorizar(descripcion: str, titulares=(), reglas_usuario: dict | None = None) -> str:
     d = _norm(descripcion)
+    # 1) Reglas que el usuario eligió en la app: {"verduleria melina": "Supermercado"}
+    for texto, cat in sorted((reglas_usuario or {}).items(), key=lambda kv: -len(kv[0])):
+        if texto and f" {clave_regla(texto)} " in f" {clave_regla(descripcion)} ":
+            return cat
     for t in titulares:
         if t and _norm(t).strip() in d:
             return "Entre mis cuentas"

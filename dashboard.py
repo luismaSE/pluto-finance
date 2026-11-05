@@ -8,7 +8,11 @@ PLANTILLA = Path(__file__).parent / "plantillas" / "dashboard.html"
 
 
 def generar(datos: dict, destino: Path | None = None, abrir=True) -> Path:
-    html = PLANTILLA.read_text(encoding="utf-8")
+    try:   # en desarrollo se arma desde plantillas/dashboard/; si no está, se usa el armado
+        from plantillas.ensamblar import dashboard as _armar
+        html = _armar()
+    except Exception:
+        html = PLANTILLA.read_text(encoding="utf-8")
     fuentes = PLANTILLA.parent / "fuentes.css"
     if fuentes.exists():
         html = html.replace("/*__FUENTES__*/", fuentes.read_text(encoding="utf-8"), 1)

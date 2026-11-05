@@ -16,7 +16,22 @@ from categorias import categorizar
 from modelo import Snapshot
 
 
-ULTIMO_ANALISIS = Path("salida/ultimo_analisis.json")   # local, nunca se sube al repo
+ULTIMO_ANALISIS = Path("salida/ultimo_analisis.json")
+
+
+def demo_config() -> dict:
+    """Configuración de ejemplo para --demo: límites y tarjetas ficticios."""
+    import configuracion
+    from datetime import timedelta
+    cfg = configuracion.cargar()
+    hoy = date.today()
+    cfg["presupuestos"] = {"total": 1_200_000, "categorias": {"Supermercado": 350_000, "Delivery y restaurantes": 60_000, "Suscripciones": 30_000}}
+    cfg["tarjetas"] = {
+        "visa": {"nombre": "Visa", "cierre": (hoy + timedelta(days=9)).day, "vencimiento": (hoy + timedelta(days=2)).day},
+        "master": {"nombre": "Mastercard", "cierre": (hoy + timedelta(days=16)).day, "vencimiento": (hoy + timedelta(days=12)).day},
+    }
+    cfg["categorias"] = {"reglas": {}}
+    return cfg   # local, nunca se sube al repo
 
 
 def _guardar_analisis(a: dict):
@@ -47,6 +62,7 @@ class Opciones:
     publicar: dict = field(default_factory=dict)
     interactivo: bool = True              # False en la app: nunca usa input()
     demo: bool = False
+    config: dict | None = None            # configuración completa; si falta se lee config.toml
 
 
 def _pedir_campos(b, cred: dict) -> dict:
@@ -120,6 +136,8 @@ def _cargar_pdfs(s: Snapshot, rutas, log) -> set:
 
 
 def ejecutar(o: Opciones, log=print) -> dict:
+    import configuracion
+    cfg = o.config or (demo_config() if o.demo else configuracion.cargar())
     """Corre todo y devuelve {"dashboard": ruta, "datos": dict, "publicado": bool}."""
     titulares = set()
     if o.demo:
@@ -142,11 +160,19 @@ def ejecutar(o: Opciones, log=print) -> dict:
             _cargar_brokers(s, o, log)
 
     for m in s.movimientos:
-        m.categoria = m.categoria or categorizar(m.descripcion, titulares)
+        m.categoria = m.categoria or categorizar(m.descripcion, titulares, cfg["categorias"].get("reglas"))
     if not s.cotizaciones.get("mep"):
         s.advertencias.append("Sin cotización MEP: los saldos en USD no se suman al total en pesos.")
 
     r = resumen.calcular(s)
+    # Tarjetas, límites de gasto, metas y avisos (también le llegan al análisis con IA)
+    import avisos
+    import presupuestos
+    import tarjetas
+    r["tarjetas"] = tarjetas.calcular(cfg["tarjetas"], date.today(), s.movimientos)
+    r["presupuestos"] = presupuestos.evaluar(cfg["presupuestos"], r["gastos_por_mes"])
+    r["metas"] = cfg["metas"]
+    r["avisos"] = avisos.generar(r, r["tarjetas"], r["presupuestos"])
     hist = historial.cargar() if o.demo else historial.agregar(r, s.estado_fuentes)
 
     if not o.demo:

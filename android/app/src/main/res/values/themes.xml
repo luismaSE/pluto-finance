@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Cartera" parent="Theme.Material3.DayNight">
+    <style name="Theme.Pluto" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/acento</item>
         <item name="colorOnPrimary">@color/sobre_acento</item>
         <item name="colorSurface">@color/superficie</item>

@@ -26,6 +26,7 @@ def agregar(resumen: dict, estado_fuentes: dict) -> list:
         "por_entidad": resumen.get("por_entidad"),
         "fuentes_ok": [k for k, v in estado_fuentes.items() if v.get("ok")],
         "fuentes_error": {k: v.get("detalle") for k, v in estado_fuentes.items() if not v.get("ok")},
+        "avisos": resumen.get("avisos", []),
     })
     h = h[-500:]
     ARCHIVO.parent.mkdir(exist_ok=True)
