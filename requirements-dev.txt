@@ -1,0 +1,4 @@
+# Para correr las pruebas: pip install -r requirements-dev.txt && python -m pytest
+-r requirements.txt
+keyring>=24
+pytest>=8

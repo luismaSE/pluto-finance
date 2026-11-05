@@ -71,3 +71,34 @@ def fecha_iso(v) -> str | None:
         a = m[3] if len(m[3]) == 4 else "20" + m[3]
         return f"{a}-{int(m[2]):02d}-{int(m[1]):02d}"
     return None
+
+
+def mensaje_error(e: Exception, servicio: str) -> str:
+    """Convierte un error técnico (de conexión, HTTP, etc.) en un mensaje claro para la app."""
+    try:
+        import requests
+        if isinstance(e, requests.exceptions.Timeout):
+            return f"{servicio} tardó demasiado en responder. Probá de nuevo en un rato."
+        if isinstance(e, (requests.exceptions.ConnectionError, requests.exceptions.ProxyError)):
+            return f"No pude conectarme a {servicio}. Revisá tu conexión a internet."
+        if isinstance(e, requests.exceptions.HTTPError) and e.response is not None:
+            return _por_codigo(e.response.status_code, servicio)
+    except ImportError:
+        pass
+    texto = str(e).strip().splitlines()[0] if str(e).strip() else type(e).__name__
+    m = re.search(r"\b(401|403|404|429|5\d\d)\b", texto)
+    if m and ("HTTP" in texto or "respondió" in texto or "status" in texto.lower()):
+        return _por_codigo(int(m.group(1)), servicio)
+    return texto[:200]
+
+
+def _por_codigo(codigo: int, servicio: str) -> str:
+    if codigo in (401, 403):
+        return f"{servicio} rechazó el acceso: revisá el usuario, la clave o los permisos del token."
+    if codigo == 404:
+        return f"{servicio} no encontró lo pedido (404): revisá la dirección o el nombre del repositorio."
+    if codigo == 429:
+        return f"Demasiados intentos en {servicio}: esperá unos minutos y probá de nuevo."
+    if codigo >= 500:
+        return f"{servicio} tiene problemas en este momento ({codigo}). Probá más tarde."
+    return f"{servicio} respondió con un error ({codigo})."

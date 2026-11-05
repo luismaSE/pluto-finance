@@ -35,15 +35,13 @@ def demo_config() -> dict:
 
 
 def _guardar_analisis(a: dict):
-    ULTIMO_ANALISIS.parent.mkdir(exist_ok=True)
-    ULTIMO_ANALISIS.write_text(json.dumps(a, ensure_ascii=False, indent=1), encoding="utf-8")
+    import datos_locales
+    datos_locales.escribir(ULTIMO_ANALISIS, a)
 
 
 def _ultimo_analisis() -> dict | None:
-    try:
-        return json.loads(ULTIMO_ANALISIS.read_text(encoding="utf-8"))
-    except Exception:
-        return None
+    import datos_locales
+    return datos_locales.leer(ULTIMO_ANALISIS, None)
 
 
 @dataclass
@@ -99,8 +97,10 @@ def _cargar_brokers(s: Snapshot, o: Opciones, log):
             s.estado_fuentes[b.NOMBRE] = {"ok": True, "detalle": f"API en vivo: {len(c)} saldos, {len(i)} posiciones"}
             log(f"  ✓ {len(c)} saldos, {len(i)} posiciones")
         except Exception as e:
-            log(f"  ✗ Error en {b.NOMBRE}: {e}")
-            s.estado_fuentes[b.NOMBRE] = {"ok": False, "detalle": str(e)[:200]}
+            from utils import mensaje_error
+            msg = mensaje_error(e, b.NOMBRE)
+            log(f"  ✗ {msg}")
+            s.estado_fuentes[b.NOMBRE] = {"ok": False, "detalle": msg}
         finally:
             cred = None
             o.brokers[bid] = None          # descarta las credenciales
@@ -207,6 +207,11 @@ def ejecutar(o: Opciones, log=print) -> dict:
              "referencias": refs, "historial": historial.por_dia(hist), "entidades": fuentes.nombres()}
     ruta = dashboard.generar(datos, abrir=False)
     log(f"\nDashboard: {Path(ruta).resolve()}")
+    if not o.demo:
+        import datos_locales
+        borrados = datos_locales.limpiar_dashboards(str(Path(ruta).parent), cfg["privacidad"].get("conservar_dashboards", 5))
+        if borrados:
+            log(f"  Se borraron {borrados} dashboards viejos (se conservan los últimos {cfg['privacidad'].get('conservar_dashboards', 5)}).")
 
     publicado = False
     if o.celular:
@@ -222,7 +227,9 @@ def ejecutar(o: Opciones, log=print) -> dict:
             publicar.publicar(cifrado.cifrar(datos, pw), o.publicar, o.github_token, log, preguntar=o.interactivo)
             publicado = True
         except Exception as e:
-            log(f"  ✗ No pude publicar: {e}")
+            from utils import mensaje_error
+            destino = {"github": "GitHub", "drive": "Google Drive"}.get(o.publicar.get("destino"), "el destino")
+            log(f"  ✗ No pude publicar: {mensaje_error(e, destino)}")
         finally:
             o.celular_password = None
             o.github_token = None

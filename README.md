@@ -27,7 +27,9 @@ cd wallet-dashboard && ./instalar.sh
 ./iniciar.sh
 ```
 
-**Windows:** descargá el repo (Code → Download ZIP), descomprimilo y hacé doble clic en **`instalar.bat`**. Después abrí la app con el acceso directo "Pluto" del escritorio o con `iniciar.bat`.
+**Windows, sin instalar nada:** en [Releases](../../releases) bajá `Pluto-windows.zip`, descomprimilo y abrí `Pluto.exe` (experimental; tus datos quedan en `%APPDATA%\Pluto`). La descarga asistida de Galicia necesita la instalación con Python.
+
+**Windows con Python:** descargá el repo (Code → Download ZIP), descomprimilo y hacé doble clic en **`instalar.bat`**. Después abrí la app con el acceso directo "Pluto" del escritorio o con `iniciar.bat`.
 
 La primera vez se abre un **asistente** que te pregunta en 4 pasos dónde guardar los resúmenes, qué bancos y brokers usás y con qué IA querés el análisis. Todo se puede cambiar después en Configuración.
 
@@ -71,6 +73,7 @@ Pasos posibles: `esperar_url` (regex), `ir` (url), `click` (selector o `text=...
 - **No se guardan las claves de bancos ni brokers.** Se piden en cada actualización y se descartan después del login.
 - Los PDF y el dashboard quedan solo en tu computadora (`reportes/` y `salida/` están en `.gitignore`).
 - **A la IA le llega solo un resumen** (saldos, posiciones, gastos por mes). Los números largos (CBU, CUIT, nros. de operación) se borran antes. Con Ollama no sale nada de tu equipo.
+- **Datos guardados en la PC:** el historial y el último análisis se guardan cifrados con una clave del llavero; de los dashboards se conservan solo los últimos (Configuración → Privacidad).
 
 ## Análisis con IA
 
@@ -84,6 +87,25 @@ Se elige en Configuración → Análisis con IA (o en el asistente). Cada provee
 | **Ollama (local)** | [Ollama](https://ollama.com) corriendo y un modelo descargado (`ollama pull llama3.1`). |
 
 Prueba rápida del proveedor configurado: `python analisis.py` (o el botón **Probar** en la app). Si una actualización no corre el análisis (o falla), se muestra el último que salió bien, con su fecha.
+
+## Límites de gasto, tarjetas y categorías
+
+Todo se configura en la app de escritorio:
+
+- **Límites de gasto** (Configuración → Límites de gasto): un tope mensual total y uno por categoría. El dashboard muestra cuánto llevás de cada uno, cuánto te queda y, desde el día 7, cuánto gastarías a fin de mes a este ritmo. Avisa cuando estás cerca (80%) o te pasaste.
+- **Tarjetas** (Configuración → Tarjetas de crédito): el día del mes en que cierra y vence cada tarjeta. El dashboard muestra cuántos días faltan y avisa una semana antes del vencimiento. Si un mes el banco corre la fecha, cargá la fecha exacta del resumen.
+- **Meta de fondo de emergencia** (Configuración → Metas): cuántos meses de gastos querés tener disponibles.
+- **Categorías** (página Categorías): si un movimiento quedó en "Otros" o "Transferencias", elegí la categoría correcta; Pluto la recuerda para todos los movimientos iguales desde la próxima actualización.
+
+## Pruebas
+
+```bash
+pip install -r requirements-dev.txt
+```
+```bash
+python -m pytest
+```
+Corren solas en GitHub en cada cambio. La lista de pruebas a mano (app, celular, instaladores) está en [`docs/PRUEBAS.md`](docs/PRUEBAS.md).
 
 ## Instalación manual
 ```bash
@@ -160,14 +182,11 @@ Copiá `config.example.toml` como `config.toml` y elegí `destino`.
 Para publicar una versión nueva: creá un release en GitHub (Releases → *Draft a new release*, tag `v1.0.1`) o subí un tag con `git tag v1.0.1 && git push origin v1.0.1`. GitHub Actions compila el APK y lo adjunta al release.
 
 ### 3. (Recomendado) Firmá la app con tu propia clave
-Sin una clave propia, cada compilación se firma distinto y para actualizar hay que desinstalar la versión anterior. Generá una clave una sola vez:
+Sin una clave propia, cada compilación se firma distinto y para actualizar hay que desinstalar la versión anterior. Una sola vez, en tu PC:
 ```bash
-keytool -genkeypair -v -keystore cartera.jks -alias cartera -keyalg RSA -keysize 4096 -validity 10000
+./android/generar_clave.sh
 ```
-```bash
-base64 -w0 cartera.jks
-```
-En el repo del código → Settings → Secrets and variables → Actions, creá estos secrets: `CARTERA_KEYSTORE_BASE64` (la salida de base64), `CARTERA_KEYSTORE_PASSWORD`, `CARTERA_KEY_ALIAS` (`cartera`) y `CARTERA_KEY_PASSWORD`. Guardá `cartera.jks` en un lugar seguro y **nunca lo subas al repo**.
+Crea la clave en `~/.pluto/pluto-release.jks` y, si tenés la CLI de GitHub (`gh`) logueada, carga sola los 4 secrets en el repo; si no, te dice cuáles cargar a mano. Hacé una copia de seguridad de esa clave y **nunca la subas al repo**: sin ella no se puede actualizar la app.
 
 ## Sumar bancos, brokers o proveedores de IA
 
@@ -190,9 +209,13 @@ Para ver el texto de un PDF y armar el lector: `python -c "from conectores.pdf i
 | Colores | Pizarra `#1B2227` · Granito `#33404A` · Óxido `#E07A45` · Cielo `#9CC9DB` · Hueso `#F1EEE8` |
 | Tipografías | Bricolage Grotesque (títulos), IBM Plex Sans (texto), IBM Plex Mono (cifras). Licencia SIL OFL 1.1; se incrustan con `python marca/generar_fuentes.py` |
 
+## Licencia
+
+Código bajo licencia [MIT](LICENSE). Las tipografías incluidas usan la SIL Open Font License ([detalle](plantillas/LICENCIA-FUENTES.md)). Para sumar bancos o mejoras, ver [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Publicar una versión
 1. Actualizá el número en `VERSION` y agregá los cambios en `CHANGELOG.md`.
-2. Subí los cambios y creá el release en GitHub con el tag `v` + ese número (por ejemplo `v1.2.0`). El APK se compila y se adjunta solo.
+2. Subí los cambios y creá el release en GitHub con ese número como tag (por ejemplo `1.3.0`). El APK y el ejecutable de Windows se compilan y se adjuntan solos.
 
 ## Estructura
 | Archivo | Qué hace |
@@ -213,7 +236,12 @@ Para ver el texto de un PDF y armar el lector: `python -c "from conectores.pdf i
 | `cotizaciones.py` | Dólar oficial, MEP, CCL y blue (dolarapi.com) |
 | `resumen.py` | Totales, consolidación al MEP y gastos por mes |
 | `instalar.sh`, `instalar.bat` | Instaladores (Linux/macOS y Windows) |
-| `plantillas/dashboard.html` | Dashboard (claro/oscuro, sin internet); lo usan la PC y la app |
+| `plantillas/dashboard/` | Dashboard (HTML, CSS y JS); `plantillas/dashboard.html` es el armado que usan la PC y la app |
+| `escritorio/ui/` | Interfaz de la app de escritorio (HTML, CSS y JS) |
+| `presupuestos.py`, `tarjetas.py`, `avisos.py` | Límites de gasto, cierres y vencimientos, y avisos |
+| `datos_locales.py` | Cifrado del historial y limpieza de dashboards viejos |
+| `herramientas/texto_pdf.py` | Texto de un PDF, con opción de anonimizarlo para compartirlo |
+| `tests/` | Pruebas automáticas |
 | `cifrado.py` | Cifrado del archivo para el celular |
 | `publicar.py` | Subida a GitHub o Google Drive |
 | `android/` | App Android (Kotlin); se compila con GitHub Actions |

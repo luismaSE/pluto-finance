@@ -36,7 +36,7 @@ DEFAULT = {
     "metas": {"fondo_emergencia_meses": 6},
     # Tarjetas: {"visa_galicia": {"nombre": "Visa Galicia", "cierre": 24, "vencimiento": 6}}
     "tarjetas": {},
-    # Reglas propias de categoría: {"transferencia enviada verduleria melina": "Supermercado"}
+    # Reglas propias de categoría: {"transferencia enviada verduleria don pepe": "Supermercado"}
     "categorias": {"reglas": {}},
     "privacidad": {"conservar_dashboards": 5, "cifrar_datos_locales": True},
     "publicar": {

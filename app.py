@@ -9,8 +9,16 @@ import os
 import sys
 from pathlib import Path
 
-RAIZ = Path(__file__).resolve().parent
-os.chdir(RAIZ)
+if getattr(sys, "frozen", False):
+    # Ejecutable de Windows (PyInstaller): los recursos vienen adentro del .exe y los datos del
+    # usuario (config.toml, reportes/, salida/) van a %APPDATA%\Pluto
+    RAIZ = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
+    DATOS = Path(os.environ.get("APPDATA") or Path.home()) / "Pluto"
+    DATOS.mkdir(parents=True, exist_ok=True)
+    os.chdir(DATOS)
+else:
+    RAIZ = Path(__file__).resolve().parent
+    os.chdir(RAIZ)
 sys.path.insert(0, str(RAIZ))
 
 

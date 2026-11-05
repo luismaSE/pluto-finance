@@ -1,0 +1,52 @@
+name: Ejecutable de Windows
+
+# Arma Pluto.exe (no hace falta instalar Python) y lo adjunta a cada release.
+# Experimental: la descarga asistida de Galicia necesita la instalación con Python.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt "pywebview>=5.0" "keyring>=24" "anthropic>=1.0" "pyinstaller>=6.5"
+      - name: Pruebas rápidas
+        run: |
+          pip install pytest
+          python -m pytest -q
+      - name: Armar Pluto.exe
+        run: >
+          pyinstaller app.py --name Pluto --windowed --noconfirm --clean
+          --icon marca/icono.ico
+          --add-data "escritorio/ui;escritorio/ui"
+          --add-data "plantillas;plantillas"
+          --add-data "marca;marca"
+          --add-data "VERSION;."
+          --hidden-import descarga_asistida --hidden-import categorias
+          --collect-submodules keyring --collect-all webview
+          --collect-submodules ia --collect-submodules conectores
+      - name: Comprimir
+        shell: pwsh
+        run: Compress-Archive -Path dist/Pluto/* -DestinationPath Pluto-windows.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pluto-windows
+          path: Pluto-windows.zip
+          retention-days: 30
+      - name: Adjuntar al release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" Pluto-windows.zip --clobber --repo "${{ github.repository }}"

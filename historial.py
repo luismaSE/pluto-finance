@@ -1,5 +1,5 @@
-"""Historial chico de cada corrida (solo totales, sin movimientos ni descripciones).
-Se guarda en salida/historial.json, que nunca se sube al repo."""
+"""Historial chico de cada corrida (solo totales y avisos, sin movimientos).
+Se guarda en salida/historial.json (cifrado si hay llavero), que nunca se sube al repo."""
 import json
 from datetime import datetime
 from pathlib import Path
@@ -8,10 +8,9 @@ ARCHIVO = Path("salida/historial.json")
 
 
 def cargar() -> list:
-    try:
-        return json.loads(ARCHIVO.read_text())
-    except Exception:
-        return []
+    import datos_locales
+    h = datos_locales.leer(ARCHIVO, [])
+    return h if isinstance(h, list) else []
 
 
 def agregar(resumen: dict, estado_fuentes: dict) -> list:
@@ -29,8 +28,8 @@ def agregar(resumen: dict, estado_fuentes: dict) -> list:
         "avisos": resumen.get("avisos", []),
     })
     h = h[-500:]
-    ARCHIVO.parent.mkdir(exist_ok=True)
-    ARCHIVO.write_text(json.dumps(h, indent=1, ensure_ascii=False))
+    import datos_locales
+    datos_locales.escribir(ARCHIVO, h)
     return h
 
 

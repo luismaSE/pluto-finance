@@ -161,7 +161,8 @@ class Api:
         try:
             return {"ok": True, "mensaje": publicar.probar_github(cfg, token)}
         except Exception as e:
-            return {"ok": False, "mensaje": str(e)}
+            from utils import mensaje_error
+            return {"ok": False, "mensaje": mensaje_error(e, "GitHub")}
 
     def elegir_carpeta(self) -> str | None:
         import webview

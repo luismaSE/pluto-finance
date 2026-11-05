@@ -21,6 +21,8 @@ def generar(datos: dict, destino: Path | None = None, abrir=True) -> Path:
     if destino is None:
         Path("salida").mkdir(exist_ok=True)
         destino = Path("salida") / f"dashboard_{datetime.now():%Y-%m-%d_%H%M}.html"
+    destino = Path(destino)
+    destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text(html, encoding="utf-8")
     if abrir:
         webbrowser.open(destino.resolve().as_uri())

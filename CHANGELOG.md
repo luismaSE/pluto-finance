@@ -1,5 +1,30 @@
 # Cambios
 
+## 1.3.0
+
+**Nuevo**
+- **Límites de gasto** mensuales, total y por categoría, con proyección a fin de mes y avisos al 80% y al pasarte.
+- **Tarjetas de crédito:** cuenta regresiva hasta el cierre y el vencimiento, con aviso una semana antes. Muestra el último pago detectado.
+- **Categorías propias:** página para corregir la categoría de un movimiento; Pluto recuerda la regla.
+- **Meta de fondo de emergencia** con barra de avance.
+- **Avisos** en Inicio y en el dashboard (vencimientos, límites, resúmenes viejos).
+- **Ejecutable de Windows** (`Pluto-windows.zip`, experimental): no hace falta instalar Python.
+
+**Mejoras**
+- App Android sin la barra superior: el contenido respeta la barra de estado y la de navegación. Configuración se abre desde la pantalla de desbloqueo y el gesto "atrás" bloquea.
+- Mensajes de error claros (por ejemplo, "No pude conectarme a IOL" en lugar del error técnico).
+- Historial y último análisis cifrados en la PC; se conservan solo los últimos dashboards.
+- Script para generar la clave de firma del APK y cargarla en GitHub.
+
+**Para quien colabora**
+- Licencia MIT, guía para sumar bancos y herramienta para anonimizar resúmenes PDF.
+- 44 pruebas automáticas que corren en GitHub en cada cambio.
+- La interfaz y el dashboard se separaron en HTML, CSS y JS.
+
+**Cambios internos**
+- El identificador de la app Android pasa a `ar.pluto.app`: hay que desinstalar la versión anterior una vez.
+- El llavero se llama ahora "pluto"; las claves guardadas se migran solas.
+
 ## 1.2.0 — Pluto
 
 **Nueva identidad**

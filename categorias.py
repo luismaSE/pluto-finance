@@ -42,7 +42,7 @@ def clave_regla(descripcion: str) -> str:
 
 def categorizar(descripcion: str, titulares=(), reglas_usuario: dict | None = None) -> str:
     d = _norm(descripcion)
-    # 1) Reglas que el usuario eligió en la app: {"verduleria melina": "Supermercado"}
+    # 1) Reglas que el usuario eligió en la app: {"verduleria don pepe": "Supermercado"}
     for texto, cat in sorted((reglas_usuario or {}).items(), key=lambda kv: -len(kv[0])):
         if texto and f" {clave_regla(texto)} " in f" {clave_regla(descripcion)} ":
             return cat

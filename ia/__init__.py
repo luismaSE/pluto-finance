@@ -79,7 +79,8 @@ def analizar(resumen: dict, cotizaciones: dict, cfg_analisis: dict, clave_de=Non
     try:
         texto = prov.generar(SISTEMA, payload(resumen, cotizaciones, referencias), opciones, clave)
     except Exception as e:
-        return {"error": f"{prov.NOMBRE}: {str(e).splitlines()[0][:400]}"}
+        from utils import mensaje_error
+        return {"error": f"{prov.NOMBRE}: {mensaje_error(e, prov.NOMBRE)}"}
     finally:
         clave = None
     a = _a_json(texto)
