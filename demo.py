@@ -48,14 +48,20 @@ def snapshot_demo() -> Snapshot:
                         "Galicia": {"ok": True, "detalle": "PDF (demo)"}}
     s.advertencias = ["Datos ficticios de demostración."]
     s.analisis = {
+        "titular": "Buen patrimonio, pero $4 M en pesos pierden contra la inflación",
+        "salud": {"puntaje": 68, "etiqueta": "Bien"},
+        "indicadores": [{"nombre": "Liquidez ociosa", "estado": "mal", "valor": "$4 M"},
+                        {"nombre": "Diversificación", "estado": "regular", "valor": "GGAL 34%"},
+                        {"nombre": "Ahorro del mes", "estado": "bien", "valor": "22%"},
+                        {"nombre": "Exposición al dólar", "estado": "regular", "valor": "30%"}],
         "resumen": "Patrimonio diversificado con buen rendimiento en renta variable, pero con unos $4 M en pesos sin rendimiento claro y una concentración alta en GGAL.",
-        "observaciones": ["El 70% del patrimonio está en pesos o en activos que cotizan en pesos.",
-                          "Las suscripciones suman cerca de $25.000 por mes."],
+        "observaciones": ["70% del patrimonio está en pesos", "Suscripciones: $25.000 por mes", "Gastos estables contra el mes pasado"],
         "alertas": [{"nivel": "alta", "titulo": "Pesos parados en caja de ahorro", "detalle": "$2,8 M en la caja de ahorro de Galicia no generan interés."},
                     {"nivel": "media", "titulo": "Concentración en GGAL", "detalle": "GGAL representa ~34% de la cartera de inversiones."},
                     {"nivel": "baja", "titulo": "Comisión de mantenimiento", "detalle": "Se cobra comisión de mantenimiento; revisá si tu paquete la bonifica."}],
-        "recomendaciones": [{"titulo": "Mover liquidez a un FCI money market", "detalle": "Dejá en caja de ahorro lo necesario para el mes y el resto en un FCI de liquidez inmediata.", "impacto": "alto"},
-                            {"titulo": "Rebalancear la cartera", "detalle": "Llevar GGAL a menos del 20% de la cartera.", "impacto": "medio"}],
+        "recomendaciones": [{"titulo": "Pasar liquidez a un money market", "detalle": "Dejá en caja de ahorro lo del mes y el resto en un FCI de liquidez inmediata.", "impacto": "alto", "ahorro_mensual_ars": 62_000},
+                            {"titulo": "Bajar GGAL a menos del 20%", "detalle": "Repartí la diferencia entre bonos en dólares y CEDEARs.", "impacto": "medio", "ahorro_mensual_ars": 0},
+                            {"titulo": "Revisar suscripciones", "detalle": "Tres servicios de streaming suman $25.000 por mes.", "impacto": "bajo", "ahorro_mensual_ars": 9_000}],
     }
     return s
 
@@ -100,6 +106,9 @@ def registro_demo(precios: dict) -> list:
 
 def analisis_mercado_demo() -> dict:
     return {
+        "titular": "Demasiado GGAL: sumá renta fija en dólares",
+        "puntos_clave": ["GGAL pesa 34% de tus inversiones", "Poca renta fija para un perfil moderado", "CEDEARs te cubren de una suba del CCL"],
+        "termometro": {"riesgo_cartera": 4, "riesgo_perfil": 3, "diversificacion": 2, "sentimiento": "neutral"},
         "resumen": "Datos ficticios. El mercado local viene con volatilidad alta por la incertidumbre cambiaria. "
                    "Tu cartera está cargada en acciones bancarias argentinas y tiene poca renta fija en dólares para un perfil moderado.",
         "cartera_objetivo": [
@@ -109,23 +118,27 @@ def analisis_mercado_demo() -> dict:
             {"clase": "Liquidez y money market", "actual_pct": 20, "objetivo_pct": 25, "comentario": "Fondo de emergencia de 6 meses."},
         ],
         "recomendaciones": [
-            {"accion": "reducir", "activo": "GGAL", "por": "", "monto_ars": 2_500_000, "horizonte": "mediano", "confianza": "media",
+            {"accion": "reducir", "activo": "GGAL", "por": "", "titulo": "Bajar la concentración en un banco", "monto_ars": 2_500_000, "horizonte": "mediano", "confianza": "media",
              "motivo": "Pesa más del 30% de tus inversiones: un mal balance del banco golpea toda la cartera.",
              "riesgos": "Si el sector financiero sigue subiendo, te perdés parte de esa suba."},
-            {"accion": "aumentar", "activo": "AL30", "por": "", "monto_ars": 1_500_000, "horizonte": "largo", "confianza": "media",
+            {"accion": "aumentar", "activo": "AL30", "por": "", "titulo": "Sumar renta fija en dólares", "monto_ars": 1_500_000, "horizonte": "largo", "confianza": "media",
              "motivo": "Suma renta fija en dólares acorde a tu perfil.", "riesgos": "Riesgo soberano: el precio cae si sube el riesgo país."},
-            {"accion": "cambiar", "activo": "MELI", "por": "SPY", "monto_ars": 1_000_000, "horizonte": "largo", "confianza": "baja",
+            {"accion": "cambiar", "activo": "MELI", "por": "SPY", "titulo": "Diversificar con el S&P 500", "monto_ars": 1_000_000, "horizonte": "largo", "confianza": "baja",
              "motivo": "SPY diversifica entre 500 empresas con menos volatilidad.", "riesgos": "Menor potencial de suba que una acción individual."},
         ],
         "noticias": [
             {"titulo": "Noticia de ejemplo sobre resultados de bancos", "fuente": "Demo", "fecha": date.today().isoformat(),
              "activos": ["GGAL"], "impacto": "incierto", "que_significa": "Las noticias reales aparecen si el proveedor de IA puede buscar en la web."},
+            {"titulo": "Noticia de ejemplo: baja el riesgo país", "fuente": "Demo", "fecha": date.today().isoformat(),
+             "activos": ["AL30", "GGAL"], "impacto": "positivo", "que_significa": "Favorece a bonos y bancos."},
         ],
         "escenarios": [
-            {"escenario": "Si el dólar CCL sube 15%", "probabilidad": "media", "efecto": "Tus CEDEARs suben en pesos; las acciones locales dependen del contexto.",
+            {"escenario": "Si el dólar CCL sube 15%", "probabilidad": "media", "efecto": "mixto", "detalle": "Tus CEDEARs suben en pesos; las acciones locales dependen del contexto.",
              "que_considerar": "Tener parte de la cartera dolarizada amortigua el golpe."},
-            {"escenario": "Si baja el riesgo país", "probabilidad": "media", "efecto": "Suben los bonos soberanos y las acciones bancarias.",
+            {"escenario": "Si baja el riesgo país", "probabilidad": "media", "efecto": "positivo", "detalle": "Suben los bonos soberanos y las acciones bancarias.",
              "que_considerar": "Es el escenario que más favorece a tu cartera actual."},
+            {"escenario": "Si se endurece el cepo", "probabilidad": "baja", "efecto": "negativo", "detalle": "Caen las acciones locales y se amplía la brecha.",
+             "que_considerar": "La liquidez en dólares te da margen."},
         ],
         "proveedor": "demo", "modelo": "", "con_noticias": False, "fecha": date.today().isoformat() + "T10:00",
     }

@@ -12,6 +12,7 @@
 - **Ejecutable de Windows** (`Pluto-windows.zip`, experimental): no hace falta instalar Python.
 
 **Mejoras**
+- **Análisis más visual:** titular de una línea, puntaje de salud financiera, indicadores con semáforo, termómetro de riesgo contra tu perfil y distribución en barras. Los detalles quedan plegados ("Por qué", "Cómo") para leer de un vistazo.
 - App Android sin la barra superior: el contenido respeta la barra de estado y la de navegación. Configuración se abre desde la pantalla de desbloqueo y el gesto "atrás" bloquea.
 - La conexión con IOL es de solo lectura: el código bloquea cualquier pedido que no sea una consulta.
 - Mensajes de error claros (por ejemplo, "No pude conectarme a IOL" en lugar del error técnico).

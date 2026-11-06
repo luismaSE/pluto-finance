@@ -41,18 +41,29 @@ REGLAS:
   con un monto aproximado en pesos cuando corresponda. Preferí pocas recomendaciones buenas a muchas.
 - Esto es información, no asesoramiento financiero profesional registrado ante la CNV.
 
+- Se lee en el celular de un vistazo: textos CORTOS, sin relleno, con números. Respetá los largos máximos.
+
 Respondé SOLO con un JSON válido (sin markdown) con esta forma:
-{"resumen": "3-4 oraciones sobre el momento del mercado y tu cartera",
+{"titular": "la conclusión principal, máximo 12 palabras",
+ "puntos_clave": ["exactamente 3, de hasta 10 palabras"],
+ "termometro": {"riesgo_cartera": 1, "riesgo_perfil": 1, "diversificacion": 1,
+                "sentimiento": "positivo | neutral | negativo"},
+ "resumen": "máximo 3 oraciones sobre el momento del mercado y la cartera",
  "cartera_objetivo": [{"clase": "Renta fija en pesos | Renta fija en dólares | Acciones argentinas | CEDEARs | Liquidez | ...",
-                       "actual_pct": 0, "objetivo_pct": 0, "comentario": "..."}],
+                       "actual_pct": 0, "objetivo_pct": 0, "comentario": "hasta 12 palabras"}],
  "recomendaciones": [{"accion": "aumentar | reducir | mantener | comprar | vender | cambiar",
                       "activo": "SIMBOLO o clase", "por": "SIMBOLO destino si es un cambio, o vacío",
-                      "monto_ars": 0, "motivo": "...", "riesgos": "...", "horizonte": "corto | mediano | largo",
+                      "titulo": "hasta 8 palabras", "monto_ars": 0, "motivo": "hasta 25 palabras",
+                      "riesgos": "hasta 20 palabras", "horizonte": "corto | mediano | largo",
                       "confianza": "baja | media | alta"}],
  "noticias": [{"titulo": "...", "fuente": "...", "fecha": "AAAA-MM-DD", "activos": ["SIMBOLO"],
-               "impacto": "positivo | negativo | neutral | incierto", "que_significa": "..."}],
- "escenarios": [{"escenario": "Si pasa ...", "probabilidad": "baja | media | alta",
-                 "efecto": "qué le pasaría a tu cartera", "que_considerar": "..."}]}"""
+               "impacto": "positivo | negativo | neutral | incierto", "que_significa": "hasta 20 palabras"}],
+ "escenarios": [{"escenario": "Si pasa ... (hasta 10 palabras)", "probabilidad": "baja | media | alta",
+                 "efecto": "positivo | negativo | mixto", "detalle": "qué le pasaría a tu cartera, hasta 20 palabras",
+                 "que_considerar": "hasta 20 palabras"}]}
+"riesgo_cartera" y "riesgo_perfil" van de 1 (muy bajo) a 5 (muy alto): el riesgo que tiene hoy la cartera y el
+que corresponde a su perfil. "diversificacion" va de 1 (concentrada) a 5 (muy diversificada). Máximo 4
+recomendaciones, 5 noticias y 3 escenarios."""
 
 
 # ---------- indicadores ----------

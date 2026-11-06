@@ -35,11 +35,20 @@ cartera, gasto mensual frente a ingresos, categorías altas o llamativas, suscri
 impuestos, y efectivo sin invertir en los brokers. Sé concreto y usá los números. No inventes datos
 que no estén en el JSON. Esto es informativo, no asesoramiento financiero profesional.
 
+Se lee en el celular de un vistazo: textos CORTOS, sin relleno, con números. Respetá los largos máximos.
+
 Respondé SOLO con un JSON válido (sin markdown) con esta forma:
-{"resumen": "2-3 oraciones",
- "observaciones": ["..."],
- "alertas": [{"nivel": "alta|media|baja", "titulo": "...", "detalle": "..."}],
- "recomendaciones": [{"titulo": "...", "detalle": "...", "impacto": "alto|medio|bajo"}]}"""
+{"titular": "la conclusión principal, máximo 12 palabras",
+ "salud": {"puntaje": 0, "etiqueta": "Muy bien | Bien | Regular | Atención"},
+ "indicadores": [{"nombre": "Liquidez ociosa | Diversificación | Ahorro del mes | Exposición al dólar | ...",
+                  "estado": "bien | regular | mal", "valor": "dato corto, ej. 38% o $2,8 M"}],
+ "resumen": "máximo 2 oraciones",
+ "observaciones": ["máximo 4, de hasta 15 palabras"],
+ "alertas": [{"nivel": "alta|media|baja", "titulo": "hasta 8 palabras", "detalle": "hasta 25 palabras"}],
+ "recomendaciones": [{"titulo": "hasta 8 palabras", "detalle": "hasta 25 palabras", "impacto": "alto|medio|bajo",
+                      "ahorro_mensual_ars": 0}]}
+"puntaje" va de 0 a 100 (salud financiera general). Entre 3 y 5 indicadores. "ahorro_mensual_ars" es lo
+que ganaría o ahorraría por mes si sigue la recomendación (0 si no aplica)."""
 
 
 def payload(resumen: dict, cotizaciones: dict, referencias: dict | None = None) -> str:
