@@ -12,6 +12,7 @@ SECRETO = "ia_openai"
 ENV = "OPENAI_API_KEY"
 MODELO = ""
 USA_URL = True
+WEB = False          # no busca en la web: el análisis de mercado se hace sin noticias
 URL = "https://api.openai.com/v1"
 
 
@@ -21,7 +22,7 @@ def disponible(opciones: dict) -> tuple[bool, str]:
     return True, "ok"
 
 
-def generar(sistema: str, contenido: str, opciones: dict, clave: str) -> str:
+def generar(sistema: str, contenido: str, opciones: dict, clave: str, web: bool = False) -> str:
     url = (opciones.get("url") or URL).rstrip("/") + "/chat/completions"
     r = requests.post(url, timeout=600, headers={"Authorization": f"Bearer {clave}"}, json={
         "model": opciones["modelo"],

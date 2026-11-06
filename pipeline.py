@@ -17,6 +17,7 @@ from modelo import Snapshot
 
 
 ULTIMO_ANALISIS = Path("salida/ultimo_analisis.json")
+ULTIMO_MERCADO = Path("salida/ultimo_mercado.json")
 
 
 def demo_config() -> dict:
@@ -34,14 +35,27 @@ def demo_config() -> dict:
     return cfg   # local, nunca se sube al repo
 
 
-def _guardar_analisis(a: dict):
+def _ultimo_analisis(ruta=ULTIMO_ANALISIS) -> dict | None:
     import datos_locales
-    datos_locales.escribir(ULTIMO_ANALISIS, a)
+    return datos_locales.leer(ruta, None)
 
 
-def _ultimo_analisis() -> dict | None:
+def _con_respaldo(nuevo: dict | None, ruta: Path, log) -> dict | None:
+    """Guarda el análisis si salió bien; si no (no se pidió o falló), devuelve el último que salió bien."""
     import datos_locales
-    return datos_locales.leer(ULTIMO_ANALISIS, None)
+    if nuevo and not nuevo.get("error"):
+        nuevo.setdefault("fecha", datetime.now().isoformat(timespec="minutes"))
+        datos_locales.escribir(ruta, nuevo)
+        log("  ✓ Análisis listo")
+        return nuevo
+    previo = _ultimo_analisis(ruta)
+    if previo:
+        previo["anterior"] = True
+        if nuevo and nuevo.get("error"):
+            previo["error_nuevo"] = nuevo["error"]
+        log(f"  Se mantiene el análisis anterior ({previo.get('fecha', 'sin fecha')}).")
+        return previo
+    return nuevo
 
 
 @dataclass
@@ -52,6 +66,7 @@ class Opciones:
     # corrida es interactiva, se piden en la terminal. Nunca se guardan.
     brokers: dict = field(default_factory=dict)
     analisis: bool = True
+    mercado: bool = False                 # análisis de mercado (solo lectura: nunca opera)
     ia: dict = field(default_factory=dict)          # sección [analisis] de la configuración
     celular: bool = False
     celular_password: str | None = None
@@ -72,7 +87,13 @@ def _pedir_campos(b, cred: dict) -> dict:
     return cred
 
 
-def _cargar_brokers(s: Snapshot, o: Opciones, log):
+def _acepta_extra(b) -> bool:
+    import inspect
+    return "extra" in inspect.signature(b.obtener).parameters
+
+
+def _cargar_brokers(s: Snapshot, o: Opciones, log, extra: dict | None = None):
+    """`extra` (opcional) pide datos de mercado a los brokers que los ofrecen; quedan en extra["precios"]."""
     from conectores.brokers import BROKERS
     for bid, cred in list(o.brokers.items()):
         b = BROKERS.get(bid)
@@ -87,7 +108,10 @@ def _cargar_brokers(s: Snapshot, o: Opciones, log):
             faltan = [c["etiqueta"] for c in b.CAMPOS if not cred.get(c["id"])]
             if faltan:
                 raise RuntimeError("faltan datos de acceso: " + ", ".join(faltan))
-            c, m, i = b.obtener(cred)
+            if extra is not None and _acepta_extra(b):
+                c, m, i = b.obtener(cred, extra=extra)
+            else:
+                c, m, i = b.obtener(cred)
             hoy = date.today().isoformat()
             for x in c + i:
                 x.al = x.al or hoy
@@ -136,10 +160,13 @@ def _cargar_pdfs(s: Snapshot, rutas, log) -> set:
 
 
 def ejecutar(o: Opciones, log=print) -> dict:
+    """Corre todo y devuelve {"dashboard": ruta, "datos": dict, "publicado": bool}."""
     import configuracion
     cfg = o.config or (demo_config() if o.demo else configuracion.cargar())
-    """Corre todo y devuelve {"dashboard": ruta, "datos": dict, "publicado": bool}."""
     titulares = set()
+    cfg_mercado = cfg.get("mercado") or {}
+    extra_mercado = {"mercado": True, "seguimiento": list(cfg_mercado.get("seguimiento") or [])} if o.mercado else None
+    precios = {}
     if o.demo:
         from demo import snapshot_demo
         s = snapshot_demo()
@@ -157,7 +184,7 @@ def ejecutar(o: Opciones, log=print) -> dict:
             + (f" · TNA plazo fijo {refs['tna_plazo_fijo']*100:.1f}%" if refs.get("tna_plazo_fijo") else ""))
         titulares = _cargar_pdfs(s, o.reportes, log)
         if o.brokers:
-            _cargar_brokers(s, o, log)
+            _cargar_brokers(s, o, log, extra_mercado)
 
     for m in s.movimientos:
         m.categoria = m.categoria or categorizar(m.descripcion, titulares, cfg["categorias"].get("reglas"))
@@ -178,33 +205,44 @@ def ejecutar(o: Opciones, log=print) -> dict:
     if not o.demo:
         nuevo = None
         if o.analisis:
-            import configuracion
             import ia
             log("\n=== Análisis con IA ===")
-            nuevo = ia.analizar(r, s.cotizaciones, o.ia or configuracion.cargar()["analisis"],
-                                configuracion.leer_secreto, refs, log)
+            nuevo = ia.analizar(r, s.cotizaciones, o.ia or cfg["analisis"], configuracion.leer_secreto, refs, log)
             if nuevo.get("error"):
                 log(f"  ✗ {nuevo['error']}")
-        if nuevo and not nuevo.get("error"):
-            nuevo["fecha"] = datetime.now().isoformat(timespec="minutes")
-            _guardar_analisis(nuevo)
-            s.analisis = nuevo
-            log("  ✓ Análisis listo")
-        else:
-            # Sin análisis nuevo (no se pidió o falló): se muestra el último que salió bien
-            previo = _ultimo_analisis()
-            if previo:
-                previo["anterior"] = True
-                if nuevo and nuevo.get("error"):
-                    previo["error_nuevo"] = nuevo["error"]
-                s.analisis = previo
-                log(f"  Se mantiene el análisis anterior ({previo.get('fecha', 'sin fecha')}).")
+        s.analisis = _con_respaldo(nuevo, ULTIMO_ANALISIS, log)
+
+    # Análisis de mercado: SOLO LECTURA. Analiza y recomienda; Pluto nunca opera.
+    mercado_datos = None
+    if o.demo:
+        import demo
+        import mercado
+        precios = demo.precios_demo()
+        mercado_datos = mercado.para_dashboard(demo.analisis_mercado_demo(), precios, demo.registro_demo(precios))
+    elif o.mercado or _ultimo_analisis(ULTIMO_MERCADO):
+        import datos_locales
+        import mercado
+        precios = (extra_mercado or {}).get("precios") or {}
+        nuevo_m = None
+        if o.mercado:
+            log("\n=== Análisis de mercado ===")
+            if not precios:
+                log("  Sin precios de IOL: el análisis usa solo tu cartera" + (" (activá IOL para sumar precios e historia)." if not o.brokers else "."))
+            nuevo_m = mercado.analizar(r, precios, cfg_mercado, o.ia or cfg["analisis"], s.cotizaciones, refs,
+                                       configuracion.leer_secreto, log)
+            if nuevo_m.get("error"):
+                log(f"  ✗ {nuevo_m['error']}")
             else:
-                s.analisis = nuevo
+                mercado.registrar(nuevo_m, precios)
+        analisis_m = _con_respaldo(nuevo_m, ULTIMO_MERCADO, log) if o.mercado else _ultimo_analisis(ULTIMO_MERCADO)
+        if analisis_m and not o.mercado:
+            analisis_m["anterior"] = True
+        mercado_datos = mercado.para_dashboard(analisis_m, precios, datos_locales.leer(mercado.REGISTRO, []) or [])
 
     import fuentes
     datos = {"snapshot": s.to_dict(), "resumen": r, "demo": o.demo, "hoy": date.today().isoformat(),
-             "referencias": refs, "historial": historial.por_dia(hist), "entidades": fuentes.nombres()}
+             "referencias": refs, "historial": historial.por_dia(hist), "entidades": fuentes.nombres(),
+             "mercado": mercado_datos}
     ruta = dashboard.generar(datos, abrir=False)
     log(f"\nDashboard: {Path(ruta).resolve()}")
     if not o.demo:

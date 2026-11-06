@@ -38,6 +38,7 @@
             <div class="opciones">
               <label id="lbl-brokers"><input type="checkbox" id="op-brokers"> <span id="txt-brokers">Consultar brokers</span></label>
               <label><input type="checkbox" id="op-analisis"> Análisis con IA</label>
+              <label title="Solo analiza y recomienda: Pluto nunca opera"><input type="checkbox" id="op-mercado"> Análisis de mercado</label>
               <label><input type="checkbox" id="op-celular"> Publicar al celular</label>
             </div>
           </div>
@@ -111,6 +112,20 @@
         <div id="cfg-proveedores"></div>
         <div class="campo"><label></label><div><button class="btn" id="btn-probar-ia">Probar</button><div class="msg" id="msg-probar-ia"></div></div></div>
         <p class="empty" style="font-size:12px;margin:6px 0 0">Se envía un resumen (saldos, posiciones y gastos), sin números de cuenta, CBU ni CUIT. Con Ollama los datos no salen de tu computadora.</p>
+      </div>
+
+      <div class="card"><h2>Análisis de mercado</h2>
+        <p style="margin:0 0 12px;color:var(--text-2)">La IA analiza tu cartera, los precios de IOL y noticias recientes, y te recomienda qué ajustar. <b>Pluto no opera:</b> las decisiones y las operaciones las hacés vos en tu broker. No es asesoramiento financiero profesional.</p>
+        <div class="campo"><label>Activado por defecto</label>
+          <label class="interruptor"><input type="checkbox" data-cfg="mercado.activado"><span></span></label></div>
+        <div class="campo"><label>Perfil de riesgo</label>
+          <select data-cfg="mercado.perfil"><option value="conservador">Conservador</option><option value="moderado">Moderado</option><option value="agresivo">Agresivo</option></select></div>
+        <div class="campo"><label>Horizonte (años)</label><input type="number" min="1" max="40" data-num data-cfg="mercado.horizonte_anios" style="max-width:120px"></div>
+        <div class="campo"><label>Activos a seguir</label><input type="text" data-lista data-cfg="mercado.seguimiento" placeholder="SPY, AL30, PAMP">
+          <div class="ayuda">Activos que no tenés pero querés seguir, separados por coma. Para otro mercado: AAPL:nyse. Los precios salen de IOL (activalo en Fuentes).</div></div>
+        <div class="campo"><label>Buscar noticias</label>
+          <label class="interruptor"><input type="checkbox" data-cfg="mercado.noticias"><span></span></label>
+          <div class="ayuda">Solo con Claude Code o la API de Anthropic. Con otros proveedores el análisis se hace sin noticias.</div></div>
       </div>
 
       <div class="card"><h2>Celular</h2>

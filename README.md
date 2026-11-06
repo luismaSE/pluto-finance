@@ -9,6 +9,7 @@ Tus bancos, billeteras y brokers en un solo lugar: un dashboard con patrimonio, 
 
 - **Bancos y billeteras** (Galicia y Mercado Pago incluidos): se leen de los **resúmenes PDF** que descargás.
 - **Brokers con API** (IOL incluido): se consultan en vivo; usuario y clave se piden cada vez y no se guardan.
+- **Análisis de mercado:** la IA mira tu cartera, los precios de IOL y noticias recientes, y te recomienda qué ajustar. **Pluto nunca opera:** solo lee y recomienda.
 - **IA a elección:** Claude Code, API de Anthropic, cualquier API compatible con OpenAI, u **Ollama** (local, los datos no salen de tu equipo).
 - Se suman bancos, brokers y proveedores de IA con un archivo cada uno (ver [Sumar fuentes o proveedores](#sumar-bancos-brokers-o-proveedores-de-ia)).
 
@@ -73,6 +74,7 @@ Pasos posibles: `esperar_url` (regex), `ir` (url), `click` (selector o `text=...
 - **No se guardan las claves de bancos ni brokers.** Se piden en cada actualización y se descartan después del login.
 - Los PDF y el dashboard quedan solo en tu computadora (`reportes/` y `salida/` están en `.gitignore`).
 - **A la IA le llega solo un resumen** (saldos, posiciones, gastos por mes). Los números largos (CBU, CUIT, nros. de operación) se borran antes. Con Ollama no sale nada de tu equipo.
+- **Pluto no opera.** No compra, vende ni transfiere nada. La conexión con IOL bloquea en el código cualquier pedido que no sea de lectura (solo el login usa otro método). La IA usada para el análisis no puede ejecutar comandos ni tocar archivos.
 - **Datos guardados en la PC:** el historial y el último análisis se guardan cifrados con una clave del llavero; de los dashboards se conservan solo los últimos (Configuración → Privacidad).
 
 ## Análisis con IA
@@ -87,6 +89,18 @@ Se elige en Configuración → Análisis con IA (o en el asistente). Cada provee
 | **Ollama (local)** | [Ollama](https://ollama.com) corriendo y un modelo descargado (`ollama pull llama3.1`). |
 
 Prueba rápida del proveedor configurado: `python analisis.py` (o el botón **Probar** en la app). Si una actualización no corre el análisis (o falla), se muestra el último que salió bien, con su fecha.
+
+## Análisis de mercado
+
+Activalo en Configuración → Análisis de mercado, o tildá "Análisis de mercado" al actualizar (`python main.py --mercado` en la terminal). **Pluto solo analiza y recomienda:** las decisiones y las operaciones las hacés vos en tu broker.
+
+- **Datos:** tu cartera y liquidez, los precios y el último año de historia de tus activos y de los que quieras seguir (desde IOL, solo lectura), el dólar y tus gastos. Pluto calcula rendimiento a 1, 3, 6 y 12 meses, volatilidad y caída máxima.
+- **Perfil:** conservador, moderado o agresivo, y en cuántos años pensás usar la plata.
+- **Noticias:** con Claude Code o la API de Anthropic, la IA busca noticias de los últimos 30 días sobre tus activos e indica fuente y fecha. Con otros proveedores el análisis se hace sin noticias.
+- **Resultado** (pestaña Mercado del dashboard): distribución actual contra la sugerida, recomendaciones concretas (aumentar, reducir, cambiar A por B) con monto aproximado, riesgos y nivel de confianza, noticias con su impacto y escenarios posibles.
+- **¿Acertó?** Cada recomendación se guarda (cifrada) con el precio del día. A partir de los 7 días, el dashboard muestra si el precio fue en la dirección recomendada.
+
+Nadie puede predecir el mercado: son escenarios y probabilidades, no promesas. Es información, no asesoramiento financiero profesional.
 
 ## Límites de gasto, tarjetas y categorías
 
@@ -134,6 +148,7 @@ python main.py --sin-brokers                    # solo PDFs
 python main.py --demo                           # datos ficticios
 python main.py --proveedor ollama --modelo llama3.1   # otro proveedor de IA
 python main.py --sin-analisis                   # sin IA
+python main.py --mercado                        # además, análisis de mercado (solo recomienda)
 python main.py --celular                        # además cifra y publica para la app Android
 ```
 
@@ -228,6 +243,7 @@ Código bajo licencia [MIT](LICENSE). Las tipografías incluidas usan la SIL Ope
 | `historial.py` | Totales de cada corrida para la evolución del patrimonio |
 | `conectores/brokers/` | Brokers con API (IOL) |
 | `fuentes.py` | Catálogo de bancos, billeteras y brokers |
+| `mercado.py` | Análisis de mercado: indicadores, recomendaciones y seguimiento (solo lectura) |
 | `ia/` | Proveedores de IA (Claude Code, Anthropic, OpenAI compatible, Ollama) |
 | `conectores/pdf/galicia_caja.py` | Resumen de caja de ahorro (ARS y USD) |
 | `conectores/pdf/galicia_fci.py` | Posición de fondos FIMA / comitente |

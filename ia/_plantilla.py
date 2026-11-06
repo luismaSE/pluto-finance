@@ -11,6 +11,7 @@ SECRETO = None          # ej. "ia_mi_proveedor" si necesita clave (se guarda en 
 ENV = ""                # variable de entorno alternativa para la clave (opcional)
 MODELO = ""             # modelo por defecto
 USA_URL = False         # True si el usuario puede cambiar la dirección del servidor
+WEB = False             # True si puede buscar en la web (noticias para el análisis de mercado)
 
 
 def disponible(opciones: dict) -> tuple[bool, str]:
@@ -18,7 +19,7 @@ def disponible(opciones: dict) -> tuple[bool, str]:
     return True, "ok"
 
 
-def generar(sistema: str, contenido: str, opciones: dict, clave: str | None) -> str:
+def generar(sistema: str, contenido: str, opciones: dict, clave: str | None, web: bool = False) -> str:
     """Manda `sistema` (instrucciones) y `contenido` (JSON con los datos) y devuelve el texto de la respuesta.
     `opciones` trae "modelo" y, si USA_URL, "url". Lanzá RuntimeError con un mensaje claro si falla."""
     raise NotImplementedError

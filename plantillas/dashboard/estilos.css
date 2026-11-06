@@ -2,7 +2,7 @@
    son la paleta validada para daltonismo y no se tocan: identifican entidades, no la marca. */
 :root {
   color-scheme: light;
-  --bg: #f6f4ef; --surface: #fffdf9; --surface-2: #efebe4; --border: #e0dbd2;
+  --sky: #3d7f99; --bg: #f6f4ef; --surface: #fffdf9; --surface-2: #efebe4; --border: #e0dbd2;
   --text: #1b2227; --text-2: #4b5760; --text-3: #6f7a82; --grid: #e9e5dd;
   --accent: #b9582a; --on-accent: #fffdf9;
   --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4;
@@ -18,7 +18,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: #1b2227; --surface: #232c33; --surface-2: #2a343c; --border: #33404a;
+    --sky: #9cc9db; --bg: #1b2227; --surface: #232c33; --surface-2: #2a343c; --border: #33404a;
     --text: #f1eee8; --text-2: #c3ccd1; --text-3: #98a4ab; --grid: #2e3942;
     --accent: #e07a45; --on-accent: #1b2227;
     --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
@@ -27,7 +27,7 @@
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #1b2227; --surface: #232c33; --surface-2: #2a343c; --border: #33404a;
+  --sky: #9cc9db; --bg: #1b2227; --surface: #232c33; --surface-2: #2a343c; --border: #33404a;
   --text: #f1eee8; --text-2: #c3ccd1; --text-3: #98a4ab; --grid: #2e3942;
   --accent: #e07a45; --on-accent: #1b2227;
   --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
@@ -182,3 +182,43 @@ body.privado .tip { display: none; }
 .lim-barra > div { height: 100%; border-radius: 999px; }
 .lim .d { font-size: 12px; color: var(--text-3); }
 .meta { margin-top: 10px; display: grid; gap: 4px; }
+
+/* --- Mercado --- */
+.solo-lectura { margin-bottom: 14px; border-color: var(--sky); }
+.solo-lectura .ico { color: var(--sky); font-size: 16px; line-height: 1.2; }
+.chip { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 8px; border-radius: 6px; margin-right: 8px; }
+.reco { padding: 12px; border-radius: 12px; background: var(--surface-2); margin-bottom: 8px; }
+.reco:last-child { margin-bottom: 0; }
+.reco .cab { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; font-size: 15px; }
+.reco .monto { margin-left: auto; font-size: 13px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.reco .d { font-size: 13px; color: var(--text-2); margin-top: 6px; }
+.reco .riesgo b { color: var(--text); font-weight: 600; }
+.reco .meta { font-size: 12px; color: var(--text-3); margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+.pts { display: inline-flex; gap: 3px; }
+.pts i { width: 7px; height: 7px; border-radius: 50%; background: var(--border); display: inline-block; }
+.pts i.on { background: var(--accent); }
+.objetivo { display: flex; flex-direction: column; gap: 12px; }
+.obj-f { display: grid; grid-template-columns: minmax(80px, 34%) 1fr auto; gap: 10px; align-items: center; }
+.obj-f .name { font-size: 13px; overflow: hidden; text-overflow: ellipsis; }
+.obj-f .barras { display: flex; flex-direction: column; gap: 3px; }
+.obj-f .barras div { height: 7px; border-radius: 0 4px 4px 0; min-width: 2px; }
+.obj-f .val { font-size: 12px; color: var(--text-2); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.obj-f .val b { color: var(--text); }
+.noticia { padding: 10px 0; border-bottom: 1px solid var(--grid); }
+.noticia:last-child { border-bottom: 0; }
+.noticia .t { font-weight: 600; font-size: 14px; }
+.noticia .d { font-size: 12px; color: var(--text-3); margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.noticia .d2 { font-size: 13px; color: var(--text-2); margin-top: 4px; }
+.precios { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.precio { background: var(--surface-2); border-radius: 12px; padding: 12px; min-width: 0; }
+.precio .cab { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.precio .v { font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; margin: 4px 0; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.precio .v span { font-size: 12px; font-weight: 600; }
+.spark { width: 100%; height: 34px; display: block; margin: 4px 0 6px; }
+.rends { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.rends b { font-weight: 600; }
+@media (max-width: 520px) {
+  .fila.seg .v2 { grid-column: 1 / -1; text-align: left; }
+  .precio { padding: 10px; }
+  .rends { font-size: 10px; }
+}

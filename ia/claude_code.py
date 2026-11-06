@@ -9,6 +9,7 @@ DESCRIPCION = "Usa el comando `claude` con tu sesión iniciada. No necesita clav
 SECRETO = None
 MODELO = ""          # vacío = el modelo por defecto de Claude Code; también acepta "opus", "sonnet", "haiku"
 USA_URL = False
+WEB = True           # puede buscar noticias en la web (herramienta WebSearch de Claude Code)
 
 
 def disponible(opciones: dict) -> tuple[bool, str]:
@@ -17,11 +18,19 @@ def disponible(opciones: dict) -> tuple[bool, str]:
     return True, "ok"
 
 
-def generar(sistema: str, contenido: str, opciones: dict, clave=None) -> str:
+def generar(sistema: str, contenido: str, opciones: dict, clave=None, web: bool = False) -> str:
     cmd = [shutil.which("claude"), "-p", sistema, "--output-format", "json"]
+    if web:
+        # Solo búsqueda web (lectura). No se habilita ninguna herramienta que modifique nada.
+        cmd += ["--allowedTools", "WebSearch"]
     if opciones.get("modelo"):
         cmd += ["--model", opciones["modelo"]]
-    p = subprocess.run(cmd, input=contenido, capture_output=True, text=True, timeout=600)
+    # Nunca puede modificar nada, y corre en una carpeta vacía: no ve tus archivos ni tus resúmenes
+    cmd += ["--disallowedTools", "Bash", "Edit", "Write", "NotebookEdit", "Read", "Glob", "Grep"]
+    import tempfile
+    with tempfile.TemporaryDirectory(prefix="pluto-ia-") as vacia:
+        p = subprocess.run(cmd, input=contenido, capture_output=True, text=True,
+                           timeout=900 if web else 600, cwd=vacia)
     try:
         salida = json.loads(p.stdout)
     except ValueError:

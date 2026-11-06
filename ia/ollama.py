@@ -7,6 +7,7 @@ DESCRIPCION = "Modelos que corren en tu computadora (ollama.com). Los datos no s
 SECRETO = None
 MODELO = "llama3.1"
 USA_URL = True
+WEB = False          # no busca en la web: el análisis de mercado se hace sin noticias
 URL = "http://localhost:11434"
 
 
@@ -24,7 +25,7 @@ def disponible(opciones: dict) -> tuple[bool, str]:
     return True, "ok"
 
 
-def generar(sistema: str, contenido: str, opciones: dict, clave=None) -> str:
+def generar(sistema: str, contenido: str, opciones: dict, clave=None, web: bool = False) -> str:
     url = (opciones.get("url") or URL).rstrip("/") + "/api/chat"
     r = requests.post(url, timeout=900, json={
         "model": opciones.get("modelo") or MODELO,

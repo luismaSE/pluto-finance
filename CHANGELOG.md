@@ -3,6 +3,7 @@
 ## 1.3.0
 
 **Nuevo**
+- **Análisis de mercado con IA** (pestaña Mercado): distribución sugerida según tu perfil, recomendaciones concretas con riesgos y nivel de confianza, noticias recientes de tus activos y escenarios. Usa precios e historia de IOL y una lista de activos a seguir. Guarda cada recomendación con su precio para ver después si acertó. **Pluto solo analiza y recomienda: nunca opera.**
 - **Límites de gasto** mensuales, total y por categoría, con proyección a fin de mes y avisos al 80% y al pasarte.
 - **Tarjetas de crédito:** cuenta regresiva hasta el cierre y el vencimiento, con aviso una semana antes. Muestra el último pago detectado.
 - **Categorías propias:** página para corregir la categoría de un movimiento; Pluto recuerda la regla.
@@ -12,13 +13,14 @@
 
 **Mejoras**
 - App Android sin la barra superior: el contenido respeta la barra de estado y la de navegación. Configuración se abre desde la pantalla de desbloqueo y el gesto "atrás" bloquea.
+- La conexión con IOL es de solo lectura: el código bloquea cualquier pedido que no sea una consulta.
 - Mensajes de error claros (por ejemplo, "No pude conectarme a IOL" en lugar del error técnico).
 - Historial y último análisis cifrados en la PC; se conservan solo los últimos dashboards.
 - Script para generar la clave de firma del APK y cargarla en GitHub.
 
 **Para quien colabora**
 - Licencia MIT, guía para sumar bancos y herramienta para anonimizar resúmenes PDF.
-- 44 pruebas automáticas que corren en GitHub en cada cambio.
+- 53 pruebas automáticas que corren en GitHub en cada cambio.
 - La interfaz y el dashboard se separaron en HTML, CSS y JS.
 
 **Cambios internos**

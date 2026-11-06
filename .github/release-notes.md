@@ -1,6 +1,6 @@
 **Pluto** — tus bancos, billeteras y brokers en un solo lugar.
 
-Esta versión suma límites de gasto, cierres y vencimientos de tarjetas, categorías propias, avisos y un ejecutable de Windows. La app del celular ya no tiene barra superior. El detalle está en [CHANGELOG.md](../../blob/main/CHANGELOG.md).
+Esta versión suma un **análisis de mercado con IA** (recomendaciones, noticias y escenarios; Pluto solo recomienda, nunca opera), límites de gasto, cierres y vencimientos de tarjetas, categorías propias, avisos y un ejecutable de Windows. La app del celular ya no tiene barra superior. El detalle está en [CHANGELOG.md](../../blob/main/CHANGELOG.md).
 
 ### Instalar la app Android
 1. Desde el celular, descargá `pluto-*.apk` de este release.

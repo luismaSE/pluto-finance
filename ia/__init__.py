@@ -57,6 +57,39 @@ def _a_json(texto: str) -> dict:
         return {"resumen": texto[:3000], "observaciones": [], "alertas": [], "recomendaciones": []}
 
 
+a_json = _a_json
+
+
+def consultar(sistema: str, contenido: str, cfg_analisis: dict, clave_de=None, log=print,
+              web: bool = False, que: str = "Analizando") -> dict:
+    """Consulta genérica al proveedor configurado. Devuelve {"texto", "proveedor", "modelo", "web"} o {"error"}."""
+    pid = cfg_analisis.get("proveedor") or "claude_code"
+    prov = PROVEEDORES.get(pid)
+    if not prov:
+        return {"error": f"Proveedor de IA desconocido: {pid}"}
+    opciones = dict(cfg_analisis.get(pid, {}))
+    opciones["modelo"] = opciones.get("modelo") or cfg_analisis.get("modelo") or prov.MODELO
+    ok, detalle = prov.disponible(opciones)
+    if not ok:
+        return {"error": detalle}
+    clave = None
+    if prov.SECRETO:
+        import os
+        clave = (clave_de(prov.SECRETO) if clave_de else None) or os.environ.get(getattr(prov, "ENV", "") or "_")
+        if not clave:
+            return {"error": f"Falta la clave de {prov.NOMBRE} (guardala en Configuración → Análisis)"}
+    usa_web = bool(web and getattr(prov, "WEB", False))
+    log(f"  {que} con {prov.NOMBRE} ({opciones['modelo'] or 'modelo por defecto'}){' buscando noticias' if usa_web else ''}… puede tardar unos minutos")
+    try:
+        texto = prov.generar(sistema, contenido, opciones, clave, web=usa_web) if usa_web else prov.generar(sistema, contenido, opciones, clave)
+    except Exception as e:
+        from utils import mensaje_error
+        return {"error": f"{prov.NOMBRE}: {mensaje_error(e, prov.NOMBRE)}"}
+    finally:
+        clave = None
+    return {"texto": texto, "proveedor": prov.NOMBRE, "modelo": opciones["modelo"], "web": usa_web}
+
+
 def analizar(resumen: dict, cotizaciones: dict, cfg_analisis: dict, clave_de=None,
              referencias: dict | None = None, log=print) -> dict:
     """Devuelve el análisis o {"error": motivo}. `clave_de(nombre)` lee un secreto del llavero."""

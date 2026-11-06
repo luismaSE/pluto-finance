@@ -155,6 +155,7 @@ async function refrescar() {
   $('#botones-descarga').innerHTML = EST.descarga_sitios.map(x => `<button class="btn" data-descargar="${esc(x.id)}" style="margin-right:8px">Descargar de ${esc(x.nombre)}</button>`).join('');
   $$('[data-descargar]').forEach(b => b.onclick = () => descargar(b));
   $('#op-analisis').checked = c.analisis.activado;
+  $('#op-mercado').checked = !!c.mercado?.activado;
   $('#op-celular').checked = c.publicar.destino !== 'ninguno';
   $('#op-celular').disabled = c.publicar.destino === 'ninguno';
   $('#op-celular').parentElement.title = c.publicar.destino === 'ninguno' ? 'Configurá un destino en Configuración → Celular' : '';
@@ -219,7 +220,7 @@ $('#brk-omitir').onclick = () => { limpiarBrokers(); lanzar(null); };
 $('#brk-cancelar').onclick = limpiarBrokers;
 
 async function lanzar(cred) {
-  const op = { consultar_brokers: !!cred, brokers: cred || {}, analisis: $('#op-analisis').checked, celular: $('#op-celular').checked && !$('#op-celular').disabled };
+  const op = { consultar_brokers: !!cred, brokers: cred || {}, analisis: $('#op-analisis').checked, mercado: $('#op-mercado').checked, celular: $('#op-celular').checked && !$('#op-celular').disabled };
   $('#consola').innerHTML = '';
   const r = await API.actualizar(op);
   op.brokers = null; cred = null;
@@ -358,6 +359,7 @@ function llenarConfig(c) {
     const v = get(c, el.dataset.cfg);
     if (el.type === 'checkbox') el.checked = !!v;
     else if (el.hasAttribute('data-pct')) el.value = v ? +(v * 100).toFixed(2) : 0;
+    else if (el.hasAttribute('data-lista')) el.value = (v || []).join(', ');
     else el.value = v ?? '';
   });
   mostrarDestino();
@@ -369,6 +371,7 @@ function leerConfig() {
     let v = el.type === 'checkbox' ? el.checked : el.value.trim();
     if (el.hasAttribute('data-pct')) v = (parseFloat(v) || 0) / 100;
     if (el.hasAttribute('data-num')) v = parseInt(v, 10) || 0;
+    if (el.hasAttribute('data-lista')) v = v.split(/[,;\s]+/).map(x => x.trim().toUpperCase()).filter(Boolean);
     set(c, el.dataset.cfg, v);
   });
   return c;

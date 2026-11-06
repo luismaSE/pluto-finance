@@ -195,6 +195,7 @@ class Api:
                 # {"iol": {"usuario": ..., "clave": ...}} solo de los brokers que el usuario completó
                 brokers={k: v for k, v in (op.get("brokers") or {}).items() if v} if op.get("consultar_brokers") else {},
                 analisis=bool(op.get("analisis")),
+                mercado=bool(op.get("mercado")),
                 ia=cfg["analisis"],
                 celular=celular,
                 celular_password=configuracion.leer_secreto("celular_password") if celular else None,

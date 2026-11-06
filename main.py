@@ -8,6 +8,7 @@ Uso:
   python main.py --celular                # además cifra y publica para la app Android
   python main.py --demo                   # datos ficticios
   python main.py --sin-analisis           # sin Claude
+  python main.py --mercado                # además, análisis de mercado (solo lectura: nunca opera)
 """
 import argparse
 import webbrowser
@@ -25,6 +26,8 @@ def main():
     ap.add_argument("--sin-descargas", action="store_true", help="no importar desde Descargas")
     ap.add_argument("--demo", action="store_true")
     ap.add_argument("--sin-analisis", action="store_true")
+    ap.add_argument("--mercado", action="store_true", help="análisis de mercado con IA (solo recomienda, nunca opera)")
+    ap.add_argument("--sin-mercado", action="store_true")
     ap.add_argument("--proveedor", default=cfg["analisis"]["proveedor"], help="claude_code, anthropic, openai_compatible u ollama")
     ap.add_argument("--modelo", help="modelo del proveedor de IA")
     ap.add_argument("--no-abrir", action="store_true")
@@ -40,6 +43,7 @@ def main():
         descargas=None if (a.sin_descargas or not f["importar_descargas"]) else f["descargas"],
         brokers={} if a.sin_brokers else {k: {} for k, v in cfg["brokers"].items() if v.get("activo")},
         analisis=cfg["analisis"]["activado"] and not a.sin_analisis,
+        mercado=(a.mercado or cfg["mercado"]["activado"]) and not a.sin_mercado,
         ia=ia_cfg,
         celular=a.celular,
         # Si guardaste secretos en el llavero desde la app, la terminal también los usa

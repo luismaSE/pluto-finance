@@ -58,3 +58,74 @@ def snapshot_demo() -> Snapshot:
                             {"titulo": "Rebalancear la cartera", "detalle": "Llevar GGAL a menos del 20% de la cartera.", "impacto": "medio"}],
     }
     return s
+
+
+def precios_demo() -> dict:
+    """Precios ficticios (caminata aleatoria de un año) para la pestaña Mercado."""
+    from datetime import timedelta
+    rnd = random.Random(11)
+    hoy = date.today()
+    base = {"GGAL": (6900, 0.0012, 0.028), "AL30": (827, 0.0005, 0.012), "SPY": (26250, 0.0009, 0.011),
+            "MELI": (29140, 0.0002, 0.024), "YPFD": (49000, 0.0014, 0.026), "PAMP": (3900, 0.0008, 0.022)}
+    out = {}
+    for sim, (final, deriva, vol) in base.items():
+        dias = [hoy - timedelta(days=d) for d in range(400, -1, -1) if (hoy - timedelta(days=d)).weekday() < 5]
+        p, serie = 1.0, []
+        for d in dias:
+            p *= 1 + rnd.gauss(deriva, vol)
+            serie.append([d.isoformat(), p])
+        k = final / serie[-1][1]
+        serie = [[f, round(v * k, 2)] for f, v in serie]
+        out[sim] = {"mercado": "bCBA", "precio": serie[-1][1], "moneda": "ARS", "fecha": serie[-1][0],
+                    "variacion_dia": round((serie[-1][1] / serie[-2][1] - 1) * 100, 2), "serie": serie}
+    return out
+
+
+def registro_demo(precios: dict) -> list:
+    """Recomendaciones ficticias de análisis anteriores, para ver el seguimiento."""
+    from datetime import timedelta
+    def hace(dias, sim):
+        f = (date.today() - timedelta(days=dias)).isoformat()
+        serie = precios[sim]["serie"]
+        return f, next((p for d, p in reversed(serie) if d <= f), serie[0][1])
+    out = []
+    for dias, acc, sim, por, conf in ((75, "reducir", "GGAL", "", "media"), (75, "comprar", "SPY", "", "alta"),
+                                      (40, "cambiar", "MELI", "PAMP", "baja"), (12, "aumentar", "AL30", "", "media")):
+        f, p = hace(dias, sim)
+        out.append({"fecha": f + "T10:00", "accion": acc, "activo": sim, "por": por, "confianza": conf,
+                    "motivo": "Recomendación de ejemplo.", "precio": p,
+                    "precio_por": hace(dias, por)[1] if por else None})
+    return out
+
+
+def analisis_mercado_demo() -> dict:
+    return {
+        "resumen": "Datos ficticios. El mercado local viene con volatilidad alta por la incertidumbre cambiaria. "
+                   "Tu cartera está cargada en acciones bancarias argentinas y tiene poca renta fija en dólares para un perfil moderado.",
+        "cartera_objetivo": [
+            {"clase": "Acciones argentinas", "actual_pct": 44, "objetivo_pct": 25, "comentario": "Alta concentración en GGAL."},
+            {"clase": "CEDEARs", "actual_pct": 23, "objetivo_pct": 25, "comentario": "Diversifican y siguen al CCL."},
+            {"clase": "Renta fija en dólares", "actual_pct": 13, "objetivo_pct": 25, "comentario": "Bonos soberanos y ONs cortas."},
+            {"clase": "Liquidez y money market", "actual_pct": 20, "objetivo_pct": 25, "comentario": "Fondo de emergencia de 6 meses."},
+        ],
+        "recomendaciones": [
+            {"accion": "reducir", "activo": "GGAL", "por": "", "monto_ars": 2_500_000, "horizonte": "mediano", "confianza": "media",
+             "motivo": "Pesa más del 30% de tus inversiones: un mal balance del banco golpea toda la cartera.",
+             "riesgos": "Si el sector financiero sigue subiendo, te perdés parte de esa suba."},
+            {"accion": "aumentar", "activo": "AL30", "por": "", "monto_ars": 1_500_000, "horizonte": "largo", "confianza": "media",
+             "motivo": "Suma renta fija en dólares acorde a tu perfil.", "riesgos": "Riesgo soberano: el precio cae si sube el riesgo país."},
+            {"accion": "cambiar", "activo": "MELI", "por": "SPY", "monto_ars": 1_000_000, "horizonte": "largo", "confianza": "baja",
+             "motivo": "SPY diversifica entre 500 empresas con menos volatilidad.", "riesgos": "Menor potencial de suba que una acción individual."},
+        ],
+        "noticias": [
+            {"titulo": "Noticia de ejemplo sobre resultados de bancos", "fuente": "Demo", "fecha": date.today().isoformat(),
+             "activos": ["GGAL"], "impacto": "incierto", "que_significa": "Las noticias reales aparecen si el proveedor de IA puede buscar en la web."},
+        ],
+        "escenarios": [
+            {"escenario": "Si el dólar CCL sube 15%", "probabilidad": "media", "efecto": "Tus CEDEARs suben en pesos; las acciones locales dependen del contexto.",
+             "que_considerar": "Tener parte de la cartera dolarizada amortigua el golpe."},
+            {"escenario": "Si baja el riesgo país", "probabilidad": "media", "efecto": "Suben los bonos soberanos y las acciones bancarias.",
+             "que_considerar": "Es el escenario que más favorece a tu cartera actual."},
+        ],
+        "proveedor": "demo", "modelo": "", "con_noticias": False, "fecha": date.today().isoformat() + "T10:00",
+    }

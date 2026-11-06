@@ -38,6 +38,9 @@ DEFAULT = {
     "tarjetas": {},
     # Reglas propias de categoría: {"transferencia enviada verduleria don pepe": "Supermercado"}
     "categorias": {"reglas": {}},
+    # Análisis de mercado (solo lectura: analiza y recomienda, nunca opera)
+    # seguimiento: activos que no tenés pero querés seguir, ej. ["SPY", "AL30", "AAPL:nyse"]
+    "mercado": {"activado": False, "perfil": "moderado", "horizonte_anios": 5, "seguimiento": [], "noticias": True},
     "privacidad": {"conservar_dashboards": 5, "cifrar_datos_locales": True},
     "publicar": {
         "destino": "ninguno",
@@ -92,6 +95,8 @@ def cargar() -> dict:
 
 
 def _valor(v):
+    if isinstance(v, (list, tuple)):
+        return "[" + ", ".join(_valor(x) for x in v) + "]"
     if isinstance(v, bool):
         return "true" if v else "false"
     if isinstance(v, (int, float)):

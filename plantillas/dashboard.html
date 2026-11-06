@@ -11,7 +11,7 @@
    son la paleta validada para daltonismo y no se tocan: identifican entidades, no la marca. */
 :root {
   color-scheme: light;
-  --bg: #f6f4ef; --surface: #fffdf9; --surface-2: #efebe4; --border: #e0dbd2;
+  --sky: #3d7f99; --bg: #f6f4ef; --surface: #fffdf9; --surface-2: #efebe4; --border: #e0dbd2;
   --text: #1b2227; --text-2: #4b5760; --text-3: #6f7a82; --grid: #e9e5dd;
   --accent: #b9582a; --on-accent: #fffdf9;
   --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4;
@@ -27,7 +27,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: #1b2227; --surface: #232c33; --surface-2: #2a343c; --border: #33404a;
+    --sky: #9cc9db; --bg: #1b2227; --surface: #232c33; --surface-2: #2a343c; --border: #33404a;
     --text: #f1eee8; --text-2: #c3ccd1; --text-3: #98a4ab; --grid: #2e3942;
     --accent: #e07a45; --on-accent: #1b2227;
     --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
@@ -36,7 +36,7 @@
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #1b2227; --surface: #232c33; --surface-2: #2a343c; --border: #33404a;
+  --sky: #9cc9db; --bg: #1b2227; --surface: #232c33; --surface-2: #2a343c; --border: #33404a;
   --text: #f1eee8; --text-2: #c3ccd1; --text-3: #98a4ab; --grid: #2e3942;
   --accent: #e07a45; --on-accent: #1b2227;
   --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
@@ -191,6 +191,46 @@ body.privado .tip { display: none; }
 .lim-barra > div { height: 100%; border-radius: 999px; }
 .lim .d { font-size: 12px; color: var(--text-3); }
 .meta { margin-top: 10px; display: grid; gap: 4px; }
+
+/* --- Mercado --- */
+.solo-lectura { margin-bottom: 14px; border-color: var(--sky); }
+.solo-lectura .ico { color: var(--sky); font-size: 16px; line-height: 1.2; }
+.chip { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 8px; border-radius: 6px; margin-right: 8px; }
+.reco { padding: 12px; border-radius: 12px; background: var(--surface-2); margin-bottom: 8px; }
+.reco:last-child { margin-bottom: 0; }
+.reco .cab { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; font-size: 15px; }
+.reco .monto { margin-left: auto; font-size: 13px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.reco .d { font-size: 13px; color: var(--text-2); margin-top: 6px; }
+.reco .riesgo b { color: var(--text); font-weight: 600; }
+.reco .meta { font-size: 12px; color: var(--text-3); margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+.pts { display: inline-flex; gap: 3px; }
+.pts i { width: 7px; height: 7px; border-radius: 50%; background: var(--border); display: inline-block; }
+.pts i.on { background: var(--accent); }
+.objetivo { display: flex; flex-direction: column; gap: 12px; }
+.obj-f { display: grid; grid-template-columns: minmax(80px, 34%) 1fr auto; gap: 10px; align-items: center; }
+.obj-f .name { font-size: 13px; overflow: hidden; text-overflow: ellipsis; }
+.obj-f .barras { display: flex; flex-direction: column; gap: 3px; }
+.obj-f .barras div { height: 7px; border-radius: 0 4px 4px 0; min-width: 2px; }
+.obj-f .val { font-size: 12px; color: var(--text-2); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.obj-f .val b { color: var(--text); }
+.noticia { padding: 10px 0; border-bottom: 1px solid var(--grid); }
+.noticia:last-child { border-bottom: 0; }
+.noticia .t { font-weight: 600; font-size: 14px; }
+.noticia .d { font-size: 12px; color: var(--text-3); margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.noticia .d2 { font-size: 13px; color: var(--text-2); margin-top: 4px; }
+.precios { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.precio { background: var(--surface-2); border-radius: 12px; padding: 12px; min-width: 0; }
+.precio .cab { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.precio .v { font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; margin: 4px 0; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.precio .v span { font-size: 12px; font-weight: 600; }
+.spark { width: 100%; height: 34px; display: block; margin: 4px 0 6px; }
+.rends { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.rends b { font-weight: 600; }
+@media (max-width: 520px) {
+  .fila.seg .v2 { grid-column: 1 / -1; text-align: left; }
+  .precio { padding: 10px; }
+  .rends { font-size: 10px; }
+}
 </style>
 </head>
 <body>
@@ -215,12 +255,14 @@ body.privado .tip { display: none; }
     <button role="tab" data-tab="gastos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Gastos</button>
     <button role="tab" data-tab="inversiones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Inversiones</button>
     <button role="tab" data-tab="analisis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>Análisis</button>
+    <button role="tab" data-tab="mercado"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Mercado</button>
   </nav>
 
   <section class="panel" id="p-resumen"></section>
   <section class="panel" id="p-gastos"></section>
   <section class="panel" id="p-inversiones"></section>
   <section class="panel" id="p-analisis"></section>
+  <section class="panel" id="p-mercado"></section>
 
   <footer>Pluto · generado en tu computadora. Contiene tus datos financieros: no lo compartas.</footer>
 </div>
@@ -714,6 +756,117 @@ function renderAnalisis() {
   </div>`;
 }
 
+// ---------- pestaña: Mercado (solo lectura: Pluto analiza y recomienda, nunca opera) ----------
+const MK = DATA.mercado;
+const ACCION = { comprar: ['var(--good)', '#fff'], aumentar: ['var(--good)', '#fff'], vender: ['var(--critical)', '#fff'],
+  reducir: ['var(--serious)', '#241a00'], cambiar: ['var(--s1)', '#fff'], mantener: ['var(--surface-2)', 'var(--text-2)'] };
+const IMPACTO = { positivo: 'pos', negativo: 'neg' };
+const chipAccion = a => { const [bg, fg] = ACCION[(a || '').toLowerCase()] || ACCION.mantener; return `<span class="chip" style="background:${bg};color:${fg}">${esc(a || '—')}</span>`; };
+const nivelPts = n => { const k = { baja: 1, media: 2, alta: 3 }[n] || 0; return `<span class="pts" title="Confianza ${esc(n || '?')}">${[1, 2, 3].map(i => `<i class="${i <= k ? 'on' : ''}"></i>`).join('')}</span>`; };
+
+function sparkline(serie, w = 120, h = 34) {
+  if (!serie || serie.length < 2) return '';
+  const v = serie.map(x => +x[1]), lo = Math.min(...v), hi = Math.max(...v), r = hi - lo || 1;
+  const pts = v.map((y, i) => `${(i / (v.length - 1) * w).toFixed(1)},${(h - 2 - (y - lo) / r * (h - 4)).toFixed(1)}`).join(' ');
+  const c = v[v.length - 1] >= v[0] ? 'var(--good-text)' : 'var(--neg-text)';
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${c}" stroke-width="1.6" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`;
+}
+
+function carteraObjetivoHTML(filas) {
+  if (!filas?.length) return '<div class="empty">Sin propuesta de distribución.</div>';
+  const max = Math.max(...filas.flatMap(f => [+f.actual_pct || 0, +f.objetivo_pct || 0]), 1);
+  return `<div class="legend" style="margin-bottom:10px"><span><span class="dot" style="background:var(--text-3)"></span>Hoy</span><span><span class="dot" style="background:var(--accent)"></span>Objetivo</span></div>
+    <div class="objetivo">` + filas.map(f => {
+      const a = +f.actual_pct || 0, o = +f.objetivo_pct || 0, d = o - a;
+      return `<div class="obj-f" data-tip="${esc(`<b>${esc(f.clase)}</b><br>Hoy ${nf1.format(a)}% → objetivo ${nf1.format(o)}%${f.comentario ? '<br>' + esc(f.comentario) : ''}`)}">
+        <div class="name">${esc(f.clase)}</div>
+        <div class="barras"><div style="width:${(a / max * 100).toFixed(1)}%;background:var(--text-3)"></div><div style="width:${(o / max * 100).toFixed(1)}%;background:var(--accent)"></div></div>
+        <div class="val">${nf1.format(a)}% → <b>${nf1.format(o)}%</b><div class="${d > 0 ? 'pos' : d < 0 ? 'neg' : 'muted'}">${d ? pct(d).replace('%', ' pp') : '='}</div></div></div>`;
+    }).join('') + '</div>';
+}
+
+function recosMercadoHTML(recos) {
+  if (!recos?.length) return '<div class="empty">Sin recomendaciones: la IA no sugiere cambios.</div>';
+  return recos.map(r => `<div class="reco">
+    <div class="cab">${chipAccion(r.accion)}<b>${esc(r.activo)}</b>${r.por ? ` <span class="muted">→</span> <b>${esc(r.por)}</b>` : ''}
+      ${r.monto_ars ? `<span class="monto">${M('≈ ' + compact(+r.monto_ars))}</span>` : ''}</div>
+    <div class="d">${esc(r.motivo)}</div>
+    ${r.riesgos ? `<div class="d riesgo"><b>Riesgos:</b> ${esc(r.riesgos)}</div>` : ''}
+    <div class="meta">Plazo ${esc(r.horizonte || '—')} · confianza ${nivelPts(r.confianza)} ${esc(r.confianza || '')}</div></div>`).join('');
+}
+
+function noticiasHTML(A) {
+  const ns = A.noticias || [];
+  if (!ns.length) return `<div class="empty">${A.con_noticias === false ? 'El proveedor de IA elegido no busca en la web: el análisis se hizo sin noticias. Usá Claude Code o la API de Anthropic para sumarlas.' : 'Sin noticias relevantes para tus activos.'}</div>`;
+  return '<div class="lista">' + ns.map(n => `<div class="noticia">
+    <div class="t">${esc(n.titulo)}</div>
+    <div class="d">${esc(n.fuente || 'sin fuente')}${n.fecha ? ' · ' + esc(dm(n.fecha)) : ''} · <span class="${IMPACTO[n.impacto] || 'muted'}">${esc(n.impacto || '')}</span>
+      ${(n.activos || []).map(a => `<span class="tag">${esc(a)}</span>`).join(' ')}</div>
+    ${n.que_significa ? `<div class="d2">${esc(n.que_significa)}</div>` : ''}</div>`).join('') + '</div>';
+}
+
+function escenariosHTML(es) {
+  if (!es?.length) return '<div class="empty">—</div>';
+  return es.map(e => `<div class="alert"><div class="ico" style="background:var(--sky);color:var(--bg)">?</div>
+    <div><div class="t">${esc(e.escenario)}<span class="lvl">probabilidad ${esc(e.probabilidad || '?')}</span></div>
+    <div class="d">${esc(e.efecto)}</div>${e.que_considerar ? `<div class="d"><b>Qué considerar:</b> ${esc(e.que_considerar)}</div>` : ''}</div></div>`).join('');
+}
+
+function preciosHTML(precios) {
+  const tengo = new Set(R.inversiones.map(i => i.activo));
+  const ent = Object.entries(precios || {}).sort((a, b) => tengo.has(b[0]) - tengo.has(a[0]) || a[0].localeCompare(b[0]));
+  if (!ent.length) return '<div class="empty">Sin precios: activá IOL en Configuración → Fuentes y sumá activos a seguir en Análisis de mercado.</div>';
+  return '<div class="precios">' + ent.map(([sim, p]) => {
+    const i = p.indicadores || {};
+    const precio = p.precio ?? i.ultimo;
+    return `<div class="precio" data-tip="${esc(`<b>${esc(sim)}</b><br>Volatilidad anual ${i.volatilidad_anual != null ? nf1.format(i.volatilidad_anual) + '%' : '—'}<br>Caída máxima (12m) ${pct(i.caida_maxima)}<br>Contra su máximo ${pct(i.vs_maximo)}`)}">
+      <div class="cab"><b>${esc(sim)}</b><span class="tag">${tengo.has(sim) ? 'tenés' : 'seguís'}</span></div>
+      <div class="v">${precio != null ? money(precio, p.moneda === 'USD' ? 'USD' : 'ARS', true) : '—'}
+        ${p.variacion_dia != null ? `<span class="${p.variacion_dia >= 0 ? 'pos' : 'neg'}">${pct(p.variacion_dia)}</span>` : ''}</div>
+      ${sparkline(p.serie)}
+      <div class="rends">${[['1m', i.rend_1m], ['3m', i.rend_3m], ['12m', i.rend_12m]].map(([k, v]) => `<span>${k} <b class="${v == null ? '' : v >= 0 ? 'pos' : 'neg'}">${pct(v)}</b></span>`).join('')}</div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function seguimientoHTML(seg, ac) {
+  if (!seg?.length) return '<div class="empty">Todavía no hay recomendaciones registradas. Cada análisis guarda sus recomendaciones con el precio del día para ver después si acertaron.</div>';
+  const tasa = ac.medibles ? `<b>${ac.aciertos} de ${ac.medibles}</b> recomendaciones medibles fueron en la dirección correcta` : 'Todavía ninguna recomendación tiene 7 días o más para medirla';
+  return `<p class="resumen-ia" style="font-size:14px">${tasa}.</p>
+    <div class="lista">` + seg.map(r => {
+      const res = r.acierto == null ? '<span class="muted">pendiente</span>' : r.acierto ? '<span class="pos">✓ acertó</span>' : '<span class="neg">✗ no acertó</span>';
+      return `<div class="fila seg">
+        <div class="t">${chipAccion(r.accion)}${esc(r.activo)}${r.por ? ' → ' + esc(r.por) : ''}</div>
+        <div class="v">${res}</div>
+        <div class="d">${esc(dm(r.fecha))} · hace ${r.dias} días · confianza ${esc(r.confianza || '?')}</div>
+        <div class="v2">${r.precio ? nf2.format(r.precio) + ' → ' + (r.precio_actual ? nf2.format(r.precio_actual) : '?') : 'sin precio'}${r.variacion_pct != null ? ` · <span class="${r.variacion_pct >= 0 ? 'pos' : 'neg'}">${pct(r.variacion_pct)}</span>` : ''}</div>
+      </div>`;
+    }).join('') + `</div><p class="nota">Comprar/aumentar acierta si el precio subió; vender/reducir, si bajó; cambiar, si el destino rindió más. Es una medida simple: no incluye dividendos, cupones ni costos.</p>`;
+}
+
+function renderMercado() {
+  const p = document.getElementById('p-mercado');
+  if (!MK) return;
+  const A = MK.analisis;
+  const aviso = `<div class="aviso solo-lectura"><span class="ico">🛈</span><div><b>Pluto solo analiza y recomienda.</b> No ejecuta operaciones ni tiene permiso para hacerlo: las decisiones y las operaciones las hacés vos en tu broker. Nadie puede predecir el mercado; esto es información, no asesoramiento financiero profesional (CNV).</div></div>`;
+  let cuerpo;
+  if (!A || A.error) {
+    cuerpo = `<div class="card"><div class="empty">${A?.error ? 'No se pudo hacer el análisis de mercado: ' + esc(A.error) : 'Todavía no hay análisis de mercado. Activá "Análisis de mercado" al actualizar.'}</div></div>`;
+  } else {
+    const f = A.fecha ? new Date(A.fecha).toLocaleString('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+    cuerpo = `<div class="card"><h2>Momento del mercado</h2>${notaAnalisisAnterior(A)}<p class="resumen-ia">${esc(A.resumen)}</p>
+        <p class="nota">${esc(f)}${A.proveedor ? ' · ' + esc(A.proveedor) + (A.modelo ? ' (' + esc(A.modelo) + ')' : '') : ''} · ${A.con_noticias ? 'con noticias de la web' : 'sin noticias'}</p></div>
+      <div class="card c7"><h2>Recomendaciones</h2>${recosMercadoHTML(A.recomendaciones)}</div>
+      <div class="card c5"><h2>Distribución sugerida</h2>${carteraObjetivoHTML(A.cartera_objetivo)}</div>
+      <div class="card c6"><h2>Noticias</h2>${noticiasHTML(A)}</div>
+      <div class="card c6"><h2>Escenarios</h2>${escenariosHTML(A.escenarios)}</div>`;
+  }
+  p.innerHTML = aviso + `<div class="grid">${cuerpo}
+    <div class="card"><h2>Precios</h2>${preciosHTML(MK.precios)}</div>
+    <div class="card"><h2>¿Acertaron las recomendaciones?</h2>${seguimientoHTML(MK.seguimiento, MK.aciertos || {})}</div>
+  </div>`;
+}
+
 // ---------- navegación ----------
 function irA(tab) {
   document.querySelectorAll('nav.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === tab));
@@ -731,11 +884,12 @@ function init() {
   renderGastos(MESES.includes(mesGuardado) ? mesGuardado : (MESES[MESES.length - 1] || null));
   renderInversiones();
   renderAnalisis();
+  if (MK) renderMercado(); else document.querySelector('[data-tab="mercado"]').hidden = true;
 
   document.querySelectorAll('nav.tabs button').forEach(b => b.onclick = () => irA(b.dataset.tab));
   document.addEventListener('click', e => { const t = e.target.closest('[data-ir]'); if (t) irA(t.dataset.ir); });
   const tabGuardada = store.get('tab');
-  irA(['resumen', 'gastos', 'inversiones', 'analisis'].includes(tabGuardada) ? tabGuardada : 'resumen');
+  irA(['resumen', 'gastos', 'inversiones', 'analisis'].concat(MK ? ['mercado'] : []).includes(tabGuardada) ? tabGuardada : 'resumen');
 
   const bp = document.getElementById('btn-privado');
   const setPriv = on => { document.body.classList.toggle('privado', on); bp.setAttribute('aria-pressed', on); store.set('privado', on ? '1' : '0'); };
