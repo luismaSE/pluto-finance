@@ -304,3 +304,13 @@ details.mas b { color: var(--text); font-weight: 600; }
 .meta-num { font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums; }
 .meta-lin { font-size: 13px; color: var(--text-2); }
 .meta-lin b { color: var(--text); }
+
+/* Pagos fijos y aumentos */
+.rec-kpi { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 6px; }
+.rec-total { font-family: var(--f-display); font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.rec-total .u { font-size: 13px; font-weight: 500; color: var(--text-2); }
+.rec-subas { background: var(--surface-2); border-left: 3px solid var(--warning); border-radius: 8px; padding: 6px 10px; display: grid; font-size: 12px; text-align: right; }
+.rec-subas b { color: var(--text); font-size: 13px; }
+.rec-subas span { color: var(--text-2); }
+.suba { color: var(--warning); font-size: 11px; margin-right: 2px; }
+.suba-t { color: var(--text); font-weight: 600; }

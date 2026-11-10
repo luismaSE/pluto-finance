@@ -244,6 +244,8 @@ function flujoMeses() {
 
 // Suscripciones y gastos que se repiten todos los meses
 function gastosFijos() {
+  if (R.recurrentes) return recurrentesHTML(R.recurrentes);
+  // Datos de una versión anterior (sin R.recurrentes): se detectan acá
   const norm = d => d.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\d{4,}/g, '').replace(/\s+/g, ' ').trim();
   const grupos = {};
   S.movimientos.filter(m => m.monto < 0 && !EXCL.has(m.categoria) && m.categoria !== 'Pago de tarjeta').forEach(m => {
@@ -265,6 +267,26 @@ function gastosFijos() {
       <div class="t">${esc(f.desc)}</div><div class="v">${M(compact(f.mensual))}<span class="muted" style="font-weight:400">/mes</span></div>
       <div class="d">${esc(f.cat)} · ${esc(f.entidad)} · ${f.meses >= 2 ? `se repite ${f.meses} meses` : 'suscripción'}</div><div class="v2">${M(compact(f.mensual * 12))}/año</div></div>`).join('')}</div>
     <p class="nota">Total estimado: ${M(`<b>${compact(total)}</b>`)} por mes · ${M(compact(total * 12))} por año.</p>`;
+}
+
+// Pagos que se repiten (detectados en recurrentes.py), con los aumentos marcados
+function recurrentesHTML(rec) {
+  const ps = rec.pagos || [];
+  if (!ps.length) return '<div class="empty">Todavía no detecté pagos que se repitan (hacen falta al menos 2 meses de resúmenes).</div>';
+  const ordenados = ps.slice().sort((a, b) => !!b.aumento - !!a.aumento || b.mensual - a.mensual);
+  const subas = ps.filter(p => p.aumento);
+  const extraAnual = subas.reduce((a, p) => a + (p.aumento.actual - p.aumento.anterior) * 12, 0);
+  const fila = p => `<div class="fila">
+      <div class="t">${p.aumento ? '<span class="suba" title="Subió">▲</span>' : ''}${esc(p.descripcion)}</div>
+      <div class="v">${M(compact(p.mensual))}<span class="muted" style="font-weight:400">/mes</span></div>
+      <div class="d">${esc(p.categoria || '')} · ${esc(p.entidad || '')} · ${p.meses >= 2 ? `${p.meses} meses` : 'suscripción'}</div>
+      <div class="v2">${p.aumento ? `<span class="suba-t">+${nf0.format(p.aumento.pct)}% · antes ${M(compact(p.aumento.anterior))}</span>` : M(compact(p.anual)) + '/año'}</div></div>`;
+  return `<div class="rec-kpi"><div><div class="rec-total">${M(compact(rec.total_mensual))}<span class="u">/mes</span></div>
+      <div class="muted" style="font-size:12px">${M(compact(rec.total_mensual * 12))} por año en ${ps.length} pagos fijos</div></div>
+      ${subas.length ? `<div class="rec-subas"><b>▲ ${subas.length} ${subas.length === 1 ? 'subió' : 'subieron'}</b><span>${M('+' + compact(extraAnual))} por año</span></div>` : ''}</div>
+    <div class="lista">${ordenados.slice(0, 8).map(fila).join('')}</div>
+    ${ordenados.length > 8 ? mas(`Ver los ${ordenados.length} pagos`, `<div class="lista">${ordenados.slice(8).map(fila).join('')}</div>`) : ''}
+    <p class="nota">Pagos que se repiten una vez por mes con montos parecidos. "Subió" compara el último cobro con el del mes anterior.</p>`;
 }
 
 // ---------- pestaña: Resumen ----------
@@ -475,7 +497,7 @@ function renderGastos(mes) {
     </div>
     <p class="nota">No se cuentan las transferencias entre tus cuentas. "Pago de tarjeta" es el pago del resumen; el detalle está en el resumen de la tarjeta.</p></div>
     <div class="card c7"><h2>Ingresos y gastos por mes</h2>${flujoMeses()}</div>
-    <div class="card c5"><h2>Gastos fijos y suscripciones</h2>${gastosFijos()}</div>
+    <div class="card c5"><h2>Pagos fijos y suscripciones</h2>${gastosFijos()}</div>
   </div>`;
   panel.querySelectorAll('[data-mes]').forEach(b => b.onclick = () => { store.set('mes', b.dataset.mes); renderGastos(b.dataset.mes); });
 }

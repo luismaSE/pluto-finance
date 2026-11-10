@@ -171,3 +171,18 @@ def test_metas_de_ahorro(navegador, datos_demo, tmp_path):
     assert "metas de ahorro" in t.lower() and "Atrasada" in t and "En camino" in t
     assert pagina.locator("#p-resumen .meta-f").count() == 3 and errores == []
     pagina.close()
+
+
+def test_pagos_fijos_y_aumentos(navegador, datos_demo, tmp_path):
+    pagina, errores = abrir(navegador, datos_demo, tmp_path)
+    pagina.click('[data-tab="gastos"]')
+    g = pagina.locator("#p-gastos")
+    assert g.locator(".rec-subas").count() == 1 and "Netflix" in g.locator(".fila:has(.suba)").first.inner_text()
+    # datos de una versión anterior, sin "recurrentes": se calculan en el navegador como antes
+    d = copy.deepcopy(datos_demo)
+    d["resumen"].pop("recurrentes")
+    pagina2, errores2 = abrir(navegador, d, tmp_path)
+    pagina2.click('[data-tab="gastos"]')
+    assert "Netflix" in pagina2.locator("#p-gastos").inner_text()
+    assert errores == [] and errores2 == []
+    pagina.close(); pagina2.close()

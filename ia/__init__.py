@@ -31,6 +31,8 @@ incompletos sin aclararlo. "Pago de tarjeta" es el pago del resumen de la tarjet
 detalle de consumos). Las transferencias entre cuentas propias ya están excluidas de los totales.
 "contra_inflacion" compara el patrimonio de la primera actualización con el de hoy contra la inflación del
 período ("real_pct" es la variación real); incluye lo ahorrado y gastado, no es solo rendimiento.
+"recurrentes" son los pagos que se repiten cada mes; "aumento" marca los que subieron respecto del mes anterior.
+"objetivos" son las metas de ahorro de la persona y si llega a cumplirlas.
 
 Analizá: liquidez ociosa en pesos frente a la inflación, exposición por moneda, concentración de la
 cartera, gasto mensual frente a ingresos, categorías altas o llamativas, suscripciones, comisiones e

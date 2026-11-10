@@ -207,9 +207,11 @@ def ejecutar(o: Opciones, log=print) -> dict:
     r["tarjetas"] = tarjetas.calcular(cfg["tarjetas"], date.today(), s.movimientos)
     r["presupuestos"] = presupuestos.evaluar(cfg["presupuestos"], r["gastos_por_mes"])
     r["metas"] = cfg["metas"]
+    import recurrentes
+    r["recurrentes"] = recurrentes.detectar(s.movimientos, r.get("categorias_excluidas") or (), r.get("tipo_cambio_mep"))
     import objetivos
     r["objetivos"] = objetivos.evaluar(cfg.get("objetivos"), r["gastos_por_mes"], r.get("tipo_cambio_mep"))
-    r["avisos"] = avisos.generar(r, r["tarjetas"], r["presupuestos"]) + objetivos.avisos(r["objetivos"])
+    r["avisos"] = avisos.generar(r, r["tarjetas"], r["presupuestos"]) + objetivos.avisos(r["objetivos"]) + recurrentes.avisos(r["recurrentes"])
     if o.demo:
         from demo import historial_demo
         hist = historial_demo()

@@ -110,6 +110,7 @@ Todo se configura en la app de escritorio:
 - **Tarjetas** (Configuración → Tarjetas de crédito): el día del mes en que cierra y vence cada tarjeta. El dashboard muestra cuántos días faltan y avisa una semana antes del vencimiento. Si un mes el banco corre la fecha, cargá la fecha exacta del resumen.
 - **Meta de fondo de emergencia** (Configuración → Metas): cuántos meses de gastos querés tener disponibles.
 - **Metas de ahorro** (Configuración → Metas): un viaje, un auto, lo que quieras, con monto (en pesos o dólares), fecha y lo que ya tenés apartado. El dashboard te dice cuánto tenés que ahorrar por mes y, con lo que ahorrás en promedio según tus resúmenes, si llegás o cuándo llegarías. El ahorro se reparte primero a la meta más cercana.
+- **Pagos fijos y aumentos** (dashboard, Gastos): detecta los pagos que se repiten cada mes (suscripciones, servicios, comisiones), cuánto suman por mes y por año, y avisa cuando uno sube (por ejemplo "Netflix subió 25%").
 - **¿Le ganás a la inflación?** (dashboard, Resumen): compara tu patrimonio de la primera actualización con el de hoy contra la inflación oficial del período y contra el dólar MEP. Incluye lo que ahorraste y gastaste, no solo el rendimiento de tus inversiones.
 - **Categorías** (página Categorías): si un movimiento quedó en "Otros" o "Transferencias", elegí la categoría correcta; Pluto la recuerda para todos los movimientos iguales desde la próxima actualización.
 
@@ -257,6 +258,7 @@ Código bajo licencia [MIT](LICENSE). Las tipografías incluidas usan la SIL Ope
 | `plantillas/dashboard/` | Dashboard (HTML, CSS y JS); `plantillas/dashboard.html` es el armado que usan la PC y la app |
 | `escritorio/ui/` | Interfaz de la app de escritorio (HTML, CSS y JS) |
 | `objetivos.py`, `rendimiento.py` | Metas de ahorro y patrimonio contra la inflación |
+| `recurrentes.py` | Pagos que se repiten cada mes y sus aumentos |
 | `presupuestos.py`, `tarjetas.py`, `avisos.py` | Límites de gasto, cierres y vencimientos, y avisos |
 | `datos_locales.py` | Cifrado del historial y limpieza de dashboards viejos |
 | `herramientas/texto_pdf.py` | Texto de un PDF, con opción de anonimizarlo para compartirlo |
