@@ -215,10 +215,11 @@ def analizar(resumen: dict, precios: dict, cfg: dict, ia_cfg: dict, cotizaciones
                      que="Analizando el mercado")
     if r.get("error"):
         return {"error": r["error"]}
+    from ia import normalizar
     a = ia.a_json(r["texto"])
     a.update(proveedor=r["proveedor"], modelo=r["modelo"], con_noticias=r["web"],
              fecha=datetime.now().isoformat(timespec="minutes"))
-    return a
+    return normalizar.mercado(a)
 
 
 def para_dashboard(analisis: dict | None, precios: dict, registro: list) -> dict:

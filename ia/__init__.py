@@ -128,7 +128,8 @@ def analizar(resumen: dict, cotizaciones: dict, cfg_analisis: dict, clave_de=Non
     a = _a_json(texto)
     a["proveedor"] = prov.NOMBRE
     a["modelo"] = opciones["modelo"]
-    return a
+    from . import normalizar
+    return normalizar.general(a)
 
 
 def probar(cfg_analisis: dict, clave_de=None) -> dict:
