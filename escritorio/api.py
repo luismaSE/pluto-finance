@@ -62,7 +62,17 @@ class Api:
             "corriendo": self._corriendo.locked(),
             "categorias": __import__("categorias").CATEGORIAS,
             "carpeta": str(Path.cwd()),
+            "mercado": self._resumen_mercado() if ok else None,
         }
+
+    @staticmethod
+    def _resumen_mercado():
+        try:
+            import datos_locales
+            from pipeline import RESUMEN_MERCADO
+            return datos_locales.leer(RESUMEN_MERCADO, None)
+        except Exception:
+            return None
 
     # ---------- configuración ----------
     def guardar_config(self, cfg: dict) -> dict:

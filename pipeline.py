@@ -18,6 +18,7 @@ from modelo import Snapshot
 
 ULTIMO_ANALISIS = Path("salida/ultimo_analisis.json")
 ULTIMO_MERCADO = Path("salida/ultimo_mercado.json")
+RESUMEN_MERCADO = Path("salida/resumen_mercado.json")   # lo que muestra Inicio en la app de escritorio
 
 
 def demo_config() -> dict:
@@ -238,6 +239,7 @@ def ejecutar(o: Opciones, log=print) -> dict:
         if analisis_m and not o.mercado:
             analisis_m["anterior"] = True
         mercado_datos = mercado.para_dashboard(analisis_m, precios, datos_locales.leer(mercado.REGISTRO, []) or [])
+        datos_locales.escribir(RESUMEN_MERCADO, mercado.resumen_corto(mercado_datos))
 
     import fuentes
     datos = {"snapshot": s.to_dict(), "resumen": r, "demo": o.demo, "hoy": date.today().isoformat(),

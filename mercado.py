@@ -222,6 +222,18 @@ def analizar(resumen: dict, precios: dict, cfg: dict, ia_cfg: dict, cotizaciones
     return normalizar.mercado(a)
 
 
+def resumen_corto(datos: dict) -> dict:
+    """Lo mínimo para la pantalla de Inicio: titular, recomendaciones y aciertos."""
+    a = (datos or {}).get("analisis") or {}
+    if not a or a.get("error"):
+        return {"error": a.get("error"), "aciertos": (datos or {}).get("aciertos")}
+    return {"titular": a.get("titular") or (a.get("resumen") or "").split(". ")[0][:140],
+            "fecha": a.get("fecha"), "anterior": bool(a.get("anterior")),
+            "recomendaciones": [{"accion": r.get("accion"), "activo": r.get("activo"), "por": r.get("por")}
+                                for r in (a.get("recomendaciones") or [])[:4]],
+            "aciertos": datos.get("aciertos")}
+
+
 def para_dashboard(analisis: dict | None, precios: dict, registro: list) -> dict:
     """Lo que necesita la pestaña Mercado: el análisis, precios resumidos y el seguimiento."""
     ev = evaluar(registro, precios)

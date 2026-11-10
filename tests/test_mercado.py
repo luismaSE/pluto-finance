@@ -135,3 +135,14 @@ def test_demo_incluye_mercado(carpeta):
     m = r["datos"]["mercado"]
     assert m["analisis"]["recomendaciones"] and m["precios"]["GGAL"]["serie"]
     assert m["aciertos"]["total"] == 4
+
+
+def test_resumen_corto_para_inicio():
+    import demo
+    p = demo.precios_demo()
+    r = mercado.resumen_corto(mercado.para_dashboard(demo.analisis_mercado_demo(), p, demo.registro_demo(p)))
+    assert r["titular"].startswith("Demasiado GGAL") and r["aciertos"]["total"] == 4
+    assert r["recomendaciones"][2] == {"accion": "cambiar", "activo": "MELI", "por": "SPY"}
+    assert mercado.resumen_corto({"analisis": {"error": "x"}, "aciertos": None})["error"] == "x"
+    sin_titular = mercado.resumen_corto({"analisis": {"resumen": "Primera frase. Segunda."}})
+    assert sin_titular["titular"] == "Primera frase"

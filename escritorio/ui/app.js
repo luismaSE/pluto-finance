@@ -89,11 +89,11 @@ function pintarCategorias() {
 $('#cat-filtro').onchange = pintarCategorias;
 $('#cat-buscar').oninput = pintarCategorias;
 
-function ir(pag) {
+function ir(pag, pestana) {
   $$('aside .nav').forEach(b => b.setAttribute('aria-current', b.dataset.pag === pag));
   $$('.pagina').forEach(p => p.hidden = p.id !== 'pag-' + pag);
   document.querySelector('main').classList.toggle('con-dash', pag === 'dashboard');
-  if (pag === 'dashboard') cargarDashboard();
+  if (pag === 'dashboard') cargarDashboard(pestana);
   if (pag === 'categorias') cargarCategorias();
 }
 $$('aside .nav').forEach(b => b.onclick = () => ir(b.dataset.pag));
@@ -170,6 +170,8 @@ async function refrescar() {
   $('#avisos').innerHTML = av.map(a => `<div class="aviso-i"><i style="background:${colAv[a.nivel] || colAv.baja}"></i><div><b>${esc(a.titulo)}</b><div class="d">${esc(a.detalle)}</div></div></div>`).join('')
     + (av.length ? '<p class="empty" style="font-size:12px;margin:8px 0 0">De la última actualización.</p>' : '');
 
+  pintarMercado(EST.mercado);
+
   $('#ultima').innerHTML = u ? `<div class="kpis">
       <div class="kpi"><div class="l">Patrimonio</div><div class="v">${compact(u.patrimonio_ars)}</div><div class="n">${u.patrimonio_usd ? 'US$ ' + nf0.format(u.patrimonio_usd) : ''}</div></div>
       <div class="kpi"><div class="l">En cuentas</div><div class="v">${compact(u.liquidez_ars)}</div></div>
@@ -243,15 +245,37 @@ async function descargar(b) {
   $('#msg-descarga').innerHTML = '<span class="spinner" style="display:inline-block;vertical-align:middle"></span> Esperando que descargues los PDF y cierres el navegador…';
 }
 
+// ---------- mercado en Inicio (solo lectura: Pluto recomienda, nunca opera) ----------
+const ACC_INI = { comprar: ['var(--good)', '▲'], aumentar: ['var(--good)', '▲'], vender: ['var(--critical)', '▼'],
+  reducir: ['var(--warning)', '▼'], cambiar: ['var(--sky)', '⇄'], mantener: ['var(--text-3)', '='] };
+function pintarMercado(m) {
+  $('#card-mercado').hidden = !m || (!m.titular && !m.error);
+  if ($('#card-mercado').hidden) return;
+  if (m.error) { $('#mercado-ini').innerHTML = `<div class="empty">El último análisis de mercado falló: ${esc(m.error)}</div>`; return; }
+  const ac = m.aciertos || {};
+  const recos = (m.recomendaciones || []).map(r => { const [c, i] = ACC_INI[r.accion] || ACC_INI.mantener;
+    return `<span class="mk-reco"><b style="color:${c}">${i}</b> ${esc(r.accion)} <b>${esc(r.activo)}</b>${r.por ? ' → <b>' + esc(r.por) + '</b>' : ''}</span>`; }).join('');
+  $('#mercado-ini').innerHTML = `<div class="mk-tit">${esc(m.titular)}</div>
+    ${recos ? `<div class="mk-recos">${recos}</div>` : ''}
+    <div class="mk-pie"><span>${ac.medibles ? `<b>${ac.aciertos} de ${ac.medibles}</b> recomendaciones acertaron` : 'Las recomendaciones se miden a los 7 días'}</span>
+      <span class="empty">${m.fecha ? esc(fecha(m.fecha)) : ''}${m.anterior ? ' · análisis anterior' : ''}</span>
+      <button class="btn" id="btn-ver-mercado">Ver en el dashboard</button></div>
+    <p class="empty" style="font-size:12px;margin:8px 0 0">Pluto solo recomienda: vos decidís y operás en tu broker.</p>`;
+  $('#btn-ver-mercado').onclick = () => ir('dashboard', 'mercado');
+}
+
 // ---------- dashboard ----------
-async function cargarDashboard() {
+async function cargarDashboard(pestana) {
   let html = await API.dashboard_html();
   $('#marco').hidden = !html; $('#sin-dash').hidden = !!html;
   if (!html) return;
   // mismo tema que la app
   html = html.replace('<html lang="es" data-theme="dark">', `<html lang="es" data-theme="${tema()}">`);
   const v = String(html.length) + tema();
-  if ($('#marco').dataset.v !== v) { $('#marco').srcdoc = html; $('#marco').dataset.v = v; }
+  const marco = $('#marco');
+  const mostrar = () => pestana && marco.contentWindow.postMessage({ ir: pestana }, '*');
+  if (marco.dataset.v !== v) { marco.onload = mostrar; marco.srcdoc = html; marco.dataset.v = v; }
+  else mostrar();
 }
 $('#btn-ver-dash').onclick = () => ir('dashboard');
 $('#btn-navegador').onclick = () => API.abrir_dashboard_navegador();

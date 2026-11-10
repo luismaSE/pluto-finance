@@ -139,3 +139,14 @@ def test_analisis_con_error(navegador, datos_demo, tmp_path):
     assert "Sin conexión" in pagina.locator("#p-mercado").inner_text()
     assert errores == []
     pagina.close()
+
+
+def test_la_app_abre_una_pestana(navegador, datos_demo, tmp_path):
+    """La app de escritorio pide abrir Mercado con postMessage; un nombre inválido no hace nada."""
+    pagina, errores = abrir(navegador, datos_demo, tmp_path)
+    pagina.evaluate("window.postMessage({ir: 'mercado'}, '*')")
+    pagina.wait_for_function("!document.getElementById('p-mercado').hidden")
+    pagina.evaluate("window.postMessage({ir: '\"]x'}, '*'); window.postMessage('basura', '*')")
+    pagina.wait_for_timeout(100)
+    assert pagina.locator("#p-mercado").is_visible() and errores == []
+    pagina.close()

@@ -1010,6 +1010,12 @@ function init() {
   if (MK) renderMercado(); else document.querySelector('[data-tab="mercado"]').hidden = true;
 
   document.querySelectorAll('nav.tabs button').forEach(b => b.onclick = () => irA(b.dataset.tab));
+  // La app de escritorio puede pedir abrir una pestaña (solo navegación, nada más)
+  window.addEventListener('message', e => {
+    const t = e.data && e.data.ir;
+    const b = typeof t === 'string' && document.querySelector(`nav.tabs button[data-tab="${CSS.escape(t)}"]`);
+    if (b && !b.hidden) irA(t);
+  });
   document.addEventListener('click', e => { const t = e.target.closest('[data-ir]'); if (t) irA(t.dataset.ir); });
   const tabGuardada = store.get('tab');
   irA(['resumen', 'gastos', 'inversiones', 'analisis'].concat(MK ? ['mercado'] : []).includes(tabGuardada) ? tabGuardada : 'resumen');
