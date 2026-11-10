@@ -109,6 +109,8 @@ Todo se configura en la app de escritorio:
 - **Límites de gasto** (Configuración → Límites de gasto): un tope mensual total y uno por categoría. El dashboard muestra cuánto llevás de cada uno, cuánto te queda y, desde el día 7, cuánto gastarías a fin de mes a este ritmo. Avisa cuando estás cerca (80%) o te pasaste.
 - **Tarjetas** (Configuración → Tarjetas de crédito): el día del mes en que cierra y vence cada tarjeta. El dashboard muestra cuántos días faltan y avisa una semana antes del vencimiento. Si un mes el banco corre la fecha, cargá la fecha exacta del resumen.
 - **Meta de fondo de emergencia** (Configuración → Metas): cuántos meses de gastos querés tener disponibles.
+- **Metas de ahorro** (Configuración → Metas): un viaje, un auto, lo que quieras, con monto (en pesos o dólares), fecha y lo que ya tenés apartado. El dashboard te dice cuánto tenés que ahorrar por mes y, con lo que ahorrás en promedio según tus resúmenes, si llegás o cuándo llegarías. El ahorro se reparte primero a la meta más cercana.
+- **¿Le ganás a la inflación?** (dashboard, Resumen): compara tu patrimonio de la primera actualización con el de hoy contra la inflación oficial del período y contra el dólar MEP. Incluye lo que ahorraste y gastaste, no solo el rendimiento de tus inversiones.
 - **Categorías** (página Categorías): si un movimiento quedó en "Otros" o "Transferencias", elegí la categoría correcta; Pluto la recuerda para todos los movimientos iguales desde la próxima actualización.
 
 ## Pruebas
@@ -254,6 +256,7 @@ Código bajo licencia [MIT](LICENSE). Las tipografías incluidas usan la SIL Ope
 | `instalar.sh`, `instalar.bat` | Instaladores (Linux/macOS y Windows) |
 | `plantillas/dashboard/` | Dashboard (HTML, CSS y JS); `plantillas/dashboard.html` es el armado que usan la PC y la app |
 | `escritorio/ui/` | Interfaz de la app de escritorio (HTML, CSS y JS) |
+| `objetivos.py`, `rendimiento.py` | Metas de ahorro y patrimonio contra la inflación |
 | `presupuestos.py`, `tarjetas.py`, `avisos.py` | Límites de gasto, cierres y vencimientos, y avisos |
 | `datos_locales.py` | Cifrado del historial y limpieza de dashboards viejos |
 | `herramientas/texto_pdf.py` | Texto de un PDF, con opción de anonimizarlo para compartirlo |

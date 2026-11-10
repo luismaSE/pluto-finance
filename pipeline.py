@@ -33,6 +33,11 @@ def demo_config() -> dict:
         "master": {"nombre": "Mastercard", "cierre": (hoy + timedelta(days=16)).day, "vencimiento": (hoy + timedelta(days=12)).day},
     }
     cfg["categorias"] = {"reglas": {}}
+    cfg["objetivos"] = {
+        "viaje": {"nombre": "Viaje a Europa", "monto": 4000, "moneda": "USD", "fecha": (hoy + timedelta(days=240)).isoformat(), "ahorrado": 1500},
+        "auto": {"nombre": "Cambiar el auto", "monto": 18_000_000, "moneda": "ARS", "fecha": (hoy + timedelta(days=420)).isoformat(), "ahorrado": 3_000_000},
+        "notebook": {"nombre": "Notebook", "monto": 1_900_000, "moneda": "ARS", "fecha": (hoy + timedelta(days=60)).isoformat(), "ahorrado": 1_900_000},
+    }
     return cfg   # local, nunca se sube al repo
 
 
@@ -202,7 +207,9 @@ def ejecutar(o: Opciones, log=print) -> dict:
     r["tarjetas"] = tarjetas.calcular(cfg["tarjetas"], date.today(), s.movimientos)
     r["presupuestos"] = presupuestos.evaluar(cfg["presupuestos"], r["gastos_por_mes"])
     r["metas"] = cfg["metas"]
-    r["avisos"] = avisos.generar(r, r["tarjetas"], r["presupuestos"])
+    import objetivos
+    r["objetivos"] = objetivos.evaluar(cfg.get("objetivos"), r["gastos_por_mes"], r.get("tipo_cambio_mep"))
+    r["avisos"] = avisos.generar(r, r["tarjetas"], r["presupuestos"]) + objetivos.avisos(r["objetivos"])
     if o.demo:
         from demo import historial_demo
         hist = historial_demo()

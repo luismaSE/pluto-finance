@@ -163,3 +163,11 @@ def test_le_ganas_a_la_inflacion(navegador, datos_demo, tmp_path):
     assert "En 3 días" in pagina2.locator("#p-resumen").inner_text()
     assert errores == [] and errores2 == []
     pagina.close(); pagina2.close()
+
+
+def test_metas_de_ahorro(navegador, datos_demo, tmp_path):
+    pagina, errores = abrir(navegador, datos_demo, tmp_path)
+    t = pagina.locator("#p-resumen").inner_text()
+    assert "metas de ahorro" in t.lower() and "Atrasada" in t and "En camino" in t
+    assert pagina.locator("#p-resumen .meta-f").count() == 3 and errores == []
+    pagina.close()

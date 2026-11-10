@@ -82,7 +82,7 @@ class Api:
         return {"ok": True}
 
     # Secciones que se guardan completas (no se mezclan): así se pueden borrar límites y tarjetas
-    _REEMPLAZABLES = {"presupuestos", "tarjetas"}
+    _REEMPLAZABLES = {"presupuestos", "tarjetas", "objetivos"}
 
     def reemplazar_config(self, seccion: str, valor: dict) -> dict:
         if seccion not in self._REEMPLAZABLES:

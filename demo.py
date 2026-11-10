@@ -27,18 +27,34 @@ def snapshot_demo() -> Snapshot:
         Inversion("Galicia", "Fima Premium", "FCI Money Market", "FCI", 0, 1_800_000, "ARS"),
         Inversion("Galicia", "Plazo fijo 30d", "Plazo fijo tradicional", "PLAZO FIJO", 0, 1_500_000, "ARS"),
     ]
-    comercios = [("Coto", 18000, 65000), ("Carrefour", 12000, 48000), ("Rappi", 6000, 22000), ("PedidosYa", 7000, 25000),
-                 ("YPF", 25000, 55000), ("Uber", 3500, 12000), ("Netflix", 11999, 11999), ("Spotify", 4199, 4199),
-                 ("Disney+", 8999, 8999), ("Edenor", 38000, 38000), ("Personal", 21000, 21000),
-                 ("Farmacity", 8000, 30000), ("MercadoLibre", 15000, 120000), ("Café Martínez", 4500, 9000),
-                 ("Comisión mantenimiento de cuenta", 9800, 9800), ("Percepción IVA RG 4240", 6200, 6200)]
-    for _ in range(46):
-        c, lo, hi = random.choice(comercios)
-        dia = random.randint(1, hoy.day)
-        ent = random.choice(["Galicia", "Galicia", "Mercado Pago"])
-        s.movimientos.append(Movimiento(hoy.replace(day=dia).isoformat(), ent, c, -round(random.uniform(lo, hi), 2), "ARS"))
-    s.movimientos.append(Movimiento(hoy.replace(day=1).isoformat(), "Galicia", "Acreditación de haberes", 3_400_000, "ARS"))
-    ini, hoy_iso = hoy.replace(day=1).isoformat(), hoy.isoformat()
+    variables = [("Coto", 18000, 65000), ("Carrefour", 12000, 48000), ("Rappi", 6000, 22000), ("PedidosYa", 7000, 25000),
+                 ("YPF", 25000, 55000), ("Uber", 3500, 12000), ("Farmacity", 8000, 30000), ("MercadoLibre", 15000, 120000),
+                 ("Café Martínez", 4500, 9000)]
+    # Pagos que se repiten todos los meses: (descripción, día, monto del mes actual, monto de los meses anteriores)
+    fijos = [("Netflix", 3, 14_999, 11_999), ("Spotify", 5, 4_199, 4_199), ("Disney+", 8, 8_999, 8_999),
+             ("Edenor", 12, 41_500, 38_000), ("Personal", 15, 21_000, 21_000),
+             ("Comisión mantenimiento de cuenta", 1, 9_800, 9_800), ("Percepción IVA RG 4240", 2, 6_200, 6_200)]
+
+    def mes_atras(n):
+        y, m = hoy.year, hoy.month - n
+        while m <= 0:
+            y, m = y - 1, m + 12
+        return date(y, m, 1)
+
+    import calendar
+    for n in (2, 1, 0):
+        ini = mes_atras(n)
+        ultimo = hoy.day if n == 0 else calendar.monthrange(ini.year, ini.month)[1]
+        for _ in range(46 if n == 0 else 70):
+            c, lo, hi = random.choice(variables)
+            dia = random.randint(1, ultimo)
+            ent = random.choice(["Galicia", "Galicia", "Mercado Pago"])
+            s.movimientos.append(Movimiento(ini.replace(day=dia).isoformat(), ent, c, -round(random.uniform(lo, hi), 2), "ARS"))
+        for c, dia, actual, antes in fijos:
+            if dia <= ultimo:
+                s.movimientos.append(Movimiento(ini.replace(day=dia).isoformat(), "Galicia", c, -float(actual if n == 0 else antes), "ARS"))
+        s.movimientos.append(Movimiento(ini.isoformat(), "Galicia", "Acreditación de haberes", 3_400_000 if n == 0 else 3_150_000, "ARS"))
+    ini, hoy_iso = mes_atras(2).isoformat(), hoy.isoformat()
     for c in s.cuentas + s.inversiones:
         c.al = hoy_iso
     s.cobertura = [{"entidad": "Galicia", "cuenta": "Caja de ahorro en pesos", "desde": ini, "hasta": hoy_iso},

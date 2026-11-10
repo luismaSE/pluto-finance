@@ -302,6 +302,17 @@ details.mas b { color: var(--text); font-weight: 600; }
 .infla .bajada b { font-weight: 700; }
 .linea-punt { width: 18px; border-top: 2px dashed var(--text-3); display: inline-block; }
 @media (max-width: 720px) { .infla { grid-template-columns: 1fr; gap: 14px; } .infla-ic { width: 40px; height: 40px; font-size: 20px; } }
+
+/* Metas de ahorro */
+.meta-f { padding: 10px 0; border-bottom: 1px solid var(--grid); display: grid; gap: 6px; }
+.meta-f:last-of-type { border-bottom: 0; }
+.meta-cab { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 14px; }
+.meta-est { font-size: 11px; font-weight: 700; color: var(--c); }
+.meta-est::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--c); margin-right: 5px; vertical-align: 1px; }
+.meta-cuando { margin-left: auto; font-size: 12px; }
+.meta-num { font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.meta-lin { font-size: 13px; color: var(--text-2); }
+.meta-lin b { color: var(--text); }
 </style>
 </head>
 <body>
@@ -488,6 +499,35 @@ function lineaPatrimonio(C) {
     <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Patrimonio contra inflación">${g}</svg>`;
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Evolución del patrimonio">${g}</svg>
     <p class="nota">Desde el ${dm(H0[0].fecha.slice(0, 10))}: <b class="${d >= 0 ? 'pos' : 'neg'}">${pct(d)}</b> en pesos${H0[0].patrimonio_usd && H0[H0.length - 1].patrimonio_usd ? ` · ${pct((H0[H0.length - 1].patrimonio_usd - H0[0].patrimonio_usd) / H0[0].patrimonio_usd * 100)} en dólares` : ''}.</p>`;
+}
+
+// Metas de ahorro (calculadas en objetivos.py)
+const EST_META = { cumplida: ['var(--good)', 'Cumplida'], en_camino: ['var(--good)', 'En camino'], atrasada: ['var(--warning)', 'Atrasada'],
+  vencida: ['var(--critical)', 'Vencida'], ultimo_mes: ['var(--warning)', 'Último mes'], sin_datos: ['var(--text-3)', 'Sin datos de ahorro'] };
+const mesAnio = iso => isoAFecha(iso).toLocaleDateString('es-AR', { month: 'short', year: 'numeric' });
+function metasHTML() {
+  const O = R.objetivos;
+  if (!O?.metas?.length) return '';
+  const mon = (v, m) => m === 'USD' ? money(v, 'USD') : compact(v);
+  const filas = O.metas.map(x => {
+    const [c, txt] = EST_META[x.estado] || EST_META.sin_datos;
+    let linea = '';
+    if (x.estado === 'en_camino') linea = `Ahorrá ${M(`<b>${compact(x.por_mes_ars)}</b>`)} por mes y llegás.`;
+    else if (x.estado === 'atrasada') linea = `Necesitás ${M(compact(x.por_mes_ars))} por mes: te faltan ${M(`<b>${compact(x.falta_por_mes_ars)}</b>`)}.${x.llegarias ? ` A este ritmo llegás en ${esc(mesAnio(x.llegarias))}.` : ''}`;
+    else if (x.estado === 'vencida') linea = `Pasó la fecha y faltan ${M(mon(x.faltante, x.moneda))}.`;
+    else if (x.estado === 'ultimo_mes') linea = `Queda menos de un mes y faltan ${M(mon(x.faltante, x.moneda))}.`;
+    else if (x.estado === 'sin_datos') linea = x.por_mes ? `Necesitás ${M(mon(x.por_mes, x.moneda))} por mes. Con resúmenes de meses completos te digo si llegás.` : '';
+    const cuando = x.estado === 'cumplida' ? '' : x.meses_restantes >= 1 ? `faltan ${nf0.format(x.meses_restantes)} ${Math.round(x.meses_restantes) === 1 ? 'mes' : 'meses'}` : '';
+    const color = x.estado === 'cumplida' || x.estado === 'en_camino' ? 'var(--good)' : x.estado === 'sin_datos' ? 'var(--seq)' : 'var(--warning)';
+    return `<div class="meta-f">
+      <div class="meta-cab"><b>${esc(x.nombre)}</b><span class="meta-est" style="--c:${c}">${txt}</span><span class="muted meta-cuando">${esc(mesAnio(x.fecha))}${cuando ? ' · ' + cuando : ''}</span></div>
+      <div class="lim-barra"><div style="width:${x.pct.toFixed(1)}%;background:${color}"></div></div>
+      <div class="meta-num">${M(mon(x.ahorrado, x.moneda))} de ${M(mon(x.monto, x.moneda))} · ${nf0.format(x.pct)}%</div>
+      ${linea ? `<div class="meta-lin">${linea}</div>` : ''}</div>`;
+  }).join('');
+  const A = O.ahorro_mensual;
+  return `<div class="card c6"><h2>Metas de ahorro</h2>${filas}
+    <p class="nota">${A ? `Ahorrás en promedio ${M(compact(A.promedio))} por mes (${A.meses.map(m => nombreMes(m, true)).join(', ')}). Se reparte primero a la meta más cercana.` : 'Para saber si llegás, hacen falta resúmenes de al menos un mes completo con ingresos.'} Lo ya ahorrado se carga en Configuración → Metas.</p></div>`;
 }
 
 // ¿Le ganás a la inflación? Patrimonio contra inflación y dólar (calculado en rendimiento.py)
@@ -696,8 +736,9 @@ function renderResumen() {
       <div class="value">${M(compact(R.inversiones_ars))}</div>
       <div class="note">${R.inversiones.length} posiciones · ${total ? nf0.format(R.inversiones_ars / total * 100) : 0}%</div></div>
 
+    ${metasHTML()}
     ${tarjetasHTML()}
-    <div class="card ${tarjetasHTML() ? 'c6' : ''}">
+    <div class="card ${(tarjetasHTML() ? 1 : 0) + (metasHTML() ? 1 : 0) === 1 ? 'c6' : ''}">
       <h2>Lo más importante</h2>
       ${A ? notaAnalisisAnterior(A) + (A.titular ? `<div class="titular" style="font-size:17px;margin-bottom:12px">${esc(A.titular)}</div>` : '') + alertasHTML(A.alertas, 3) + `<button class="link" data-ir="analisis">Ver análisis completo →</button>`
           + (DATA.mercado?.analisis?.titular ? `<div class="mk-mini"><span class="muted">Mercado:</span> ${esc(DATA.mercado.analisis.titular)} <button class="link" data-ir="mercado">Ver →</button></div>` : '')

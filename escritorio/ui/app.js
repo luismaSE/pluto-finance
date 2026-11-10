@@ -19,6 +19,41 @@ function leerLimites() {
   return { total: parseFloat($('#lim-total').value) || 0, categorias: cats };
 }
 
+// ---------- metas de ahorro ----------
+function filaObjetivo(o = {}) {
+  const d = document.createElement('div');
+  d.className = 'objetivo-cfg';
+  d.innerHTML = `<label>Meta<input data-o="nombre" placeholder="Viaje" value="${esc(o.nombre || '')}"></label>
+    <label>Monto<input data-o="monto" type="number" min="0" step="any" value="${o.monto || ''}"></label>
+    <label>Moneda<select data-o="moneda"><option value="ARS">Pesos</option><option value="USD" ${o.moneda === 'USD' ? 'selected' : ''}>Dólares</option></select></label>
+    <label>Para cuándo<input data-o="fecha" type="date" value="${esc(o.fecha || '')}"></label>
+    <label>Ya ahorrado<input data-o="ahorrado" type="number" min="0" step="any" value="${o.ahorrado || ''}" placeholder="0"></label>
+    <button class="btn peligro" type="button" title="Quitar">Quitar</button>`;
+  d.querySelector('button').onclick = () => d.remove();
+  $('#objetivos-filas').appendChild(d);
+}
+function llenarObjetivos(c) {
+  $('#objetivos-filas').innerHTML = '';
+  Object.values(c.objetivos || {}).forEach(filaObjetivo);
+}
+$('#btn-agregar-objetivo').onclick = () => filaObjetivo();
+function leerObjetivos() {
+  const valor = {};
+  for (const f of $$('.objetivo-cfg')) {
+    const g = k => f.querySelector(`[data-o="${k}"]`).value.trim();
+    const nombre = g('nombre');
+    if (!nombre) continue;
+    const monto = parseFloat(g('monto')), ahorrado = parseFloat(g('ahorrado')) || 0;
+    if (!(monto > 0)) return { error: `${nombre}: cargá el monto de la meta` };
+    if (!g('fecha')) return { error: `${nombre}: elegí para cuándo` };
+    if (ahorrado < 0) return { error: `${nombre}: lo ahorrado no puede ser negativo` };
+    let id = nombre.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'meta';
+    while (valor[id]) id += '_2';
+    valor[id] = { nombre, monto, moneda: g('moneda'), fecha: g('fecha'), ahorrado };
+  }
+  return { valor };
+}
+
 // ---------- tarjetas ----------
 function filaTarjeta(t = {}) {
   const d = document.createElement('div');
@@ -192,6 +227,7 @@ async function refrescar() {
   armarConfigDinamica();
   llenarConfig(c);
   llenarLimites(c);
+  llenarObjetivos(c);
   llenarTarjetas(c);
   pintarSecretos();
   if (EST.primer_uso && !window._bienvenidaMostrada) { window._bienvenidaMostrada = true; abrirBienvenida(); }
@@ -414,9 +450,12 @@ $('#btn-guardar').onclick = async () => {
   }
   const tarjetas = leerTarjetas();
   if (tarjetas.error) { $('#msg-guardar').className = 'msg err'; $('#msg-guardar').textContent = tarjetas.error; return; }
+  const objetivos = leerObjetivos();
+  if (objetivos.error) { $('#msg-guardar').className = 'msg err'; $('#msg-guardar').textContent = objetivos.error; return; }
   await API.guardar_config(c);
   await API.reemplazar_config('presupuestos', leerLimites());
   await API.reemplazar_config('tarjetas', tarjetas.valor);
+  await API.reemplazar_config('objetivos', objetivos.valor);
   $('#msg-guardar').className = 'msg ok'; $('#msg-guardar').textContent = '✓ Guardado';
   setTimeout(() => $('#msg-guardar').textContent = '', 2500);
   await refrescar();

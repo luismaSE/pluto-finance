@@ -34,6 +34,8 @@ DEFAULT = {
     # Límites de gasto mensuales (0 = sin límite) y metas
     "presupuestos": {"total": 0, "categorias": {}},
     "metas": {"fondo_emergencia_meses": 6},
+    # Metas de ahorro: {"viaje": {"nombre": "Viaje", "monto": 3000, "moneda": "USD", "fecha": "2027-07-01", "ahorrado": 800}}
+    "objetivos": {},
     # Tarjetas: {"visa_galicia": {"nombre": "Visa Galicia", "cierre": 24, "vencimiento": 6}}
     "tarjetas": {},
     # Reglas propias de categoría: {"transferencia enviada verduleria don pepe": "Supermercado"}
