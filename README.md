@@ -19,10 +19,10 @@ Necesitás **Python 3.11 o más nuevo** ([python.org](https://www.python.org/dow
 
 **Linux / macOS**
 ```bash
-git clone https://github.com/luismaSE/wallet-dashboard.git
+git clone https://github.com/luismaSE/pluto-finance.git
 ```
 ```bash
-cd wallet-dashboard && ./instalar.sh
+cd pluto-finance && ./instalar.sh
 ```
 ```bash
 ./iniciar.sh
