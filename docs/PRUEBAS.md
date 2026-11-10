@@ -1,6 +1,6 @@
 # Lista de pruebas manuales
 
-Las pruebas automáticas (`python -m pytest`) cubren los cálculos, los lectores de PDF y el cifrado. Esto es lo que hay que probar a mano en cada equipo antes de un release.
+Las pruebas automáticas (`python -m pytest`) cubren los cálculos, los lectores de PDF, el cifrado y el dashboard abierto en un navegador (todas las pestañas, celular, modo claro y análisis viejos; necesita `pip install playwright && python -m playwright install chromium`, si no se saltean). Esto es lo que hay que probar a mano en cada equipo antes de un release.
 
 ## App de escritorio
 - [ ] `./instalar.sh` (o `instalar.bat`) termina sin errores y crea el acceso directo "Pluto" con el ícono de la gema.
