@@ -233,7 +233,7 @@ Código bajo licencia [MIT](LICENSE). Las tipografías incluidas usan la SIL Ope
 
 ## Publicar una versión
 1. Actualizá el número en `VERSION` y agregá los cambios en `CHANGELOG.md`.
-2. Subí los cambios y creá el release en GitHub con ese número como tag (por ejemplo `1.3.1`). El APK y el ejecutable de Windows se compilan y se adjuntan solos.
+2. Subí los cambios y creá el release en GitHub con ese número como tag (por ejemplo `1.4.0`). El APK y el ejecutable de Windows se compilan y se adjuntan solos.
 
 ## Estructura
 | Archivo | Qué hace |

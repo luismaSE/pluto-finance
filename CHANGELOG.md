@@ -1,16 +1,11 @@
 # Cambios
 
-## Próxima versión
+## 1.4.0
 
 **Nuevo**
 - **¿Le ganás a la inflación?** Compara tu patrimonio con la inflación oficial y con el dólar MEP desde tu primera actualización, con un gráfico de lo que necesitabas para empatarle.
 - **Metas de ahorro:** monto en pesos o dólares, fecha y lo ya ahorrado. Pluto te dice cuánto ahorrar por mes y, con tus resúmenes, si llegás o cuándo llegarías.
 - **Pagos fijos y aumentos:** detecta suscripciones, servicios y comisiones que se repiten cada mes y avisa cuando suben ("Netflix subió 25%").
-
-**Arreglos**
-- Los números del eje del gráfico de patrimonio se cortaban en el celular.
-
-## 1.3.1
 
 **Mejoras**
 - **Análisis y Mercado más visuales:** titular de una línea, puntaje de salud financiera, indicadores con semáforo, termómetro de riesgo contra tu perfil, tarjetas de acción y distribución en barras. Los detalles quedan plegados ("Por qué", "Cómo") para leer de un vistazo.
@@ -18,6 +13,7 @@
 - La respuesta de la IA se revisa antes de mostrarla: números fuera de rango, listas largas o recomendaciones sin sentido ya no llegan al dashboard.
 
 **Arreglos**
+- Los números del eje del gráfico de patrimonio se cortaban en el celular.
 - La pestaña Mercado aparecía vacía cuando no había análisis de mercado.
 - Íconos de alerta legibles en amarillo y naranja (antes eran blancos y casi no se veían).
 

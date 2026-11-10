@@ -1,6 +1,11 @@
 **Pluto** — tus bancos, billeteras y brokers en un solo lugar.
 
-Esta versión hace que el **análisis con IA y el de mercado se lean de un vistazo**: titular de una línea, puntaje de salud financiera, semáforos, termómetro de riesgo y tarjetas de acción, con el detalle plegado. La app de escritorio muestra el análisis de mercado en Inicio. Pluto sigue solo recomendando: nunca opera. El detalle está en [CHANGELOG.md](../../blob/main/CHANGELOG.md).
+Esta versión suma tres herramientas nuevas:
+- **¿Le ganás a la inflación?** Tu patrimonio comparado con la inflación oficial y con el dólar MEP desde tu primera actualización.
+- **Metas de ahorro:** cuánto ahorrar por mes para cada meta y si llegás a tiempo.
+- **Pagos fijos y aumentos:** tus suscripciones y servicios, y un aviso cuando alguno sube.
+
+Además, el **análisis con IA y el de mercado se leen de un vistazo** (titular, puntaje, semáforos y tarjetas de acción) y la app de escritorio muestra el análisis de mercado en Inicio. Pluto sigue solo recomendando: nunca opera. El detalle está en [CHANGELOG.md](../../blob/main/CHANGELOG.md).
 
 ### Instalar la app Android
 1. Desde el celular, descargá `pluto-*.apk` de este release.
