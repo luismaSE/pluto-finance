@@ -1,5 +1,15 @@
 # Cambios
 
+## Próxima versión
+
+**Nuevo**
+- **¿Le ganás a la inflación?** Compara tu patrimonio con la inflación oficial y con el dólar MEP desde tu primera actualización, con un gráfico de lo que necesitabas para empatarle.
+- **Metas de ahorro:** monto en pesos o dólares, fecha y lo ya ahorrado. Pluto te dice cuánto ahorrar por mes y, con tus resúmenes, si llegás o cuándo llegarías.
+- **Pagos fijos y aumentos:** detecta suscripciones, servicios y comisiones que se repiten cada mes y avisa cuando suben ("Netflix subió 25%").
+
+**Arreglos**
+- Los números del eje del gráfico de patrimonio se cortaban en el celular.
+
 ## 1.3.1
 
 **Mejoras**
