@@ -150,3 +150,16 @@ def test_la_app_abre_una_pestana(navegador, datos_demo, tmp_path):
     pagina.wait_for_timeout(100)
     assert pagina.locator("#p-mercado").is_visible() and errores == []
     pagina.close()
+
+
+def test_le_ganas_a_la_inflacion(navegador, datos_demo, tmp_path):
+    pagina, errores = abrir(navegador, datos_demo, tmp_path)
+    t = pagina.locator("#p-resumen").inner_text()
+    assert "inflación" in t and pagina.locator("#p-resumen .infla-ver").count() == 1
+    assert pagina.locator("#p-resumen .linea-punt").count() == 1       # línea "para empatar"
+    d = copy.deepcopy(datos_demo)
+    d["resumen"]["contra_inflacion"] = {"faltan_dias": 3, "desde": "2026-01-01"}
+    pagina2, errores2 = abrir(navegador, d, tmp_path)
+    assert "En 3 días" in pagina2.locator("#p-resumen").inner_text()
+    assert errores == [] and errores2 == []
+    pagina.close(); pagina2.close()

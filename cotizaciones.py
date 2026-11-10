@@ -1,5 +1,7 @@
 """Cotizaciones del dólar (dolarapi.com) y referencias de tasas e inflación (argentinadatos.com).
 APIs públicas, sin credenciales."""
+from datetime import date
+
 import requests
 
 from utils import parse_monto
@@ -53,9 +55,12 @@ def referencias(config_ref: dict | None = None) -> dict:
     try:
         r = requests.get("https://api.argentinadatos.com/v1/finanzas/indices/inflacion", timeout=10)
         r.raise_for_status()
-        ult = sorted(r.json(), key=lambda x: x.get("fecha", ""))[-1]
+        datos = sorted(r.json(), key=lambda x: x.get("fecha", ""))
+        ult = datos[-1]
         ref["inflacion_mensual"] = float(ult["valor"]) / 100
         ref["inflacion_mes"] = str(ult["fecha"])[:7]
+        # últimos 3 años, para comparar el patrimonio con la inflación (rendimiento.py)
+        ref["inflacion_serie"] = [[str(x["fecha"])[:7], float(x["valor"]) / 100] for x in datos[-36:]]
     except Exception:
         pass
     if "tna_plazo_fijo" not in ref and _tasa(cfg.get("tna_plazo_fijo")):
@@ -64,4 +69,5 @@ def referencias(config_ref: dict | None = None) -> dict:
     if "inflacion_mensual" not in ref and _tasa(cfg.get("inflacion_mensual")):
         ref["inflacion_mensual"] = _tasa(cfg["inflacion_mensual"])
         ref["inflacion_mes"] = "configuración"
+        ref["inflacion_serie"] = [[date.today().strftime("%Y-%m"), ref["inflacion_mensual"]]]
     return ref

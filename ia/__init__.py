@@ -29,6 +29,8 @@ saldo en "al". Los gastos están agrupados por mes en "gastos_por_mes": un mes p
 solo parcialmente o por una sola entidad. Tenelo en cuenta y no saques conclusiones de meses
 incompletos sin aclararlo. "Pago de tarjeta" es el pago del resumen de la tarjeta (no tenemos el
 detalle de consumos). Las transferencias entre cuentas propias ya están excluidas de los totales.
+"contra_inflacion" compara el patrimonio de la primera actualización con el de hoy contra la inflación del
+período ("real_pct" es la variación real); incluye lo ahorrado y gastado, no es solo rendimiento.
 
 Analizá: liquidez ociosa en pesos frente a la inflación, exposición por moneda, concentración de la
 cartera, gasto mensual frente a ingresos, categorías altas o llamativas, suscripciones, comisiones e
@@ -53,6 +55,8 @@ que ganaría o ahorraría por mes si sigue la recomendación (0 si no aplica).""
 
 def payload(resumen: dict, cotizaciones: dict, referencias: dict | None = None) -> str:
     r = json.loads(json.dumps(resumen, default=str))
+    if isinstance(r.get("contra_inflacion"), dict):
+        r["contra_inflacion"].pop("serie", None)        # el gráfico no le sirve a la IA
     for mes in r.get("gastos_por_mes", {}).values():
         for m in mes.get("top", []):
             m["descripcion"] = re.sub(r"\d{6,}", "…", m["descripcion"])  # sin CBU/CUIT/nros. de operación

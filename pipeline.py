@@ -171,7 +171,9 @@ def ejecutar(o: Opciones, log=print) -> dict:
     if o.demo:
         from demo import snapshot_demo
         s = snapshot_demo()
-        refs = {"tna_plazo_fijo": 0.30, "tna_fuente": "demo", "inflacion_mensual": 0.025, "inflacion_mes": "demo"}
+        from demo import inflacion_demo
+        refs = {"tna_plazo_fijo": 0.30, "tna_fuente": "demo", "inflacion_mensual": 0.025, "inflacion_mes": "demo",
+                "inflacion_serie": inflacion_demo()}
     else:
         if o.descargas:
             from importar import importar
@@ -201,7 +203,14 @@ def ejecutar(o: Opciones, log=print) -> dict:
     r["presupuestos"] = presupuestos.evaluar(cfg["presupuestos"], r["gastos_por_mes"])
     r["metas"] = cfg["metas"]
     r["avisos"] = avisos.generar(r, r["tarjetas"], r["presupuestos"])
-    hist = historial.cargar() if o.demo else historial.agregar(r, s.estado_fuentes)
+    if o.demo:
+        from demo import historial_demo
+        hist = historial_demo()
+    else:
+        hist = historial.agregar(r, s.estado_fuentes)
+    # ¿Le ganás a la inflación? (también le llega al análisis con IA)
+    import rendimiento
+    r["contra_inflacion"] = rendimiento.contra_inflacion(historial.por_dia(hist), refs.get("inflacion_serie"))
 
     if not o.demo:
         nuevo = None

@@ -142,3 +142,30 @@ def analisis_mercado_demo() -> dict:
         ],
         "proveedor": "demo", "modelo": "", "con_noticias": False, "fecha": date.today().isoformat() + "T10:00",
     }
+
+
+def historial_demo() -> list:
+    """Ocho meses de actualizaciones ficticias, para la evolución del patrimonio."""
+    from datetime import timedelta
+    hoy = date.today()
+    rnd = random.Random(3)
+    out, p, mep = [], 21_500_000, 1180
+    for semana in range(34, -1, -1):
+        d = hoy - timedelta(weeks=semana)
+        p *= 1 + rnd.gauss(0.009, 0.012)
+        mep *= 1 + rnd.gauss(0.006, 0.004)
+        out.append({"fecha": d.isoformat() + "T09:00", "patrimonio_ars": round(p), "patrimonio_usd": round(p / mep),
+                    "tipo_cambio_mep": round(mep, 2), "liquidez_ars": round(p * 0.38), "inversiones_ars": round(p * 0.62)})
+    return out
+
+
+def inflacion_demo() -> list:
+    """Inflación mensual ficticia de los últimos 10 meses (el último mes todavía sin publicar)."""
+    hoy = date.today()
+    out = []
+    for i in range(10, 0, -1):
+        y, m = hoy.year, hoy.month - i
+        while m <= 0:
+            y, m = y - 1, m + 12
+        out.append([f"{y}-{m:02d}", round(0.034 - i * 0.0009, 4)])
+    return out
