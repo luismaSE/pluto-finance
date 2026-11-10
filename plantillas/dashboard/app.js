@@ -81,13 +81,15 @@ function hbars(rows, { color, fmt = compact, total } = {}) {
   }).join('') + '</div>';
 }
 
+// Tinta legible sobre cada color de fondo: oscura sobre amarillo y naranja claro, blanca sobre el resto
+const tinta = c => /warning|serious/.test(c) ? '#241a00' : '#fff';
 const NIVEL = { alta: ['var(--critical)', '!', 0], media: ['var(--serious)', '!', 1], baja: ['var(--warning)', 'i', 2] };
 function alertasHTML(alertas, max) {
   if (!alertas?.length) return '<div class="empty">Sin alertas.</div>';
   const orden = alertas.slice().sort((a, b) => (NIVEL[a.nivel] || NIVEL.baja)[2] - (NIVEL[b.nivel] || NIVEL.baja)[2]);
   return orden.slice(0, max || orden.length).map(a => {
     const [c, i] = NIVEL[a.nivel] || NIVEL.baja;
-    return `<div class="alert"><div class="ico" style="background:${c}">${i}</div>
+    return `<div class="alert"><div class="ico" style="background:${c};color:${tinta(c)}">${i}</div>
       <div><div class="t">${esc(a.titulo)}<span class="lvl">${esc(a.nivel)}</span></div><div class="d">${esc(a.detalle)}</div></div></div>`;
   }).join('');
 }
@@ -502,7 +504,7 @@ function renderAnalisis() {
     </div>
     ${A.indicadores?.length ? `<div class="card"><div class="tiles">${A.indicadores.map(i => {
       const [c, ic, txt] = ESTADO[i.estado] || ESTADO.regular;
-      return `<div class="tile"><div class="tile-cab"><span class="estado" style="background:${c}" aria-label="${txt}">${ic}</span>${esc(i.nombre)}</div><div class="tile-v">${M(esc(i.valor || '—'))}</div></div>`;
+      return `<div class="tile"><div class="tile-cab"><span class="estado" style="background:${c};color:${tinta(c)}" aria-label="${txt}">${ic}</span>${esc(i.nombre)}</div><div class="tile-v">${M(esc(i.valor || '—'))}</div></div>`;
     }).join('')}</div></div>` : ''}
     <div class="card c6"><h2>Qué hacer</h2>${recos.length ? recos.map(r => `<div class="accion-f">
         <span class="flecha">→</span>
@@ -511,7 +513,7 @@ function renderAnalisis() {
           ${mas('Cómo', esc(r.detalle))}</div></div>`).join('') : '<div class="empty">Sin recomendaciones.</div>'}</div>
     <div class="card c6"><h2>Alertas</h2>${alertas.length ? alertas.map(a => {
       const [c, i] = NIVEL[a.nivel] || NIVEL.baja;
-      return `<div class="accion-f"><span class="ico-n" style="background:${c}">${i}</span>
+      return `<div class="accion-f"><span class="ico-n" style="background:${c};color:${tinta(c)}">${i}</span>
         <div><div class="t">${esc(a.titulo)}</div><div class="meta"><span class="muted">${esc(a.nivel)}</span></div>${mas('Detalle', esc(a.detalle))}</div></div>`;
     }).join('') : '<div class="empty">Sin alertas.</div>'}</div>
     ${A.observaciones?.length ? `<div class="card"><h2>Para tener en cuenta</h2><div class="chips">${A.observaciones.map(x => `<span>${esc(x)}</span>`).join('')}</div>
@@ -524,7 +526,7 @@ const MK = DATA.mercado;
 const ACCION = { comprar: ['var(--good)', '▲'], aumentar: ['var(--good)', '▲'], vender: ['var(--critical)', '▼'],
   reducir: ['var(--serious)', '▼'], cambiar: ['var(--s1)', '⇄'], mantener: ['var(--text-3)', '='] };
 const accionDe = a => ACCION[(a || '').toLowerCase()] || ACCION.mantener;
-const chipAccion = a => { const [bg, ic] = accionDe(a); return `<span class="chip" style="background:${bg}">${ic} ${esc(a || '—')}</span>`; };
+const chipAccion = a => { const [bg, ic] = accionDe(a); return `<span class="chip" style="background:${bg};color:${tinta(bg)}">${ic} ${esc(a || '—')}</span>`; };
 const nivelPts = n => { const k = { baja: 1, media: 2, alta: 3 }[n] || 0; return `<span class="pts" aria-label="${esc(n || '?')}">${[1, 2, 3].map(i => `<i class="${i <= k ? 'on' : ''}"></i>`).join('')}</span>`; };
 const IMPACTO = { positivo: ['var(--good)', '▲', 'pos'], negativo: ['var(--critical)', '▼', 'neg'], neutral: ['var(--text-3)', '●', 'muted'],
   incierto: ['var(--warning)', '?', 'muted'], mixto: ['var(--warning)', '◆', 'muted'] };
@@ -563,7 +565,7 @@ function recoTile(r) {
   const [c, ic] = accionDe(r.accion);
   const detalle = [r.motivo && `<p><b>Por qué:</b> ${esc(r.motivo)}</p>`, r.riesgos && `<p><b>Riesgos:</b> ${esc(r.riesgos)}</p>`,
     r.horizonte && `<p><b>Plazo:</b> ${esc(r.horizonte)}</p>`].filter(Boolean).join('');
-  return `<div class="reco-t" style="--c:${c}">
+  return `<div class="reco-t" style="--c:${c};--fc:${tinta(c)}">
     <div class="reco-cab"><span class="reco-ic">${ic}</span><span class="reco-acc">${esc(r.accion || '')}</span>${nivelPts(r.confianza)}</div>
     <div class="reco-act">${esc(r.activo)}${r.por ? `<span class="muted"> → </span>${esc(r.por)}` : ''}</div>
     ${r.titulo ? `<div class="reco-tit">${esc(r.titulo)}</div>` : ''}
@@ -575,7 +577,7 @@ function noticiasHTML(A) {
   const ns = A.noticias || [];
   if (!ns.length) return `<div class="empty">${A.con_noticias === false ? 'Este proveedor de IA no busca en la web. Con Claude Code o la API de Anthropic se suman noticias.' : 'Sin noticias relevantes para tus activos.'}</div>`;
   return ns.map(n => { const [c, ic] = IMPACTO[n.impacto] || IMPACTO.neutral;
-    return `<div class="accion-f"><span class="ico-n" style="background:${c}" aria-label="${esc(n.impacto || '')}">${ic}</span>
+    return `<div class="accion-f"><span class="ico-n" style="background:${c};color:${tinta(c)}" aria-label="${esc(n.impacto || '')}">${ic}</span>
       <div><div class="t">${esc(n.titulo)}</div>
       <div class="meta">${(n.activos || []).map(a => `<span class="tag">${esc(a)}</span>`).join('')}<span class="muted">${esc(n.fuente || '')}${n.fecha ? ' · ' + esc(dm(n.fecha)) : ''}</span></div>
       ${mas('Qué significa', esc(n.que_significa))}</div></div>`; }).join('');
@@ -587,7 +589,7 @@ function escenariosHTML(es) {
     const tipo = IMPACTO[e.efecto] ? e.efecto : 'mixto';
     const [c, ic] = IMPACTO[tipo];
     const detalle = e.detalle || (IMPACTO[e.efecto] ? '' : e.efecto);
-    return `<div class="esc" style="--c:${c}"><div class="esc-cab"><span class="reco-ic">${ic}</span><span class="muted">Probabilidad</span>${nivelPts(e.probabilidad)}</div>
+    return `<div class="esc" style="--c:${c};--fc:${tinta(c)}"><div class="esc-cab"><span class="reco-ic">${ic}</span><span class="muted">Probabilidad</span>${nivelPts(e.probabilidad)}</div>
       <div class="t">${esc(e.escenario)}</div>${detalle ? `<div class="d">${esc(detalle)}</div>` : ''}${mas('Qué considerar', esc(e.que_considerar))}</div>`;
   }).join('') + '</div>';
 }

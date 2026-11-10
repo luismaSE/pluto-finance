@@ -231,9 +231,8 @@ details.mas b { color: var(--text); font-weight: 600; }
 .escala { position: relative; display: flex; gap: 3px; padding-bottom: 16px; }
 .escala i { flex: 1; height: 10px; border-radius: 3px; background: var(--border); }
 .escala i.on { background: var(--accent); }
-.escala .marca { position: absolute; top: 12px; transform: translateX(-50%); font-size: 10px; color: var(--text-2); white-space: nowrap; }
+.escala .marca { position: absolute; top: 10px; transform: translateX(-50%); font-size: 10px; color: var(--text-2); white-space: nowrap; }
 .escala .marca::before { content: '▲'; display: block; text-align: center; font-size: 8px; line-height: 1; color: var(--text); }
-.escala .marca { top: 10px; }
 .sent { font-weight: 700; font-size: 14px; }
 .chip { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 7px; border-radius: 6px; margin-right: 8px; color: #fff; }
 .pts { display: inline-flex; gap: 3px; }
@@ -242,7 +241,7 @@ details.mas b { color: var(--text); font-weight: 600; }
 .recos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
 .reco-t, .esc { background: var(--surface-2); border-radius: 12px; padding: 14px; border-top: 3px solid var(--c); min-width: 0; }
 .reco-cab, .esc-cab { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-.reco-ic { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--c); color: #fff; font-size: 12px; font-weight: 800; }
+.reco-ic { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--c); color: var(--fc, #fff); font-size: 12px; font-weight: 800; }
 .reco-acc { text-transform: uppercase; letter-spacing: .05em; font-weight: 700; color: var(--text-2); font-size: 11px; flex: 1; }
 .reco-act { font-family: var(--f-display); font-size: 22px; font-weight: 800; margin-top: 10px; letter-spacing: -0.02em; }
 .reco-tit { font-size: 13px; color: var(--text-2); margin-top: 2px; }
