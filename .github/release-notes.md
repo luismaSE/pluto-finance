@@ -1,6 +1,6 @@
 **Pluto** — tus bancos, billeteras y brokers en un solo lugar.
 
-Esta versión suma un **análisis de mercado con IA** (recomendaciones, noticias y escenarios; Pluto solo recomienda, nunca opera), límites de gasto, cierres y vencimientos de tarjetas, categorías propias, avisos y un ejecutable de Windows. La app del celular ya no tiene barra superior. El detalle está en [CHANGELOG.md](../../blob/main/CHANGELOG.md).
+Esta versión hace que el **análisis con IA y el de mercado se lean de un vistazo**: titular de una línea, puntaje de salud financiera, semáforos, termómetro de riesgo y tarjetas de acción, con el detalle plegado. La app de escritorio muestra el análisis de mercado en Inicio. Pluto sigue solo recomendando: nunca opera. El detalle está en [CHANGELOG.md](../../blob/main/CHANGELOG.md).
 
 ### Instalar la app Android
 1. Desde el celular, descargá `pluto-*.apk` de este release.
@@ -8,7 +8,7 @@ Esta versión suma un **análisis de mercado con IA** (recomendaciones, noticias
 3. Si aparece Play Protect: "Más detalles" → "Instalar de todos modos".
 4. En la app: Configuración → GitHub o Google Drive → Probar conexión → Guardar.
 
-> Si tenías instalada una versión anterior (Pluto 1.2 o "Mi cartera"), desinstalala antes: el identificador de la app cambió.
+> Si Android no deja instalar encima de la versión anterior, desinstalala primero: pasa cuando cambia la firma de la app.
 
 ### Instalar la app de escritorio
 - **Linux / macOS:** `./instalar.sh` y después `./iniciar.sh`.

@@ -1,5 +1,19 @@
 # Cambios
 
+## 1.3.1
+
+**Mejoras**
+- **Análisis y Mercado más visuales:** titular de una línea, puntaje de salud financiera, indicadores con semáforo, termómetro de riesgo contra tu perfil, tarjetas de acción y distribución en barras. Los detalles quedan plegados ("Por qué", "Cómo") para leer de un vistazo.
+- **Mercado en Inicio:** la app de escritorio muestra el titular del último análisis de mercado, sus recomendaciones y cuántas acertaron.
+- La respuesta de la IA se revisa antes de mostrarla: números fuera de rango, listas largas o recomendaciones sin sentido ya no llegan al dashboard.
+
+**Arreglos**
+- La pestaña Mercado aparecía vacía cuando no había análisis de mercado.
+- Íconos de alerta legibles en amarillo y naranja (antes eran blancos y casi no se veían).
+
+**Para quien colabora**
+- Pruebas del dashboard en un navegador: todas las pestañas, celular, modo claro y análisis guardados con el formato anterior. Corren en GitHub en cada cambio.
+
 ## 1.3.0
 
 **Nuevo**
@@ -12,7 +26,6 @@
 - **Ejecutable de Windows** (`Pluto-windows.zip`, experimental): no hace falta instalar Python.
 
 **Mejoras**
-- **Análisis más visual:** titular de una línea, puntaje de salud financiera, indicadores con semáforo, termómetro de riesgo contra tu perfil y distribución en barras. Los detalles quedan plegados ("Por qué", "Cómo") para leer de un vistazo.
 - App Android sin la barra superior: el contenido respeta la barra de estado y la de navegación. Configuración se abre desde la pantalla de desbloqueo y el gesto "atrás" bloquea.
 - La conexión con IOL es de solo lectura: el código bloquea cualquier pedido que no sea una consulta.
 - Mensajes de error claros (por ejemplo, "No pude conectarme a IOL" en lugar del error técnico).
